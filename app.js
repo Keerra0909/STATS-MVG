@@ -217,6 +217,8 @@ function handleAuthState() {
         document.getElementById('btn-rep-weekly').style.display = 'none';
         document.getElementById('btn-daily').style.display = 'block';
         document.getElementById('btn-team').style.display = 'block';
+        document.getElementById('btn-download-top3').style.display = 'inline-block';
+        document.getElementById('btn-download').style.display = 'inline-block';
         const savedView = localStorage.getItem('view');
         if (savedView && savedView !== 'login' && savedView !== 'rep-weekly') {
             navigate(savedView);
@@ -228,6 +230,8 @@ function handleAuthState() {
         document.getElementById('btn-rep-weekly').style.display = 'block';
         document.getElementById('btn-daily').style.display = 'none';
         document.getElementById('btn-team').style.display = 'none';
+        document.getElementById('btn-download-top3').style.display = 'none';
+        document.getElementById('btn-download').style.display = 'none';
         document.getElementById('rep-welcome-msg').innerText = `¡Hola ${currentUser.name}!`;
         
         const savedView = localStorage.getItem('view');
