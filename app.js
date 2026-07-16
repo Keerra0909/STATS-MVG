@@ -86,11 +86,11 @@ async function loadRepWeekly() {
                 <strong>${dias[i]}</strong>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">${dateStr.substring(5).replace('-', '/')}</div>
             </td>
-            <td style="text-align: center;"><input type="number" id="rep-shots-${i}" value="${stat ? stat.shots : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="rep-ventas-${i}" value="${stat ? stat.ventas : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="rep-ads-${i}" value="${stat && stat.ads ? stat.ads : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="rep-links-${i}" value="${stat && stat.links ? stat.links : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="rep-cxl-${i}" value="${stat && stat.cxl ? stat.cxl : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-shots-${i}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-ventas-${i}" value="${stat ? (stat.ventas !== undefined ? stat.ventas : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-ads-${i}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-links-${i}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-cxl-${i}" value="${stat ? (stat.cxl !== undefined ? stat.cxl : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
             <td style="text-align: center; vertical-align: middle;">
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 40px; gap: 0.5rem;">
                     ${btnHtml}
@@ -479,11 +479,11 @@ async function loadDailyEntries() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${u.name}</strong></td>
-            <td style="text-align: center;"><input type="number" id="shots-${cleanName}" value="${stat ? stat.shots : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="ventas-${cleanName}" value="${stat ? stat.ventas : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="ads-${cleanName}" value="${stat ? (stat.ads || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="links-${cleanName}" value="${stat ? (stat.links || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="cxl-${cleanName}" value="${stat ? (stat.cxl || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="shots-${cleanName}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="ventas-${cleanName}" value="${stat ? (stat.ventas !== undefined ? stat.ventas : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="ads-${cleanName}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="links-${cleanName}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="cxl-${cleanName}" value="${stat ? (stat.cxl !== undefined ? stat.cxl : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center; vertical-align: middle;">
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 40px; gap: 0.5rem;">
                     ${btnHtml}
