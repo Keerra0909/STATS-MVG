@@ -628,7 +628,9 @@ async function loadDailyEntries() {
     }
 
     const tbody = document.getElementById('daily-entry-body');
-    tbody.innerHTML = '';
+    if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem;">Cargando captura diaria... ⏳</td></tr>';
+    }
 
     const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
     let users = [];
@@ -637,10 +639,18 @@ async function loadDailyEntries() {
     });
     users.sort((a, b) => a.name.localeCompare(b.name));
     
-    for (const u of users) {
+    // Fetch all stats in parallel for massive performance boost on slow networks
+    const statPromises = users.map(u => {
         const cleanName = u.name.replace(/ /g, '_');
         const docId = `${cleanName}_${dateStr}`;
-        const statDoc = await firestore.collection('stats').doc(docId).get();
+        return firestore.collection('stats').doc(docId).get();
+    });
+    const statDocs = await Promise.all(statPromises);
+    
+    for (let i = 0; i < users.length; i++) {
+        const u = users[i];
+        const cleanName = u.name.replace(/ /g, '_');
+        const statDoc = statDocs[i];
         const stat = statDoc.exists ? statDoc.data() : null;
         
         const isLocked = !!stat;
@@ -781,6 +791,11 @@ let matrixDates = [];
 async function loadDashboard() {
     const startStr = document.getElementById('dash-start').value;
     const endStr = document.getElementById('dash-end').value;
+
+    const tbody = document.getElementById('dash-tbody');
+    if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem;">Cargando datos... ⏳</td></tr>';
+    }
 
     const startDate = new Date(startStr + 'T00:00:00');
     const endDate = new Date(endStr + 'T00:00:00');
@@ -1140,23 +1155,40 @@ function downloadImage() {
 
     const target = document.getElementById('table-card');
     
-    // Slight delay to allow button text update
     setTimeout(() => {
-        // Temporarily hide the button during screenshot
         btn.style.display = 'none';
 
         html2canvas(target, {
             backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#ffffff',
-            scale: 2, // High resolution for Retina displays/iPads
+            scale: 2,
             logging: false
-        }).then(canvas => {
-            btn.style.display = 'flex'; // Restore button
-            
-            const link = document.createElement('a');
+        }).then(async (canvas) => {
+            btn.style.display = 'flex';
             const dateStr = document.getElementById('dash-start').value;
-            link.download = `Reporte_${dateStr}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            const filename = `Reporte_${dateStr}.png`;
+            const dataUrl = canvas.toDataURL('image/png');
+            
+            try {
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                const file = new File([blob], filename, { type: 'image/png' });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file] });
+                } else {
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                }
+            } catch(e) {
+                console.error(e);
+                // Fallback if share fails
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = dataUrl;
+                link.click();
+            }
             
             btn.innerHTML = origHTML;
             btn.disabled = false;
@@ -1373,11 +1405,32 @@ function downloadTop3() {
         html2canvas(exportDiv, {
             backgroundColor: '#0a0a0f',
             scale: 2 // Outputs 1080x1920 image
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `Top3_${document.getElementById('dash-start').value}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+        }).then(async (canvas) => {
+            const dateStr = document.getElementById('dash-start').value;
+            const filename = `Top3_${dateStr}.png`;
+            const dataUrl = canvas.toDataURL('image/png');
+            
+            try {
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                const file = new File([blob], filename, { type: 'image/png' });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file] });
+                } else {
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                }
+            } catch(e) {
+                console.error(e);
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = dataUrl;
+                link.click();
+            }
+            
             btn.innerHTML = origHTML;
             btn.disabled = false;
             document.body.removeChild(exportDiv);
