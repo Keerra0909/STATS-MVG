@@ -15,6 +15,7 @@ firestore.enablePersistence().catch(err => console.error("Persistence error:", e
 
 // --- Auth State ---
 let currentUser = null;
+let globalGoals = { ventas: 55, cierre: 30 }; // Default goals
 
 // --- Database Setup (Legacy Local) ---
 const db = new Dexie('StatsMasterDB');
@@ -108,6 +109,74 @@ async function loadRepWeekly() {
         `;
         tbody.appendChild(tr);
     });
+
+    // --- Calculate Monthly Progress ---
+    try {
+        const y = today.getFullYear();
+        const mo = today.getMonth(); // 0-indexed
+        const daysInMonth = new Date(y, mo + 1, 0).getDate();
+        const cleanName = currentUser.name.replace(/ /g, '_');
+
+        // Fetch all days of current month using the known docId pattern
+        const monthPromises = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dd = String(d).padStart(2, '0');
+            const mm = String(mo + 1).padStart(2, '0');
+            const dateStr = `${y}-${mm}-${dd}`;
+            const docId = `${cleanName}_${dateStr}`;
+            monthPromises.push(
+                firestore.collection('stats').doc(docId).get().then(doc => doc.exists ? doc.data() : null)
+            );
+        }
+
+        const monthDocs = await Promise.all(monthPromises);
+
+        let monthVentas = 0;
+        let monthShots = 0;
+
+        monthDocs.forEach(data => {
+            if (!data) return;
+            monthVentas += data.ventas || 0;
+            monthShots += data.shots || 0;
+        });
+
+        const goalVentas = globalGoals.ventas || 55;
+        const goalCierre = (globalGoals.cierre || 30) / 100;
+
+        let percVentas = goalVentas > 0 ? (monthVentas / goalVentas) * 100 : 0;
+        if (percVentas > 100) percVentas = 100;
+
+        let actualCierre = monthShots > 0 ? (monthVentas / monthShots) : 0;
+        let percCierre = goalCierre > 0 ? (actualCierre / goalCierre) * 100 : 0;
+        if (percCierre > 100) percCierre = 100;
+
+        document.getElementById('rep-goal-ventas-text').innerText = `${monthVentas} / ${goalVentas}`;
+        const barVentas = document.getElementById('rep-goal-ventas-bar');
+        barVentas.style.width = `${percVentas}%`;
+        
+        // Ventas colors: Red <= 30, Yellow 31-54, Green >= 55
+        if (monthVentas <= 30) {
+            barVentas.style.backgroundColor = 'var(--danger)';
+        } else if (monthVentas <= 54) {
+            barVentas.style.backgroundColor = '#f1c40f'; // Yellow
+        } else {
+            barVentas.style.backgroundColor = 'var(--success)';
+        }
+
+        document.getElementById('rep-goal-cierre-target').innerText = globalGoals.cierre || 30;
+        document.getElementById('rep-goal-cierre-text').innerText = `${(actualCierre * 100).toFixed(1)}%`;
+        const barCierre = document.getElementById('rep-goal-cierre-bar');
+        barCierre.style.width = `${percCierre}%`;
+
+        // Cierre colors based on target
+        if (actualCierre >= goalCierre) {
+            barCierre.style.backgroundColor = 'var(--success)';
+        } else if (actualCierre >= goalCierre * 0.75) {
+            barCierre.style.backgroundColor = '#f1c40f'; // Yellow
+        } else {
+            barCierre.style.backgroundColor = 'var(--danger)';
+        }
+    } catch(e) { console.error("Error calculating monthly progress", e); }
 }
 
 function editRepStat(index) {
@@ -165,6 +234,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('entry-date').value = today;
     setDashRange('week');
 
+    // Position the sliding pill instantly on first load (no animation)
+    requestAnimationFrame(() => {
+        const pill = document.getElementById('seg-pill');
+        const activeBtn = document.querySelector('.dash-range-btn.active');
+        const container = document.getElementById('dash-segmented');
+        if (pill && activeBtn && container) {
+            pill.style.transition = 'none';
+            const containerRect = container.getBoundingClientRect();
+            const btnRect = activeBtn.getBoundingClientRect();
+            pill.style.left = (btnRect.left - containerRect.left) + 'px';
+            pill.style.width = btnRect.width + 'px';
+            // Re-enable transition after placement
+            requestAnimationFrame(() => { pill.style.transition = ''; });
+        }
+    });
+
+    // Position the nav pill instantly on first load
+    requestAnimationFrame(() => {
+        const navPill = document.getElementById('nav-pill');
+        const activeNavBtn = document.querySelector('.nav-btn.active');
+        const navContainer = document.getElementById('nav-links');
+        if (navPill && activeNavBtn && navContainer) {
+            navPill.style.transition = 'none';
+            const cRect = navContainer.getBoundingClientRect();
+            const bRect = activeNavBtn.getBoundingClientRect();
+            navPill.style.left = (bRect.left - cRect.left) + 'px';
+            navPill.style.width = bRect.width + 'px';
+            requestAnimationFrame(() => { navPill.style.transition = ''; });
+        }
+    });
+
+
     // Pre-populate users if empty
     const count = await db.users.count();
     if (count === 0) {
@@ -219,6 +320,7 @@ function handleAuthState() {
         document.getElementById('btn-team').style.display = 'block';
         document.getElementById('btn-download-top3').style.display = 'inline-block';
         document.getElementById('btn-download').style.display = 'inline-block';
+        document.getElementById('btn-export-excel').style.display = 'inline-block';
         const savedView = localStorage.getItem('view');
         if (savedView && savedView !== 'login' && savedView !== 'rep-weekly') {
             navigate(savedView);
@@ -232,6 +334,7 @@ function handleAuthState() {
         document.getElementById('btn-team').style.display = 'none';
         document.getElementById('btn-download-top3').style.display = 'none';
         document.getElementById('btn-download').style.display = 'none';
+        document.getElementById('btn-export-excel').style.display = 'none';
         document.getElementById('rep-welcome-msg').innerText = `¡Hola ${currentUser.name}!`;
         
         const savedView = localStorage.getItem('view');
@@ -357,7 +460,11 @@ function navigate(viewId) {
 
     document.getElementById(`view-${viewId}`).classList.remove('hidden');
     if (viewId !== 'login') {
-        document.getElementById(`btn-${viewId}`)?.classList.add('active');
+        const activeBtn = document.getElementById(`btn-${viewId}`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+            moveNavPill(activeBtn);
+        }
         localStorage.setItem('view', viewId);
     }
 
@@ -365,6 +472,16 @@ function navigate(viewId) {
     if (viewId === 'daily') loadDailyEntries();
     if (viewId === 'dashboard') loadDashboard();
     if (viewId === 'rep-weekly') loadRepWeekly();
+}
+
+function moveNavPill(btn) {
+    const pill = document.getElementById('nav-pill');
+    const container = document.getElementById('nav-links');
+    if (!pill || !btn || !container) return;
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    pill.style.left = (btnRect.left - containerRect.left) + 'px';
+    pill.style.width = btnRect.width + 'px';
 }
 
 // --- Team Management ---
@@ -411,6 +528,49 @@ async function loadTeam() {
     
     document.getElementById('active-count').innerText = `(${activeCount})`;
     document.getElementById('inactive-count').innerText = `(${inactiveCount})`;
+
+    // Load goals
+    await loadGoals();
+}
+
+async function loadGoals() {
+    try {
+        const doc = await firestore.collection('config').doc('metas').get();
+        if (doc.exists) {
+            globalGoals = doc.data();
+            if (document.getElementById('goal-ventas')) {
+                document.getElementById('goal-ventas').value = globalGoals.ventas;
+            }
+            if (document.getElementById('goal-cierre')) {
+                document.getElementById('goal-cierre').value = globalGoals.cierre;
+            }
+        }
+    } catch(e) { console.error("Error loading goals:", e); }
+}
+
+async function saveGoals() {
+    const btn = document.getElementById('btn-save-goals');
+    const v = parseInt(document.getElementById('goal-ventas').value) || 55;
+    const c = parseInt(document.getElementById('goal-cierre').value) || 30;
+    btn.innerText = 'Guardando...';
+    try {
+        await firestore.collection('config').doc('metas').set({
+            ventas: v,
+            cierre: c
+        }, { merge: true });
+        globalGoals = { ventas: v, cierre: c };
+        btn.innerText = '¡Guardado!';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-success');
+        setTimeout(() => {
+            btn.innerText = 'Guardar Metas';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-primary');
+        }, 2000);
+    } catch(e) {
+        console.error(e);
+        btn.innerText = 'Error';
+    }
 }
 
 async function addUser(e) {
@@ -588,7 +748,28 @@ function setDashRange(type) {
 
     document.getElementById('dash-start').value = fmt(start);
     document.getElementById('dash-end').value = fmt(end);
+    
+    // Update active button styling + slide the pill
+    document.querySelectorAll('.dash-range-btn').forEach(btn => btn.classList.remove('active'));
+    if (type) {
+        const activeBtn = document.getElementById(`dash-btn-${type}`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+            movePill(activeBtn);
+        }
+    }
+    
     loadDashboard();
+}
+
+function movePill(btn) {
+    const pill = document.getElementById('seg-pill');
+    const container = document.getElementById('dash-segmented');
+    if (!pill || !btn || !container) return;
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    pill.style.left = (btnRect.left - containerRect.left) + 'px';
+    pill.style.width = btnRect.width + 'px';
 }
 
 let dashData = [];
@@ -645,10 +826,11 @@ async function loadDashboard() {
             userStats[s.name].totals.ads += s.ads || 0;
             userStats[s.name].totals.links += s.links || 0;
             userStats[s.name].totals.cxl += s.cxl || 0;
-            if (userStats[s.name].daily[s.date]) {
-                userStats[s.name].daily[s.date].shots += s.shots || 0;
-                userStats[s.name].daily[s.date].ventas += s.ventas || 0;
+            if (!userStats[s.name].daily[s.date]) {
+                userStats[s.name].daily[s.date] = { shots: 0, ventas: 0 };
             }
+            userStats[s.name].daily[s.date].shots += s.shots || 0;
+            userStats[s.name].daily[s.date].ventas += s.ventas || 0;
         }
     });
 
@@ -657,14 +839,70 @@ async function loadDashboard() {
         return u;
     });
 
-    // Totals
     const totVentas = dashData.reduce((sum, u) => sum + u.totals.ventas, 0);
     const totShots = dashData.reduce((sum, u) => sum + u.totals.shots, 0);
+    const totAds = dashData.reduce((sum, u) => sum + u.totals.ads, 0);
+    const totLinks = dashData.reduce((sum, u) => sum + u.totals.links, 0);
     const totCierre = totShots > 0 ? (totVentas / totShots) : 0;
 
-    document.getElementById('stat-ventas').innerText = totVentas;
-    document.getElementById('stat-shots').innerText = totShots;
-    document.getElementById('stat-cierre').innerText = (totCierre * 100).toFixed(1) + '%';
+    const animateValue = (id, start, end, duration, isPercentage = false) => {
+        const obj = document.getElementById(id);
+        if (!obj) return;
+        
+        // Remove color classes for Cierre before setting new one later
+        if (id === 'stat-cierre') {
+            obj.classList.remove('cierre-good', 'cierre-warn', 'cierre-bad');
+        }
+
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = start + easeOut * (end - start);
+            
+            if (isPercentage) {
+                obj.innerText = current.toFixed(1) + '%';
+            } else {
+                obj.innerText = Math.floor(current);
+            }
+            
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                if (isPercentage) {
+                    obj.innerText = end.toFixed(1) + '%';
+                    
+                    // Add dynamic color for Cierre
+                    if (end >= 30) obj.classList.add('cierre-good');
+                    else if (end >= 20) obj.classList.add('cierre-warn');
+                    else obj.classList.add('cierre-bad');
+                } else {
+                    obj.innerText = Math.round(end);
+                }
+            }
+        };
+        window.requestAnimationFrame(step);
+    };
+
+    const getOldVal = (id, isPct) => {
+        const text = document.getElementById(id) ? document.getElementById(id).innerText : '';
+        if (!text || text === '-' || text === '') return 0;
+        if (isPct) return parseFloat(text.replace('%', '')) || 0;
+        return parseInt(text) || 0;
+    };
+
+    const oldVentas = getOldVal('stat-ventas', false);
+    const oldShots = getOldVal('stat-shots', false);
+    const oldAds = getOldVal('stat-ads', false);
+    const oldLinks = getOldVal('stat-links', false);
+    const oldCierre = getOldVal('stat-cierre', true);
+
+    animateValue('stat-ventas', oldVentas, totVentas, 700, false);
+    animateValue('stat-shots', oldShots, totShots, 700, false);
+    animateValue('stat-ads', oldAds, totAds, 700, false);
+    animateValue('stat-links', oldLinks, totLinks, 700, false);
+    animateValue('stat-cierre', oldCierre, totCierre * 100, 700, true);
 
     renderTop3();
     renderDashTable();
@@ -961,25 +1199,106 @@ function renderTop3() {
     
     // Podium arrangement: [2nd, 1st, 3rd] for visual effect
     const places = [];
-    if (top3[1]) places.push({ ...top3[1], rank: 2, medal: '🥈', height: '140px', color: '#bdc3c7' });
-    if (top3[0]) places.push({ ...top3[0], rank: 1, medal: '🥇', height: '180px', color: '#f1c40f' });
-    if (top3[2]) places.push({ ...top3[2], rank: 3, medal: '🥉', height: '110px', color: '#cd7f32' });
+    if (top3[1]) places.push({ 
+        ...top3[1], 
+        rank: 2, 
+        icon: '', 
+        finalHeight: 130, 
+        gradient: 'linear-gradient(180deg, #66a6ff 0%, #3a7bd5 100%)',
+        glow: 'rgba(102, 166, 255, 0.4)',
+        textColor: '#89f7fe',
+        delay: 0
+    });
+    if (top3[0]) places.push({ 
+        ...top3[0], 
+        rank: 1, 
+        icon: '👑', 
+        finalHeight: 180, 
+        gradient: 'linear-gradient(180deg, #00d2ff 0%, #3a7bd5 100%)',
+        glow: 'rgba(0, 210, 255, 0.5)',
+        textColor: '#00d2ff',
+        delay: 200
+    });
+    if (top3[2]) places.push({ 
+        ...top3[2], 
+        rank: 3, 
+        icon: '', 
+        finalHeight: 100, 
+        gradient: 'linear-gradient(180deg, #b224ef 0%, #7579ff 100%)',
+        glow: 'rgba(178, 36, 239, 0.5)',
+        textColor: '#d946ef',
+        delay: 100
+    });
     
+    // Build HTML with data attributes for animation targets
     let html = '';
-    places.forEach(p => {
+    places.forEach((p) => {
         html += `
-            <div style="display: flex; flex-direction: column; align-items: center; width: 130px;">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));">${p.medal}</div>
-                <div style="background: ${p.color}; width: 100%; height: ${p.height}; border-radius: 8px 8px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 1rem; color: #fff; box-shadow: 0 -4px 10px rgba(0,0,0,0.15);">
-                    <strong style="font-size: 1.1rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); text-align: center; line-height: 1.1; padding: 0 5px;">${p.name}</strong>
-                    <div style="font-size: 1.8rem; font-weight: 800; margin-top: 0.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.4);">${p.totals.ventas} V</div>
-                    <div style="font-size: 0.9rem; font-weight: bold; margin-top: 0.3rem; background: rgba(0,0,0,0.2); padding: 3px 8px; border-radius: 12px; text-shadow: none;">${(p.cierre * 100).toFixed(1)}%</div>
+            <div class="podium-card" data-rank="${p.rank}" data-ventas="${p.totals.ventas}" data-cierre="${(p.cierre * 100).toFixed(1)}" data-delay="${p.delay}"
+                 style="display: flex; flex-direction: column; align-items: center; width: 140px; opacity: 0; transform: translateY(30px); transition: opacity 0.4s ease, transform 0.4s ease;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.2rem; filter: drop-shadow(0 0 8px ${p.textColor}); height: 24px;">${p.icon}</div>
+                <strong style="font-size: 1rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.2rem; text-shadow: 0 0 10px rgba(255,255,255,0.3); text-align: center;">${p.name}</strong>
+                <div class="podium-cierre" style="font-size: 0.75rem; color: ${p.textColor}; font-weight: bold; margin-bottom: 0.8rem; text-shadow: 0 0 8px ${p.glow}; letter-spacing: 0.5px;">Cierre: 0%</div>
+                
+                <div style="width: 100%; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 0 25px ${p.glow}, inset 0 2px 10px rgba(255,255,255,0.3); overflow: hidden; background: ${p.gradient};">
+                    <div class="podium-bar" style="height: 0px; display: flex; justify-content: center; align-items: flex-start; padding-top: 15px; position: relative; transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%); pointer-events: none;"></div>
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.95rem; color: #fff; box-shadow: inset 0 2px 5px rgba(255,255,255,0.4), 0 2px 5px rgba(0,0,0,0.1); z-index: 1;">
+                            ${p.rank}
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(10, 10, 15, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 14px 0; display: flex; justify-content: center; align-items: baseline; border-top: 1px solid rgba(255,255,255,0.15);">
+                        <span class="podium-ventas" style="font-size: 1.6rem; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0</span>
+                        <span style="font-size: 0.85rem; color: #aaa; margin-left: 4px; font-weight: bold;">Vts</span>
+                    </div>
                 </div>
             </div>
         `;
     });
     
     podium.innerHTML = html;
+
+    // Animate each card with staggered delay
+    const cards = podium.querySelectorAll('.podium-card');
+    cards.forEach(card => {
+        const delay = parseInt(card.dataset.delay);
+        const finalVentas = parseInt(card.dataset.ventas);
+        const finalCierre = parseFloat(card.dataset.cierre);
+        const rank = parseInt(card.dataset.rank);
+        const finalHeight = rank === 1 ? 180 : rank === 2 ? 130 : 100;
+
+        setTimeout(() => {
+            // Fade-in + slide up
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+
+            // Grow the bar after card appears
+            const bar = card.querySelector('.podium-bar');
+            setTimeout(() => { bar.style.height = finalHeight + 'px'; }, 80);
+
+            // Count up ventas and cierre
+            const ventasEl = card.querySelector('.podium-ventas');
+            const cierreEl = card.querySelector('.podium-cierre');
+            const duration = 900;
+            let startTs = null;
+
+            const countStep = (ts) => {
+                if (!startTs) startTs = ts;
+                const progress = Math.min((ts - startTs) / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                ventasEl.textContent = Math.floor(ease * finalVentas);
+                cierreEl.textContent = `Cierre: ${(ease * finalCierre).toFixed(1)}%`;
+                if (progress < 1) requestAnimationFrame(countStep);
+                else {
+                    ventasEl.textContent = finalVentas;
+                    cierreEl.textContent = `Cierre: ${finalCierre}%`;
+                }
+            };
+            requestAnimationFrame(countStep);
+
+        }, delay);
+    });
 }
 
 function downloadTop3() {
@@ -988,27 +1307,309 @@ function downloadTop3() {
     btn.innerHTML = 'Generando...';
     btn.disabled = true;
     
-    const target = document.getElementById('top3-container');
+    // Create an off-screen container for WhatsApp vertical format
+    const exportDiv = document.createElement('div');
+    exportDiv.style.position = 'absolute';
+    exportDiv.style.left = '-9999px';
+    exportDiv.style.top = '0';
+    exportDiv.style.width = '540px';
+    exportDiv.style.height = '960px'; // 9:16 aspect ratio
+    exportDiv.style.backgroundColor = '#0a0a0f';
+    exportDiv.style.backgroundImage = 'radial-gradient(circle at 50% 30%, #1a1a2e 0%, #0a0a0f 70%)';
+    exportDiv.style.display = 'flex';
+    exportDiv.style.flexDirection = 'column';
+    exportDiv.style.alignItems = 'center';
+    exportDiv.style.justifyContent = 'center';
+    exportDiv.style.fontFamily = 'Inter, sans-serif';
+    
+    // Logo
+    const logo = document.createElement('div');
+    logo.innerHTML = 'MVG <span style="color: #00d2ff;">STATS</span>';
+    logo.style.color = '#fff';
+    logo.style.fontSize = '2.5rem';
+    logo.style.fontWeight = '900';
+    logo.style.marginBottom = '2.5rem';
+    logo.style.letterSpacing = '2px';
+    
+    // Title
+    const title = document.createElement('h1');
+    title.innerText = 'TOP 3 VENDEDORES';
+    title.style.color = '#fff';
+    title.style.fontSize = '2rem';
+    title.style.marginBottom = '0.5rem';
+    title.style.textShadow = '0 4px 10px rgba(0,0,0,0.5)';
+    
+    // Date
+    const dateSub = document.createElement('h2');
+    const dStart = document.getElementById('dash-start').value.split('-').reverse().join('/');
+    const dEnd = document.getElementById('dash-end').value.split('-').reverse().join('/');
+    dateSub.innerText = `${dStart} al ${dEnd}`;
+    dateSub.style.color = '#888';
+    dateSub.style.fontSize = '1.1rem';
+    dateSub.style.marginBottom = '5rem';
+    
+    // Podium Clone
+    const podiumClone = document.getElementById('top3-podium').cloneNode(true);
+    podiumClone.style.borderBottom = 'none';
+    
+    // Append all
+    exportDiv.appendChild(logo);
+    exportDiv.appendChild(title);
+    exportDiv.appendChild(dateSub);
+    exportDiv.appendChild(podiumClone);
+    
+    // Watermark
+    const water = document.createElement('div');
+    water.innerText = 'Generado automáticamente por StatsMaster';
+    water.style.position = 'absolute';
+    water.style.bottom = '2rem';
+    water.style.color = '#444';
+    water.style.fontSize = '0.9rem';
+    exportDiv.appendChild(water);
+    
+    document.body.appendChild(exportDiv);
     
     setTimeout(() => {
-        btn.style.display = 'none'; // hide for screenshot
-        html2canvas(target, {
-            backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#ffffff',
-            scale: 2
+        html2canvas(exportDiv, {
+            backgroundColor: '#0a0a0f',
+            scale: 2 // Outputs 1080x1920 image
         }).then(canvas => {
-            btn.style.display = 'flex';
             const link = document.createElement('a');
-            const dateStr = document.getElementById('dash-start').value;
-            link.download = `Top3_${dateStr}.png`;
+            link.download = `Top3_${document.getElementById('dash-start').value}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
             btn.innerHTML = origHTML;
             btn.disabled = false;
+            document.body.removeChild(exportDiv);
         }).catch(err => {
             console.error(err);
-            btn.style.display = 'flex';
             btn.innerHTML = origHTML;
             btn.disabled = false;
+            document.body.removeChild(exportDiv);
         });
-    }, 100);
+    }, 500);
+}
+
+async function exportToExcel() {
+    if (!dashData || dashData.length === 0) return;
+    
+    const btn = document.getElementById('btn-export-excel');
+    const origHTML = btn.innerHTML;
+    btn.innerHTML = 'Generando...';
+    btn.disabled = true;
+
+    try {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Reporte');
+
+        const startStr = document.getElementById('dash-start').value;
+        const endStr = document.getElementById('dash-end').value;
+        
+        // Generate array of dates
+        const startDate = new Date(startStr + 'T00:00:00');
+        const endDate = new Date(endStr + 'T00:00:00');
+        const dates = [];
+        let curr = new Date(startDate);
+        while (curr <= endDate) {
+            const y = curr.getFullYear();
+            const m = String(curr.getMonth() + 1).padStart(2, '0');
+            const d = String(curr.getDate()).padStart(2, '0');
+            dates.push(`${y}-${m}-${d}`);
+            curr.setDate(curr.getDate() + 1);
+        }
+
+        const dateStrsForHeader = dates.map(d => {
+            const dateObj = new Date(d + 'T00:00:00');
+            const days = ['DOMINGO','LUNES','MARTES','MIERCOLES','JUEVES','VIERNES','SABADO'];
+            return `${days[dateObj.getDay()]} ${d.split('-').reverse().join('/')}`;
+        });
+
+        // ROW 1: Title
+        const titleRow = sheet.addRow([`REPORTE DEL ${startStr.split('-').reverse().join('/')} AL ${endStr.split('-').reverse().join('/')}`]);
+        titleRow.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        
+        // ROW 2: Main Headers
+        const row2 = ['NOMBRE'];
+        dates.forEach(d => {
+            row2.push(dateStrsForHeader[dates.indexOf(d)]);
+            row2.push(''); // For merging
+        });
+        row2.push('TOTAL SHOTS', 'TOTAL VENTAS', '% CIERRE', 'CXL', 'ADS', '% ADS');
+        const headerRow2 = sheet.addRow(row2);
+        
+        // ROW 3: Sub Headers
+        const row3 = [''];
+        dates.forEach(() => {
+            row3.push('SHOTS');
+            row3.push('VENTAS');
+        });
+        row3.push('', '', '', '', '', '');
+        const headerRow3 = sheet.addRow(row3);
+
+        // Merge cells
+        sheet.mergeCells(1, 1, 1, 1 + (dates.length * 2) + 6); // Title spans all
+        sheet.mergeCells(2, 1, 3, 1); // NOMBRE spans vertically
+        
+        let colIdx = 2;
+        dates.forEach(() => {
+            sheet.mergeCells(2, colIdx, 2, colIdx + 1); // Date spans SHOTS and VENTAS
+            colIdx += 2;
+        });
+        
+        const totalColsStart = 2 + (dates.length * 2);
+        sheet.mergeCells(2, totalColsStart, 3, totalColsStart); // TOTAL SHOTS
+        sheet.mergeCells(2, totalColsStart + 1, 3, totalColsStart + 1); // TOTAL VENTAS
+        sheet.mergeCells(2, totalColsStart + 2, 3, totalColsStart + 2); // % CIERRE
+        sheet.mergeCells(2, totalColsStart + 3, 3, totalColsStart + 3); // CXL
+        sheet.mergeCells(2, totalColsStart + 4, 3, totalColsStart + 4); // ADS
+        sheet.mergeCells(2, totalColsStart + 5, 3, totalColsStart + 5); // % ADS
+
+        // Style headers
+        [headerRow2, headerRow3].forEach(row => {
+            row.eachCell((cell) => {
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF0070C0' }
+                };
+                cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.border = {
+                    top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'}
+                };
+            });
+        });
+        titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF002060' } };
+        titleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+        // Data Rows
+        const specialNames = ['EN REPORTE', 'TOTALES'];
+        const regularData = dashData.filter(d => !specialNames.includes(d.name));
+        
+        const addDataRow = (u) => {
+            const rowData = [u.name];
+            dates.forEach(d => {
+                if (u.daily && u.daily[d]) {
+                    rowData.push(u.daily[d].shots || 0);
+                    rowData.push(u.daily[d].ventas || 0);
+                } else {
+                    rowData.push(0);
+                    rowData.push(0);
+                }
+            });
+            rowData.push(u.totals.shots);
+            rowData.push(u.totals.ventas);
+            rowData.push(u.cierre); // Decimal format for excel percentage
+            rowData.push(u.totals.cxl);
+            rowData.push(u.totals.ads);
+            rowData.push(u.totals.shots > 0 ? (u.totals.ads / u.totals.shots) : 0);
+            
+            const row = sheet.addRow(rowData);
+            row.eachCell((cell, colNumber) => {
+                cell.border = {
+                    top: {style:'thin', color: {argb:'FFDDDDDD'}}, 
+                    left: {style:'thin', color: {argb:'FFDDDDDD'}}, 
+                    bottom: {style:'thin', color: {argb:'FFDDDDDD'}}, 
+                    right: {style:'thin', color: {argb:'FFDDDDDD'}}
+                };
+                cell.alignment = { horizontal: 'center' };
+                
+                // Format percentages
+                if (colNumber === totalColsStart + 2 || colNumber === totalColsStart + 5) {
+                    cell.numFmt = '0.00%';
+                }
+                
+                // Left align names
+                if (colNumber === 1) cell.alignment = { horizontal: 'left' };
+            });
+        };
+
+        // Sort exactly as the dashboard table is currently sorted
+        regularData.sort((a, b) => {
+            let valA, valB;
+            if (sortCol === 'name')   { valA = a.name; valB = b.name; }
+            if (sortCol === 'shots')  { valA = a.totals.shots;  valB = b.totals.shots; }
+            if (sortCol === 'ventas') { valA = a.totals.ventas; valB = b.totals.ventas; }
+            if (sortCol === 'cierre') { valA = a.cierre;        valB = b.cierre; }
+            if (sortCol === 'ads')    { valA = a.totals.ads;    valB = b.totals.ads; }
+            if (sortCol === 'links')  { valA = a.totals.links;  valB = b.totals.links; }
+            if (sortCol === 'cxl')    { valA = a.totals.cxl;   valB = b.totals.cxl; }
+            if (valA < valB) return sortAsc ? -1 : 1;
+            if (valA > valB) return sortAsc ? 1 : -1;
+            // Tie-breakers
+            if (sortCol !== 'shots' && a.totals.shots !== b.totals.shots)
+                return b.totals.shots - a.totals.shots;
+            if (sortCol !== 'ventas' && a.totals.ventas !== b.totals.ventas)
+                return b.totals.ventas - a.totals.ventas;
+            return 0;
+        });
+
+        regularData.forEach(addDataRow);
+
+        const enReporte = dashData.find(d => d.name === 'EN REPORTE');
+        if (enReporte) addDataRow(enReporte);
+
+        // Totals Row
+        let totShots = 0, totVentas = 0, totAds = 0, totCxl = 0;
+        regularData.forEach(d => {
+            totShots += d.totals.shots;
+            totVentas += d.totals.ventas;
+            totAds += d.totals.ads;
+            totCxl += d.totals.cxl;
+        });
+        const totCierre = totShots > 0 ? (totVentas / totShots) : 0;
+        const totPctAds = totShots > 0 ? (totAds / totShots) : 0;
+
+        const totRowData = ['TOTALES'];
+        dates.forEach(d => {
+            let dShots = 0, dVentas = 0;
+            regularData.forEach(u => {
+                if (u.daily && u.daily[d]) {
+                    dShots += (u.daily[d].shots || 0);
+                    dVentas += (u.daily[d].ventas || 0);
+                }
+            });
+            totRowData.push(dShots);
+            totRowData.push(dVentas);
+        });
+        totRowData.push(totShots, totVentas, totCierre, totCxl, totAds, totPctAds);
+        
+        const totRow = sheet.addRow(totRowData);
+        totRow.eachCell((cell, colNumber) => {
+            cell.font = { bold: true };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } };
+            cell.border = { 
+                top: {style:'thin', color:{argb:'FF000000'}}, 
+                left: {style:'thin', color:{argb:'FF000000'}}, 
+                bottom: {style:'thin', color:{argb:'FF000000'}}, 
+                right: {style:'thin', color:{argb:'FF000000'}} 
+            };
+            cell.alignment = { horizontal: 'center' };
+            if (colNumber === totalColsStart + 2 || colNumber === totalColsStart + 5) {
+                cell.numFmt = '0.00%';
+            }
+            if (colNumber === 1) cell.alignment = { horizontal: 'left' };
+        });
+
+        // Set column widths
+        sheet.getColumn(1).width = 18;
+        for(let i=2; i<=1 + (dates.length * 2); i++) {
+            sheet.getColumn(i).width = 8;
+        }
+        for(let i=totalColsStart; i<=totalColsStart+5; i++) {
+            sheet.getColumn(i).width = 13;
+        }
+
+        // Generate Blob and download
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, `Reporte_Stats_${startStr}_al_${endStr}.xlsx`);
+        
+    } catch (e) {
+        console.error(e);
+        alert('Error generando Excel');
+    } finally {
+        btn.innerHTML = origHTML;
+        btn.disabled = false;
+    }
 }

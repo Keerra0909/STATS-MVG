@@ -5,3 +5,7 @@ firebase.exe
 public/
 firebase.json
 .firebaserc
+
+node_modules/
+package-lock.json
+package.json
