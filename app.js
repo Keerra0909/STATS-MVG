@@ -646,9 +646,6 @@ async function loadDailyEntries() {
     }
 
     const tbody = document.getElementById('daily-entry-body');
-    if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem;">Cargando captura diaria... ⏳</td></tr>';
-    }
 
     const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
     let users = [];
@@ -825,9 +822,6 @@ async function loadDashboard() {
     const endStr = document.getElementById('dash-end').value;
 
     const tbody = document.getElementById('dash-tbody');
-    if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem;">Cargando datos... ⏳</td></tr>';
-    }
 
     const startDate = new Date(startStr + 'T00:00:00');
     const endDate = new Date(endStr + 'T00:00:00');
