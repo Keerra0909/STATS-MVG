@@ -752,7 +752,15 @@ function renderDashTable() {
         
         if (valA < valB) return sortAsc ? -1 : 1;
         if (valA > valB) return sortAsc ? 1 : -1;
-        return 0;
+        
+        // Tie-breakers
+        if (sortCol !== 'shots' && a.totals.shots !== b.totals.shots) {
+            return b.totals.shots - a.totals.shots; // More shots goes higher
+        }
+        if (sortCol !== 'ventas' && a.totals.ventas !== b.totals.ventas) {
+            return b.totals.ventas - a.totals.ventas; // More ventas goes higher
+        }
+        return a.name.localeCompare(b.name); // Alphabetical fallback
     });
 
     const renderRow = (d, idx = '', isSpecial = false) => {
