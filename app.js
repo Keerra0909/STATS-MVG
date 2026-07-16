@@ -70,27 +70,36 @@ async function loadRepWeekly() {
         
         const tr = document.createElement('tr');
         
-        // If stat exists, default to locked mode
-        const isLocked = !!stat;
+        const rowDate = new Date(dateStr + 'T00:00:00');
+        const todayTime = new Date().setHours(0,0,0,0);
+        const isFuture = rowDate.getTime() > todayTime;
+
+        // If stat exists or it's a future day, lock mode
+        const isLocked = !!stat || isFuture;
         const disabledAttr = isLocked ? 'disabled' : '';
-        const btnHtml = isLocked 
-            ? `<button id="btn-save-${i}" class="btn-success" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: none;" onclick="saveRepStat(${i}, '${dateStr}')">Guardar</button>
-               <span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
-               <button id="btn-edit-${i}" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editRepStat(${i})">Editar</button>`
-            : `<button id="btn-save-${i}" class="btn-primary" onclick="saveRepStat(${i}, '${dateStr}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Guardar</button>
-               <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
-               <button id="btn-edit-${i}" class="btn-secondary" style="display: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editRepStat(${i})">Editar</button>`;
+        
+        let btnHtml = '';
+        if (isFuture) {
+            btnHtml = `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Próximamente</span>`;
+        } else {
+            btnHtml = isLocked 
+                ? `<button id="btn-save-${i}" class="btn-success" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: none;" onclick="saveRepStat(${i}, '${dateStr}')">Guardar</button>
+                   <span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
+                   <button id="btn-edit-${i}" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editRepStat(${i})">Editar</button>`
+                : `<button id="btn-save-${i}" class="btn-primary" onclick="saveRepStat(${i}, '${dateStr}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Guardar</button>
+                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
+                   <button id="btn-edit-${i}" class="btn-secondary" style="display: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editRepStat(${i})">Editar</button>`;
+        }
 
         tr.innerHTML = `
             <td>
                 <strong>${dias[i]}</strong>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">${dateStr.substring(5).replace('-', '/')}</div>
             </td>
-            <td style="text-align: center;"><input type="number" id="rep-shots-${i}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="rep-ventas-${i}" value="${stat ? (stat.ventas !== undefined ? stat.ventas : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="rep-ads-${i}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="rep-links-${i}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="rep-cxl-${i}" value="${stat ? (stat.cxl !== undefined ? stat.cxl : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-shots-${i}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-ventas-${i}" value="${stat ? (stat.ventas !== undefined ? stat.ventas : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-ads-${i}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-links-${i}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
             <td style="text-align: center; vertical-align: middle;">
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 40px; gap: 0.5rem;">
                     ${btnHtml}
@@ -106,7 +115,6 @@ function editRepStat(index) {
     document.getElementById(`rep-ventas-${index}`).disabled = false;
     document.getElementById(`rep-ads-${index}`).disabled = false;
     document.getElementById(`rep-links-${index}`).disabled = false;
-    document.getElementById(`rep-cxl-${index}`).disabled = false;
     
     document.getElementById(`btn-save-${index}`).style.display = 'block';
     document.getElementById(`btn-save-${index}`).className = 'btn-primary';
@@ -116,11 +124,10 @@ function editRepStat(index) {
 }
 
 async function saveRepStat(index, dateStr) {
-    const shots = parseInt(document.getElementById(`rep-shots-${index}`).value) || 0;
-    const ventas = parseInt(document.getElementById(`rep-ventas-${index}`).value) || 0;
-    const ads = parseInt(document.getElementById(`rep-ads-${index}`).value) || 0;
-    const links = parseInt(document.getElementById(`rep-links-${index}`).value) || 0;
-    const cxl = parseInt(document.getElementById(`rep-cxl-${index}`).value) || 0;
+    const shots = Math.max(0, parseInt(document.getElementById(`rep-shots-${index}`).value) || 0);
+    const ventas = Math.max(0, parseInt(document.getElementById(`rep-ventas-${index}`).value) || 0);
+    const ads = Math.max(0, parseInt(document.getElementById(`rep-ads-${index}`).value) || 0);
+    const links = Math.max(0, parseInt(document.getElementById(`rep-links-${index}`).value) || 0);
     
     const cleanName = currentUser.name.replace(/ /g, '_');
     const docId = `${cleanName}_${dateStr}`;
@@ -131,8 +138,7 @@ async function saveRepStat(index, dateStr) {
         shots,
         ventas,
         ads,
-        links,
-        cxl
+        links
     }, { merge: true });
     
     // Lock the row
@@ -140,7 +146,6 @@ async function saveRepStat(index, dateStr) {
     document.getElementById(`rep-ventas-${index}`).disabled = true;
     document.getElementById(`rep-ads-${index}`).disabled = true;
     document.getElementById(`rep-links-${index}`).disabled = true;
-    document.getElementById(`rep-cxl-${index}`).disabled = true;
     
     document.getElementById(`btn-save-${index}`).style.display = 'none';
     document.getElementById(`saved-msg-${index}`).style.display = 'inline-block';
@@ -479,11 +484,11 @@ async function loadDailyEntries() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${u.name}</strong></td>
-            <td style="text-align: center;"><input type="number" id="shots-${cleanName}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="ventas-${cleanName}" value="${stat ? (stat.ventas !== undefined ? stat.ventas : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="ads-${cleanName}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="links-${cleanName}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" id="cxl-${cleanName}" value="${stat ? (stat.cxl !== undefined ? stat.cxl : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="shots-${cleanName}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="ventas-${cleanName}" value="${stat ? (stat.ventas !== undefined ? stat.ventas : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="ads-${cleanName}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="links-${cleanName}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="cxl-${cleanName}" value="${stat ? (stat.cxl !== undefined ? stat.cxl : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center; vertical-align: middle;">
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 40px; gap: 0.5rem;">
                     ${btnHtml}
@@ -510,11 +515,11 @@ function editDaily(cleanName) {
 
 async function saveDaily(cleanName, realName) {
     const dateStr = document.getElementById('entry-date').value;
-    const shots = parseInt(document.getElementById(`shots-${cleanName}`).value) || 0;
-    const ventas = parseInt(document.getElementById(`ventas-${cleanName}`).value) || 0;
-    const ads = parseInt(document.getElementById(`ads-${cleanName}`).value) || 0;
-    const links = parseInt(document.getElementById(`links-${cleanName}`).value) || 0;
-    const cxl = parseInt(document.getElementById(`cxl-${cleanName}`).value) || 0;
+    const shots = Math.max(0, parseInt(document.getElementById(`shots-${cleanName}`).value) || 0);
+    const ventas = Math.max(0, parseInt(document.getElementById(`ventas-${cleanName}`).value) || 0);
+    const ads = Math.max(0, parseInt(document.getElementById(`ads-${cleanName}`).value) || 0);
+    const links = Math.max(0, parseInt(document.getElementById(`links-${cleanName}`).value) || 0);
+    const cxl = Math.max(0, parseInt(document.getElementById(`cxl-${cleanName}`).value) || 0);
 
     const docId = `${cleanName}_${dateStr}`;
     await firestore.collection('stats').doc(docId).set({
