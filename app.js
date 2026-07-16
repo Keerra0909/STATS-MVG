@@ -555,16 +555,26 @@ async function saveDaily(cleanName, realName) {
 // --- Dashboard ---
 function setDashRange(type) {
     const today = new Date();
-    let start = new Date();
+    let start = new Date(today);
+    let end = new Date(today); // Default to today
 
     if (type === 'today') {
-        // start date is already today
+        // start and end are today
     } else if (type === 'week') {
         const day = start.getDay();
         const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
         start.setDate(diff);
+    } else if (type === 'lastWeek') {
+        const day = start.getDay();
+        const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+        start.setDate(diff - 7); // Last Monday
+        end = new Date(start);
+        end.setDate(start.getDate() + 6); // Last Sunday
     } else if (type === 'month') {
         start = new Date(today.getFullYear(), today.getMonth(), 1);
+    } else if (type === 'lastMonth') {
+        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        end = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of previous month
     } else if (type === 'year') {
         start = new Date(today.getFullYear(), 0, 1);
     }
@@ -577,7 +587,7 @@ function setDashRange(type) {
     };
 
     document.getElementById('dash-start').value = fmt(start);
-    document.getElementById('dash-end').value = fmt(today);
+    document.getElementById('dash-end').value = fmt(end);
     loadDashboard();
 }
 
