@@ -169,9 +169,10 @@ async function loadRepWeekly() {
         barCierre.style.width = `${percCierre}%`;
 
         // Cierre colors based on target
-        if (actualCierre >= goalCierre) {
+        const actualCierrePct = parseFloat((actualCierre * 100).toFixed(1));
+        if (actualCierrePct >= 30.0) {
             barCierre.style.backgroundColor = 'var(--success)';
-        } else if (actualCierre >= goalCierre * 0.75) {
+        } else if (actualCierrePct >= 25.0) {
             barCierre.style.backgroundColor = '#f1c40f'; // Yellow
         } else {
             barCierre.style.backgroundColor = 'var(--danger)';
@@ -886,11 +887,13 @@ async function loadDashboard() {
                 window.requestAnimationFrame(step);
             } else {
                 if (isPercentage) {
-                    obj.innerText = end.toFixed(1) + '%';
+                    const finalStr = end.toFixed(1);
+                    const finalNum = parseFloat(finalStr);
+                    obj.innerText = finalStr + '%';
                     
                     // Add dynamic color for Cierre
-                    if (end >= 30) obj.classList.add('cierre-good');
-                    else if (end >= 20) obj.classList.add('cierre-warn');
+                    if (finalNum >= 30.0) obj.classList.add('cierre-good');
+                    else if (finalNum >= 25.0) obj.classList.add('cierre-warn');
                     else obj.classList.add('cierre-bad');
                 } else {
                     obj.innerText = Math.round(end);
@@ -1031,9 +1034,10 @@ function renderDashTable() {
         const tr = document.createElement('tr');
         if (isSpecial) tr.style.background = 'var(--nav-bg)'; // Highlight slightly
         
+        const cierrePct = parseFloat((d.cierre * 100).toFixed(1));
         let badgeClass = 'badge-red';
-        if (d.cierre >= 0.40) badgeClass = 'badge-green';
-        else if (d.cierre >= 0.25) badgeClass = 'badge-yellow';
+        if (cierrePct >= 30.0) badgeClass = 'badge-green';
+        else if (cierrePct >= 25.0) badgeClass = 'badge-yellow';
         
         if (isSpecial && d.totals.shots === 0) badgeClass = '';
 
