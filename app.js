@@ -1,4 +1,22 @@
-// --- Database Setup ---
+// --- Firebase Setup ---
+const firebaseConfig = {
+    apiKey: "AIzaSyB6bBY99Jt507YdRiYLaM77k-AZGOv56XM",
+    authDomain: "statsmvg.firebaseapp.com",
+    projectId: "statsmvg",
+    storageBucket: "statsmvg.firebasestorage.app",
+    messagingSenderId: "605661495564",
+    appId: "1:605661495564:web:34636c9b7a598d49114929",
+    measurementId: "G-WTJVL9J96C"
+};
+
+firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
+firestore.enablePersistence().catch(err => console.error("Persistence error:", err));
+
+// --- Auth State ---
+let currentUser = null;
+
+// --- Database Setup (Legacy Local) ---
 const db = new Dexie('StatsMasterDB');
 db.version(1).stores({
     users: '++id, name, active', // active: 1 or 0
@@ -6,6 +24,114 @@ db.version(1).stores({
 });
 
 let myChart = null;
+
+// --- Rep Weekly View ---
+async function loadRepWeekly() {
+    if (!currentUser || currentUser.role !== 'rep') return;
+    
+    const tbody = document.getElementById('rep-weekly-body');
+    tbody.innerHTML = '';
+    
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sunday
+    const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to Monday
+    const monday = new Date(today);
+    monday.setDate(diff);
+    
+    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${day}`;
+        
+        const cleanName = currentUser.name.replace(/ /g, '_');
+        const docId = `${cleanName}_${dateStr}`;
+        const statDoc = await firestore.collection('stats').doc(docId).get();
+        const stat = statDoc.exists ? statDoc.data() : null;
+        
+        const tr = document.createElement('tr');
+        
+        // If stat exists, default to locked mode
+        const isLocked = !!stat;
+        const disabledAttr = isLocked ? 'disabled' : '';
+        const btnHtml = isLocked 
+            ? `<button id="btn-save-${i}" class="btn-success" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: none;" onclick="saveRepStat(${i}, '${dateStr}')">Guardar</button>
+               <span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
+               <button id="btn-edit-${i}" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editRepStat(${i})">Editar</button>`
+            : `<button id="btn-save-${i}" class="btn-primary" onclick="saveRepStat(${i}, '${dateStr}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Guardar</button>
+               <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
+               <button id="btn-edit-${i}" class="btn-secondary" style="display: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editRepStat(${i})">Editar</button>`;
+
+        tr.innerHTML = `
+            <td>
+                <strong>${dias[i]}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${m}/${day}</div>
+            </td>
+            <td style="text-align: center;"><input type="number" id="rep-shots-${i}" value="${stat ? stat.shots : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-ventas-${i}" value="${stat ? stat.ventas : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-ads-${i}" value="${stat && stat.ads ? stat.ads : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-links-${i}" value="${stat && stat.links ? stat.links : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="rep-cxl-${i}" value="${stat && stat.cxl ? stat.cxl : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center; vertical-align: middle;">
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 40px; gap: 0.5rem;">
+                    ${btnHtml}
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    }
+}
+
+function editRepStat(index) {
+    document.getElementById(`rep-shots-${index}`).disabled = false;
+    document.getElementById(`rep-ventas-${index}`).disabled = false;
+    document.getElementById(`rep-ads-${index}`).disabled = false;
+    document.getElementById(`rep-links-${index}`).disabled = false;
+    document.getElementById(`rep-cxl-${index}`).disabled = false;
+    
+    document.getElementById(`btn-save-${index}`).style.display = 'block';
+    document.getElementById(`btn-save-${index}`).className = 'btn-primary';
+    document.getElementById(`btn-save-${index}`).innerText = 'Guardar';
+    document.getElementById(`saved-msg-${index}`).style.display = 'none';
+    document.getElementById(`btn-edit-${index}`).style.display = 'none';
+}
+
+async function saveRepStat(index, dateStr) {
+    const shots = parseInt(document.getElementById(`rep-shots-${index}`).value) || 0;
+    const ventas = parseInt(document.getElementById(`rep-ventas-${index}`).value) || 0;
+    const ads = parseInt(document.getElementById(`rep-ads-${index}`).value) || 0;
+    const links = parseInt(document.getElementById(`rep-links-${index}`).value) || 0;
+    const cxl = parseInt(document.getElementById(`rep-cxl-${index}`).value) || 0;
+    
+    const cleanName = currentUser.name.replace(/ /g, '_');
+    const docId = `${cleanName}_${dateStr}`;
+    
+    await firestore.collection('stats').doc(docId).set({
+        name: currentUser.name,
+        date: dateStr,
+        shots,
+        ventas,
+        ads,
+        links,
+        cxl
+    }, { merge: true });
+    
+    // Lock the row
+    document.getElementById(`rep-shots-${index}`).disabled = true;
+    document.getElementById(`rep-ventas-${index}`).disabled = true;
+    document.getElementById(`rep-ads-${index}`).disabled = true;
+    document.getElementById(`rep-links-${index}`).disabled = true;
+    document.getElementById(`rep-cxl-${index}`).disabled = true;
+    
+    document.getElementById(`btn-save-${index}`).style.display = 'none';
+    document.getElementById(`saved-msg-${index}`).style.display = 'inline-block';
+    document.getElementById(`btn-edit-${index}`).style.display = 'inline-block';
+}
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
@@ -28,12 +154,108 @@ document.addEventListener('DOMContentLoaded', async () => {
             await db.users.add({ name, active: 1 });
         }
     }
-    
-    await injectWednesdayData();
+    // Run migrations without blocking UI
+    injectWednesdayData().catch(e => console.error(e));
+    syncDexieToFirestore().catch(e => console.error(e));
 
-    const savedView = localStorage.getItem('view') || 'dashboard';
-    navigate(savedView);
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        handleAuthState();
+    } else {
+        navigate('login');
+    }
 });
+
+async function syncDexieToFirestore() {
+    if (localStorage.getItem('dexie_synced')) return;
+    try {
+        const localUsers = await db.users.toArray();
+        for (const lu of localUsers) {
+            if (lu.active === 0) {
+                const cleanName = lu.name.replace(/ /g, '_');
+                await firestore.collection('users').doc(cleanName).update({ active: 0 }).catch(() => {});
+            }
+        }
+        localStorage.setItem('dexie_synced', 'true');
+        console.log("Synced local statuses to Firestore");
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function handleAuthState() {
+    if (!currentUser) {
+        document.getElementById('btn-logout').style.display = 'none';
+        navigate('login');
+        return;
+    }
+    
+    document.getElementById('btn-logout').style.display = 'block';
+
+    if (currentUser.role === 'admin') {
+        document.getElementById('btn-dashboard').style.display = 'block';
+        document.getElementById('btn-daily').style.display = 'block';
+        document.getElementById('btn-team').style.display = 'block';
+        const savedView = localStorage.getItem('view');
+        if (savedView && savedView !== 'login' && savedView !== 'rep-weekly') {
+            navigate(savedView);
+        } else {
+            navigate('dashboard');
+        }
+    } else {
+        document.getElementById('btn-dashboard').style.display = 'none';
+        document.getElementById('btn-daily').style.display = 'none';
+        document.getElementById('btn-team').style.display = 'none';
+        document.getElementById('rep-welcome-msg').innerText = `¡Hola ${currentUser.name}!`;
+        navigate('rep-weekly');
+    }
+}
+
+async function login() {
+    const name = document.getElementById('login-username').value.trim().toUpperCase();
+    const pin = document.getElementById('login-pin').value.trim();
+    const errorDiv = document.getElementById('login-error');
+    
+    if (name === 'ADMIN' && pin === '7777') {
+        currentUser = { name: 'ADMIN', role: 'admin' };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        errorDiv.style.display = 'none';
+        handleAuthState();
+        return;
+    }
+    
+    if (!name || !pin) {
+        errorDiv.innerText = 'Llena ambos campos';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Check against Firestore
+    try {
+        const userDoc = await firestore.collection('users').doc(name).get();
+        if (userDoc.exists && userDoc.data().pin === pin) {
+            currentUser = { name: name, role: 'rep' };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            errorDiv.style.display = 'none';
+            handleAuthState();
+        } else {
+            errorDiv.innerText = 'Credenciales incorrectas';
+            errorDiv.style.display = 'block';
+        }
+    } catch (e) {
+        console.error(e);
+        errorDiv.innerText = 'Error al conectar con la base de datos';
+        errorDiv.style.display = 'block';
+    }
+}
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    document.getElementById('btn-logout').style.display = 'none';
+    navigate('login');
+}
 
 async function injectWednesdayData() {
     if (localStorage.getItem('wednesday_injected')) return;
@@ -94,14 +316,24 @@ function navigate(viewId) {
     document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
     
-    document.getElementById(`view-${viewId}`).classList.remove('hidden');
-    document.getElementById(`btn-${viewId}`).classList.add('active');
+    // Show/hide nav links based on view
+    const navLinks = document.querySelector('.nav-links');
+    if (viewId === 'login') {
+        navLinks.style.display = 'none';
+    } else {
+        navLinks.style.display = 'flex';
+    }
 
-    localStorage.setItem('view', viewId);
+    document.getElementById(`view-${viewId}`).classList.remove('hidden');
+    if (viewId !== 'login') {
+        document.getElementById(`btn-${viewId}`)?.classList.add('active');
+        localStorage.setItem('view', viewId);
+    }
 
     if (viewId === 'team') loadTeam();
     if (viewId === 'daily') loadDailyEntries();
     if (viewId === 'dashboard') loadDashboard();
+    if (viewId === 'rep-weekly') loadRepWeekly();
 }
 
 // --- Team Management ---
@@ -110,8 +342,21 @@ async function loadTeam() {
     const inactiveDiv = document.getElementById('inactive-users-list');
     activeDiv.innerHTML = ''; inactiveDiv.innerHTML = '';
 
-    const users = await db.users.toArray();
+    const usersSnap = await firestore.collection('users').get();
+    let users = [];
+    usersSnap.forEach(doc => {
+        if (doc.data().role !== 'admin') {
+            const data = doc.data();
+            data.name = data.name || doc.id;
+            users.push({ id: doc.id, ...data });
+        }
+    });
+
     users.sort((a, b) => a.name.localeCompare(b.name));
+    
+    let activeCount = 0;
+    let inactiveCount = 0;
+    
     users.forEach(u => {
         const card = document.createElement('div');
         card.className = 'user-card';
@@ -119,14 +364,22 @@ async function loadTeam() {
             <strong>${u.name}</strong>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
                 ${u.active ? 
-                    `<button class="btn-danger" onclick="toggleUser(${u.id}, 0)">Desactivar</button>` : 
-                    `<button class="btn-success" onclick="toggleUser(${u.id}, 1)">Activar</button>`}
-                <button class="btn-icon" title="Borrar permanentemente" onclick="deleteUser(${u.id}, '${u.name.replace(/'/g, "\\'")}')">🗑️</button>
+                    `<button class="btn-danger" onclick="toggleUser('${u.id}', 0)">Desactivar</button>` : 
+                    `<button class="btn-success" onclick="toggleUser('${u.id}', 1)">Activar</button>`}
+                <button class="btn-icon" title="Borrar permanentemente" onclick="deleteUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">🗑️</button>
             </div>
         `;
-        if (u.active) activeDiv.appendChild(card);
-        else inactiveDiv.appendChild(card);
+        if (u.active) {
+            activeDiv.appendChild(card);
+            activeCount++;
+        } else {
+            inactiveDiv.appendChild(card);
+            inactiveCount++;
+        }
     });
+    
+    document.getElementById('active-count').innerText = `(${activeCount})`;
+    document.getElementById('inactive-count').innerText = `(${inactiveCount})`;
 }
 
 async function addUser(e) {
@@ -134,21 +387,34 @@ async function addUser(e) {
     const input = document.getElementById('new-user-name');
     const name = input.value.trim().toUpperCase();
     if (name) {
-        await db.users.add({ name, active: 1 });
+        await firestore.collection('users').doc(name).set({ 
+            name: name, 
+            active: 1,
+            role: 'rep',
+            pin: '1234'
+        });
         input.value = '';
         loadTeam();
     }
 }
 
 async function toggleUser(id, status) {
-    await db.users.update(id, { active: status });
+    await firestore.collection('users').doc(id).update({ active: status });
     loadTeam();
 }
 
 async function deleteUser(id, name) {
     if (confirm(`¿Estás súper seguro de borrar PERMANENTEMENTE a "${name}"?\n\n¡Esto eliminará todo su historial de la base de datos de inmediato!`)) {
-        await db.users.delete(id);
-        await db.stats.where('userId').equals(id).delete();
+        await firestore.collection('users').doc(id).delete();
+        
+        // Also delete their stats
+        const statsSnap = await firestore.collection('stats').where('name', '==', name).get();
+        const batch = firestore.batch();
+        statsSnap.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+        
         loadTeam();
         loadDashboard();
     }
@@ -173,46 +439,86 @@ async function loadDailyEntries() {
     const tbody = document.getElementById('daily-entry-body');
     tbody.innerHTML = '';
 
-    const users = await db.users.where('active').equals(1).toArray();
+    const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+    let users = [];
+    usersSnap.forEach(doc => {
+        if (doc.data().role !== 'admin') users.push(doc.data());
+    });
     users.sort((a, b) => a.name.localeCompare(b.name));
     
     for (const u of users) {
-        let stat = await db.stats.get({ userId: u.id, date: dateStr });
+        const cleanName = u.name.replace(/ /g, '_');
+        const docId = `${cleanName}_${dateStr}`;
+        const statDoc = await firestore.collection('stats').doc(docId).get();
+        const stat = statDoc.exists ? statDoc.data() : null;
+        
+        const isLocked = !!stat;
+        const disabledAttr = isLocked ? 'disabled' : '';
+        const btnHtml = isLocked 
+            ? `<button id="btn-save-admin-${cleanName}" class="btn-success" style="padding: 0.3rem 0.6rem; display: none;" onclick="saveDaily('${cleanName}', '${u.name.replace(/'/g, "\\'")}')">Guardar</button>
+               <span id="saved-msg-admin-${cleanName}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
+               <button id="btn-edit-admin-${cleanName}" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editDaily('${cleanName}')">Editar</button>`
+            : `<button id="btn-save-admin-${cleanName}" class="btn-primary" onclick="saveDaily('${cleanName}', '${u.name.replace(/'/g, "\\'")}')" style="padding: 0.3rem 0.6rem;">Guardar</button>
+               <span id="saved-msg-admin-${cleanName}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
+               <button id="btn-edit-admin-${cleanName}" class="btn-secondary" style="display: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editDaily('${cleanName}')">Editar</button>`;
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${u.name}</strong></td>
-            <td><input type="number" id="shots-${u.id}" value="${stat ? stat.shots : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;"></td>
-            <td><input type="number" id="ventas-${u.id}" value="${stat ? stat.ventas : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;"></td>
-            <td><input type="number" id="ads-${u.id}" value="${stat ? (stat.ads || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;"></td>
-            <td><input type="number" id="links-${u.id}" value="${stat ? (stat.links || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;"></td>
-            <td><input type="number" id="cxl-${u.id}" value="${stat ? (stat.cxl || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;"></td>
-            <td><button class="btn-primary" onclick="saveDaily(${u.id})" style="padding: 0.3rem 0.6rem;">Guardar</button></td>
+            <td style="text-align: center;"><input type="number" id="shots-${cleanName}" value="${stat ? stat.shots : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="ventas-${cleanName}" value="${stat ? stat.ventas : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="ads-${cleanName}" value="${stat ? (stat.ads || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="links-${cleanName}" value="${stat ? (stat.links || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" id="cxl-${cleanName}" value="${stat ? (stat.cxl || 0) : 0}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center; vertical-align: middle;">
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 40px; gap: 0.5rem;">
+                    ${btnHtml}
+                </div>
+            </td>
         `;
         tbody.appendChild(tr);
     }
 }
 
-async function saveDaily(id) {
-    const dateStr = document.getElementById('entry-date').value;
-    const shots = parseInt(document.getElementById(`shots-${id}`).value) || 0;
-    const ventas = parseInt(document.getElementById(`ventas-${id}`).value) || 0;
-    const ads = parseInt(document.getElementById(`ads-${id}`).value) || 0;
-    const links = parseInt(document.getElementById(`links-${id}`).value) || 0;
-    const cxl = parseInt(document.getElementById(`cxl-${id}`).value) || 0;
-
-    const existing = await db.stats.get({ userId: id, date: dateStr });
-    if (existing) {
-        await db.stats.update(existing.id, { shots, ventas, ads, links, cxl });
-    } else {
-        await db.stats.add({ userId: id, date: dateStr, shots, ventas, ads, links, cxl });
-    }
+function editDaily(cleanName) {
+    document.getElementById(`shots-${cleanName}`).disabled = false;
+    document.getElementById(`ventas-${cleanName}`).disabled = false;
+    document.getElementById(`ads-${cleanName}`).disabled = false;
+    document.getElementById(`links-${cleanName}`).disabled = false;
+    document.getElementById(`cxl-${cleanName}`).disabled = false;
     
-    // Quick visual feedback
-    const btn = event.target;
-    const orig = btn.innerText;
-    btn.innerText = '¡Guardado!';
-    btn.style.background = 'var(--success)';
-    setTimeout(() => { btn.innerText = orig; btn.style.background = ''; }, 1000);
+    document.getElementById(`btn-save-admin-${cleanName}`).style.display = 'block';
+    document.getElementById(`btn-save-admin-${cleanName}`).className = 'btn-primary';
+    document.getElementById(`btn-save-admin-${cleanName}`).innerText = 'Guardar';
+    document.getElementById(`saved-msg-admin-${cleanName}`).style.display = 'none';
+    document.getElementById(`btn-edit-admin-${cleanName}`).style.display = 'none';
+}
+
+async function saveDaily(cleanName, realName) {
+    const dateStr = document.getElementById('entry-date').value;
+    const shots = parseInt(document.getElementById(`shots-${cleanName}`).value) || 0;
+    const ventas = parseInt(document.getElementById(`ventas-${cleanName}`).value) || 0;
+    const ads = parseInt(document.getElementById(`ads-${cleanName}`).value) || 0;
+    const links = parseInt(document.getElementById(`links-${cleanName}`).value) || 0;
+    const cxl = parseInt(document.getElementById(`cxl-${cleanName}`).value) || 0;
+
+    const docId = `${cleanName}_${dateStr}`;
+    await firestore.collection('stats').doc(docId).set({
+        name: realName,
+        date: dateStr,
+        shots, ventas, ads, links, cxl
+    }, { merge: true });
+    
+    // Lock the row
+    document.getElementById(`shots-${cleanName}`).disabled = true;
+    document.getElementById(`ventas-${cleanName}`).disabled = true;
+    document.getElementById(`ads-${cleanName}`).disabled = true;
+    document.getElementById(`links-${cleanName}`).disabled = true;
+    document.getElementById(`cxl-${cleanName}`).disabled = true;
+    
+    document.getElementById(`btn-save-admin-${cleanName}`).style.display = 'none';
+    document.getElementById(`saved-msg-admin-${cleanName}`).style.display = 'inline-block';
+    document.getElementById(`btn-edit-admin-${cleanName}`).style.display = 'inline-block';
 }
 
 // --- Dashboard ---
@@ -267,34 +573,43 @@ async function loadDashboard() {
     // Matrix mode for ranges between 2 and 7 days
     isMatrixMode = matrixDates.length > 1 && matrixDates.length <= 7;
 
-    const users = await db.users.where('active').equals(1).toArray();
+    const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+    let users = [];
+    usersSnap.forEach(doc => {
+        if (doc.data().role !== 'admin') users.push(doc.data());
+    });
+
     let userStats = {};
     users.forEach(u => {
-        userStats[u.id] = { 
+        userStats[u.name] = { 
             name: u.name, 
             totals: { shots: 0, ventas: 0, ads: 0, links: 0, cxl: 0 },
             daily: {} 
         };
         matrixDates.forEach(date => {
-            userStats[u.id].daily[date] = { shots: 0, ventas: 0 };
+            userStats[u.name].daily[date] = { shots: 0, ventas: 0 };
         });
     });
 
-    for (const date of matrixDates) {
-        const stats = await db.stats.where('date').equals(date).toArray();
-        for (const s of stats) {
-            if (userStats[s.userId]) {
-                userStats[s.userId].totals.shots += s.shots;
-                userStats[s.userId].totals.ventas += s.ventas;
-                userStats[s.userId].totals.ads += (s.ads || 0);
-                userStats[s.userId].totals.links += (s.links || 0);
-                userStats[s.userId].totals.cxl += (s.cxl || 0);
-                
-                userStats[s.userId].daily[date].shots += s.shots;
-                userStats[s.userId].daily[date].ventas += s.ventas;
+    const statsSnap = await firestore.collection('stats')
+        .where('date', '>=', startStr)
+        .where('date', '<=', endStr)
+        .get();
+
+    statsSnap.forEach(doc => {
+        const s = doc.data();
+        if (userStats[s.name]) {
+            userStats[s.name].totals.shots += s.shots || 0;
+            userStats[s.name].totals.ventas += s.ventas || 0;
+            userStats[s.name].totals.ads += s.ads || 0;
+            userStats[s.name].totals.links += s.links || 0;
+            userStats[s.name].totals.cxl += s.cxl || 0;
+            if (userStats[s.name].daily[s.date]) {
+                userStats[s.name].daily[s.date].shots += s.shots || 0;
+                userStats[s.name].daily[s.date].ventas += s.ventas || 0;
             }
         }
-    }
+    });
 
     dashData = Object.values(userStats).map(u => {
         u.cierre = u.totals.shots > 0 ? (u.totals.ventas / u.totals.shots) : 0;
