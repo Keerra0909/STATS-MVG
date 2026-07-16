@@ -646,6 +646,10 @@ async function loadDailyEntries() {
     }
 
     const tbody = document.getElementById('daily-entry-body');
+    if (tbody) {
+        tbody.innerHTML = '';
+        tbody.style.opacity = '0.5';
+    }
 
     const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
     let users = [];
@@ -693,6 +697,9 @@ async function loadDailyEntries() {
             </td>
         `;
         tbody.appendChild(tr);
+    }
+    if (tbody) {
+        tbody.style.opacity = '1';
     }
 }
 
