@@ -821,7 +821,11 @@ async function loadDashboard() {
     const startStr = document.getElementById('dash-start').value;
     const endStr = document.getElementById('dash-end').value;
 
-    const tbody = document.getElementById('dash-tbody');
+    const tbody = document.getElementById('dash-table-body');
+    if (tbody) {
+        tbody.style.opacity = '0.5';
+        tbody.style.pointerEvents = 'none';
+    }
 
     const startDate = new Date(startStr + 'T00:00:00');
     const endDate = new Date(endStr + 'T00:00:00');
@@ -836,7 +840,14 @@ async function loadDashboard() {
     // Matrix mode for ranges between 2 and 7 days
     isMatrixMode = matrixDates.length > 1 && matrixDates.length <= 7;
 
-    const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+    const [usersSnap, statsSnap] = await Promise.all([
+        firestore.collection('users').where('active', '==', 1).get(),
+        firestore.collection('stats')
+            .where('date', '>=', startStr)
+            .where('date', '<=', endStr)
+            .get()
+    ]);
+
     let users = [];
     usersSnap.forEach(doc => {
         if (doc.data().role !== 'admin') users.push(doc.data());
@@ -853,11 +864,6 @@ async function loadDashboard() {
             userStats[u.name].daily[date] = { shots: 0, ventas: 0 };
         });
     });
-
-    const statsSnap = await firestore.collection('stats')
-        .where('date', '>=', startStr)
-        .where('date', '<=', endStr)
-        .get();
 
     statsSnap.forEach(doc => {
         const s = doc.data();
@@ -960,6 +966,10 @@ function sortTable(colIdx) {
 function renderDashTable() {
     const thead = document.getElementById('dash-table-head');
     const tbody = document.getElementById('dash-table-body');
+    if (tbody) {
+        tbody.style.opacity = '1';
+        tbody.style.pointerEvents = 'auto';
+    }
     
     let headHTML = '<tr>';
     headHTML += `<th rowspan="2" style="vertical-align: middle; width: 30px; text-align: center; color: var(--text-muted); border-right: 1px solid var(--border);">#</th>`;
