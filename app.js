@@ -214,6 +214,7 @@ function handleAuthState() {
 
     if (currentUser.role === 'admin') {
         document.getElementById('btn-dashboard').style.display = 'block';
+        document.getElementById('btn-rep-weekly').style.display = 'none';
         document.getElementById('btn-daily').style.display = 'block';
         document.getElementById('btn-team').style.display = 'block';
         const savedView = localStorage.getItem('view');
@@ -223,11 +224,18 @@ function handleAuthState() {
             navigate('dashboard');
         }
     } else {
-        document.getElementById('btn-dashboard').style.display = 'none';
+        document.getElementById('btn-dashboard').style.display = 'block';
+        document.getElementById('btn-rep-weekly').style.display = 'block';
         document.getElementById('btn-daily').style.display = 'none';
         document.getElementById('btn-team').style.display = 'none';
         document.getElementById('rep-welcome-msg').innerText = `¡Hola ${currentUser.name}!`;
-        navigate('rep-weekly');
+        
+        const savedView = localStorage.getItem('view');
+        if (savedView === 'dashboard') {
+            navigate('dashboard');
+        } else {
+            navigate('rep-weekly');
+        }
     }
 }
 
@@ -675,7 +683,9 @@ function renderDashTable() {
     headHTML += `<th rowspan="2" onclick="sortTable('cierre')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">% Cierre ↕</th>`;
     headHTML += `<th rowspan="2" onclick="sortTable('ads')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Ads ↕</th>`;
     headHTML += `<th rowspan="2" onclick="sortTable('links')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Links ↕</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('cxl')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">CXL ↕</th>`;
+    if (currentUser && currentUser.role === 'admin') {
+        headHTML += `<th rowspan="2" onclick="sortTable('cxl')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">CXL ↕</th>`;
+    }
     headHTML += '</tr><tr>';
     
     if (isMatrixMode) {
@@ -773,8 +783,11 @@ function renderDashTable() {
             <td style="text-align: center; border-left: 1px solid var(--border);"><span class="badge ${badgeClass}">${(d.cierre * 100).toFixed(1)}%</span></td>
             <td style="text-align: center; border-left: 1px solid var(--border);">${d.totals.ads}</td>
             <td style="text-align: center; border-left: 1px solid var(--border);">${d.totals.links}</td>
-            <td style="text-align: center; border-left: 1px solid var(--border); color: var(--danger);">${d.totals.cxl}</td>
         `;
+        
+        if (currentUser && currentUser.role === 'admin') {
+            rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); color: var(--danger);">${d.totals.cxl}</td>`;
+        }
         
         tr.innerHTML = rowHTML;
         tbody.appendChild(tr);
