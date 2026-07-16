@@ -194,32 +194,42 @@ function editRepStat(index) {
 }
 
 async function saveRepStat(index, dateStr) {
+    const cleanName = currentUser.name.replace(/ /g, '_');
     const shots = Math.max(0, parseInt(document.getElementById(`rep-shots-${index}`).value) || 0);
     const ventas = Math.max(0, parseInt(document.getElementById(`rep-ventas-${index}`).value) || 0);
     const ads = Math.max(0, parseInt(document.getElementById(`rep-ads-${index}`).value) || 0);
     const links = Math.max(0, parseInt(document.getElementById(`rep-links-${index}`).value) || 0);
-    
-    const cleanName = currentUser.name.replace(/ /g, '_');
+    const cxl = 0; // Not edited by rep directly yet
+
     const docId = `${cleanName}_${dateStr}`;
-    
-    await firestore.collection('stats').doc(docId).set({
-        name: currentUser.name,
-        date: dateStr,
-        shots,
-        ventas,
-        ads,
-        links
-    }, { merge: true });
-    
-    // Lock the row
-    document.getElementById(`rep-shots-${index}`).disabled = true;
-    document.getElementById(`rep-ventas-${index}`).disabled = true;
-    document.getElementById(`rep-ads-${index}`).disabled = true;
-    document.getElementById(`rep-links-${index}`).disabled = true;
-    
-    document.getElementById(`btn-save-${index}`).style.display = 'none';
-    document.getElementById(`saved-msg-${index}`).style.display = 'inline-block';
-    document.getElementById(`btn-edit-${index}`).style.display = 'inline-block';
+    const btn = document.getElementById(`btn-save-${index}`);
+    btn.innerText = 'Guardando...';
+    btn.disabled = true;
+
+    try {
+        await Promise.race([
+            firestore.collection('stats').doc(docId).set({
+                name: currentUser.name,
+                date: dateStr,
+                shots, ventas, ads, links, cxl
+            }, { merge: true }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
+        ]);
+
+        document.getElementById(`rep-shots-${index}`).disabled = true;
+        document.getElementById(`rep-ventas-${index}`).disabled = true;
+        document.getElementById(`rep-ads-${index}`).disabled = true;
+        document.getElementById(`rep-links-${index}`).disabled = true;
+        
+        btn.style.display = 'none';
+        btn.disabled = false;
+        document.getElementById(`saved-msg-${index}`).style.display = 'inline-block';
+        document.getElementById(`btn-edit-${index}`).style.display = 'inline-block';
+    } catch (err) {
+        alert(err.message || "Error al guardar. Revisa tu conexión a internet.");
+        btn.innerText = 'Guardar';
+        btn.disabled = false;
+    }
 }
 
 // --- Initialization ---
@@ -554,13 +564,18 @@ async function saveGoals() {
     const v = parseInt(document.getElementById('goal-ventas').value) || 55;
     const c = parseInt(document.getElementById('goal-cierre').value) || 30;
     btn.innerText = 'Guardando...';
+    btn.disabled = true;
     try {
-        await firestore.collection('config').doc('metas').set({
-            ventas: v,
-            cierre: c
-        }, { merge: true });
+        await Promise.race([
+            firestore.collection('config').doc('metas').set({
+                ventas: v,
+                cierre: c
+            }, { merge: true }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Revisa tu conexión a internet.")), 6000))
+        ]);
         globalGoals = { ventas: v, cierre: c };
         btn.innerText = '¡Guardado!';
+        btn.disabled = false;
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-success');
         setTimeout(() => {
@@ -570,7 +585,9 @@ async function saveGoals() {
         }, 2000);
     } catch(e) {
         console.error(e);
-        btn.innerText = 'Error';
+        alert(e.message || "Error al guardar metas.");
+        btn.innerText = 'Guardar Metas';
+        btn.disabled = false;
     }
 }
 
@@ -705,22 +722,36 @@ async function saveDaily(cleanName, realName) {
     const cxl = Math.max(0, parseInt(document.getElementById(`cxl-${cleanName}`).value) || 0);
 
     const docId = `${cleanName}_${dateStr}`;
-    await firestore.collection('stats').doc(docId).set({
-        name: realName,
-        date: dateStr,
-        shots, ventas, ads, links, cxl
-    }, { merge: true });
-    
-    // Lock the row
-    document.getElementById(`shots-${cleanName}`).disabled = true;
-    document.getElementById(`ventas-${cleanName}`).disabled = true;
-    document.getElementById(`ads-${cleanName}`).disabled = true;
-    document.getElementById(`links-${cleanName}`).disabled = true;
-    document.getElementById(`cxl-${cleanName}`).disabled = true;
-    
-    document.getElementById(`btn-save-admin-${cleanName}`).style.display = 'none';
-    document.getElementById(`saved-msg-admin-${cleanName}`).style.display = 'inline-block';
-    document.getElementById(`btn-edit-admin-${cleanName}`).style.display = 'inline-block';
+    const btn = document.getElementById(`btn-save-admin-${cleanName}`);
+    btn.innerText = 'Guardando...';
+    btn.disabled = true;
+
+    try {
+        await Promise.race([
+            firestore.collection('stats').doc(docId).set({
+                name: realName,
+                date: dateStr,
+                shots, ventas, ads, links, cxl
+            }, { merge: true }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
+        ]);
+        
+        // Lock the row
+        document.getElementById(`shots-${cleanName}`).disabled = true;
+        document.getElementById(`ventas-${cleanName}`).disabled = true;
+        document.getElementById(`ads-${cleanName}`).disabled = true;
+        document.getElementById(`links-${cleanName}`).disabled = true;
+        document.getElementById(`cxl-${cleanName}`).disabled = true;
+        
+        btn.style.display = 'none';
+        btn.disabled = false;
+        document.getElementById(`saved-msg-admin-${cleanName}`).style.display = 'inline-block';
+        document.getElementById(`btn-edit-admin-${cleanName}`).style.display = 'inline-block';
+    } catch (err) {
+        alert(err.message || "Error al guardar. Revisa tu conexión a internet.");
+        btn.innerText = 'Guardar';
+        btn.disabled = false;
+    }
 }
 
 // --- Dashboard ---
