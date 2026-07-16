@@ -271,7 +271,8 @@
                 <div class="card" id="table-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 style="display: flex; align-items: baseline; gap: 0.5rem; margin: 0;">Tabla de Posiciones <span id="dash-table-subtitle" style="font-size: 0.95rem; color: var(--text-muted); font-weight: 500;"></span></h3>
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button onclick="toggleOffline()" id="btn-toggle-off" class="btn-secondary" style="font-size: 0.8rem; padding: 0.3rem 0.6rem;">Ocultar OFFs</button>
                             <button onclick="exportToExcel()" id="btn-export-excel" class="btn-primary" style="display: none;">
                                 <span>📊</span> Exportar a Excel
                             </button>
@@ -300,6 +301,6 @@
         </section>
     </main>
 
-    <script src="app.js?v=14"></script>
+    <script src="app.js?v=15"></script>
 </body>
 </html>

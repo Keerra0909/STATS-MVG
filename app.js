@@ -823,6 +823,17 @@ let sortCol = 'ventas';
 let sortAsc = false;
 let isMatrixMode = false;
 let matrixDates = [];
+let hideOffline = false;
+
+function toggleOffline() {
+    hideOffline = !hideOffline;
+    const btn = document.getElementById('btn-toggle-off');
+    if (btn) {
+        btn.innerText = hideOffline ? 'Mostrar OFFs' : 'Ocultar OFFs';
+        btn.className = hideOffline ? 'btn-primary' : 'btn-secondary';
+    }
+    renderDashTable();
+}
 
 async function loadDashboard() {
     const startStr = document.getElementById('dash-start').value;
@@ -1029,7 +1040,13 @@ function renderDashTable() {
     tbody.innerHTML = '';
 
     const specialNames = ['EN REPORTE', 'TOTALES'];
-    const regularData = dashData.filter(d => !specialNames.includes(d.name));
+    let regularData = dashData.filter(d => !specialNames.includes(d.name));
+    
+    // Hide offline users if toggled
+    if (hideOffline) {
+        regularData = regularData.filter(d => d.totals.shots > 0 || d.totals.ventas > 0);
+    }
+    
     const enReporte = dashData.find(d => d.name === 'EN REPORTE');
 
     // Calculate synthetic totals dynamically
@@ -1098,8 +1115,10 @@ function renderDashTable() {
         
         if (isSpecial && d.totals.shots === 0) badgeClass = '';
 
+        const isOffline = (!isSpecial && d.totals.shots === 0 && d.totals.ventas === 0);
+
         let rowHTML = `<td style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-right: 1px solid var(--border);">${idx}</td>`;
-        rowHTML += `<td><strong>${d.name}</strong></td>`;
+        rowHTML += `<td style="${isOffline ? 'color: var(--text-muted);' : ''}"><strong>${d.name}</strong></td>`;
         
         if (isMatrixMode) {
             matrixDates.forEach(date => {
@@ -1108,21 +1127,21 @@ function renderDashTable() {
                 const isEmpty = (s === 0 && v === 0);
                 const sDisplay = isEmpty ? '' : s;
                 const vDisplay = isEmpty ? '' : v;
-                rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); font-weight: 600; color: ${s > 0 ? 'var(--text-main)' : 'var(--text-muted)'};">${sDisplay}</td>`;
-                rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); font-weight: 800; color: ${v > 0 ? 'var(--primary)' : 'var(--text-muted)'};">${vDisplay}</td>`;
+                rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); font-weight: 600; color: ${s > 0 ? 'var(--text-main)' : 'var(--text-muted)'};">${isOffline ? 'OFF' : sDisplay}</td>`;
+                rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); font-weight: 800; color: ${v > 0 ? 'var(--primary)' : 'var(--text-muted)'};">${isOffline ? 'OFF' : vDisplay}</td>`;
             });
         }
         
         rowHTML += `
-            <td style="text-align: center; border-left: 2px solid var(--primary); font-weight: bold;">${d.totals.shots}</td>
-            <td style="text-align: center; border-left: 1px solid var(--border); font-weight: bold; color: var(--primary);">${d.totals.ventas}</td>
-            <td style="text-align: center; border-left: 1px solid var(--border);"><span class="badge ${badgeClass}">${(d.cierre * 100).toFixed(1)}%</span></td>
-            <td style="text-align: center; border-left: 1px solid var(--border);">${d.totals.ads}</td>
-            <td style="text-align: center; border-left: 1px solid var(--border);">${d.totals.links}</td>
+            <td style="text-align: center; border-left: 2px solid var(--primary); font-weight: bold; color: ${isOffline ? 'var(--text-muted)' : 'inherit'};">${isOffline ? 'OFF' : d.totals.shots}</td>
+            <td style="text-align: center; border-left: 1px solid var(--border); font-weight: bold; color: ${isOffline ? 'var(--text-muted)' : 'var(--primary)'};">${isOffline ? 'OFF' : d.totals.ventas}</td>
+            <td style="text-align: center; border-left: 1px solid var(--border);"><span class="${isOffline ? '' : 'badge ' + badgeClass}" style="${isOffline ? 'color: var(--text-muted); font-weight: normal;' : ''}">${isOffline ? '-' : (d.cierre * 100).toFixed(1) + '%'}</span></td>
+            <td style="text-align: center; border-left: 1px solid var(--border); color: ${isOffline ? 'var(--text-muted)' : 'inherit'};">${isOffline ? '-' : d.totals.ads}</td>
+            <td style="text-align: center; border-left: 1px solid var(--border); color: ${isOffline ? 'var(--text-muted)' : 'inherit'};">${isOffline ? '-' : d.totals.links}</td>
         `;
         
         if (currentUser && currentUser.role === 'admin') {
-            rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); color: var(--danger);">${d.totals.cxl}</td>`;
+            rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); color: ${isOffline ? 'var(--text-muted)' : 'var(--danger)'};">${isOffline ? '-' : d.totals.cxl}</td>`;
         }
         
         tr.innerHTML = rowHTML;
