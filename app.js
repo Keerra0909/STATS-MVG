@@ -828,6 +828,21 @@ async function loadDashboard() {
     const startStr = document.getElementById('dash-start').value;
     const endStr = document.getElementById('dash-end').value;
 
+    const subtitle = document.getElementById('dash-table-subtitle');
+    if (subtitle && startStr && endStr) {
+        const s = new Date(startStr + 'T12:00:00');
+        const e = new Date(endStr + 'T12:00:00');
+        const opts = { day: 'numeric', month: 'short' };
+        if (s.getTime() === e.getTime()) {
+            subtitle.innerText = `(${s.toLocaleDateString('es-ES', opts)})`;
+        } else if (s.getDate() === 1 && new Date(e.getTime() + 86400000).getDate() === 1) {
+            // It's a full month
+            subtitle.innerText = `(Mes de ${s.toLocaleDateString('es-ES', {month: 'long'})})`;
+        } else {
+            subtitle.innerText = `(${s.toLocaleDateString('es-ES', opts)} - ${e.toLocaleDateString('es-ES', opts)})`;
+        }
+    }
+
     const tbody = document.getElementById('dash-table-body');
     if (tbody) {
         tbody.style.opacity = '0.5';
