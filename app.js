@@ -40,6 +40,7 @@ async function loadRepWeekly() {
     
     const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
     
+    const fetchPromises = [];
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
@@ -51,8 +52,21 @@ async function loadRepWeekly() {
         
         const cleanName = currentUser.name.replace(/ /g, '_');
         const docId = `${cleanName}_${dateStr}`;
-        const statDoc = await firestore.collection('stats').doc(docId).get();
-        const stat = statDoc.exists ? statDoc.data() : null;
+        fetchPromises.push(
+            firestore.collection('stats').doc(docId).get().then(doc => ({
+                index: i,
+                dateStr: dateStr,
+                stat: doc.exists ? doc.data() : null
+            }))
+        );
+    }
+    
+    const results = await Promise.all(fetchPromises);
+    
+    results.forEach(result => {
+        const i = result.index;
+        const dateStr = result.dateStr;
+        const stat = result.stat;
         
         const tr = document.createElement('tr');
         
@@ -70,7 +84,7 @@ async function loadRepWeekly() {
         tr.innerHTML = `
             <td>
                 <strong>${dias[i]}</strong>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">${m}/${day}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${dateStr.substring(5).replace('-', '/')}</div>
             </td>
             <td style="text-align: center;"><input type="number" id="rep-shots-${i}" value="${stat ? stat.shots : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" id="rep-ventas-${i}" value="${stat ? stat.ventas : 0}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
@@ -84,7 +98,7 @@ async function loadRepWeekly() {
             </td>
         `;
         tbody.appendChild(tr);
-    }
+    });
 }
 
 function editRepStat(index) {

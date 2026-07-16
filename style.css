@@ -143,3 +143,9 @@ button:active:not(:disabled) {
 
 /* Utilities */
 .date-selector, .date-range { display: flex; gap: 1rem; align-items: center; }
+
+@media (max-width: 600px) {
+  .data-table th, .data-table td { padding: 0.2rem 0.3rem; font-size: 0.85rem; }
+  .input-field { width: 45px !important; padding: 0.2rem !important; }
+  .card { padding: 0.8rem; }
+}
