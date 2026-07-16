@@ -77,8 +77,10 @@ html[data-theme="light"] .nav-links {
     color: #bbb;  /* visible grey in dark mode */
 }
 html[data-theme="light"] .nav-btn { color: #555; }
-.nav-btn:hover { color: #fff; }
-html[data-theme="light"] .nav-btn:hover { color: #111; }
+@media (hover: hover) {
+    .nav-btn:hover { color: #fff; }
+    html[data-theme="light"] .nav-btn:hover { color: #111; }
+}
 .nav-btn.active { color: #000 !important; font-weight: 700; }
 #theme-toggle { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
 
@@ -111,25 +113,27 @@ button, .btn-primary, .btn-secondary, .btn-danger, .btn-success {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
     background: transparent;
 }
-button:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+@media (hover: hover) {
+    button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
 }
 button:active:not(:disabled) {
     transform: translateY(0);
     box-shadow: none;
 }
 .btn-primary { color: #00bcd4; border: 1px solid #00bcd4; }
-.btn-primary:hover { background: rgba(0, 188, 212, 0.1); }
+@media (hover: hover) { .btn-primary:hover { background: rgba(0, 188, 212, 0.1); } }
 
 .btn-secondary { color: var(--text-main); border: 1px solid var(--border); }
-.btn-secondary:hover { background: rgba(128, 128, 128, 0.1); }
+@media (hover: hover) { .btn-secondary:hover { background: rgba(128, 128, 128, 0.1); } }
 
 .btn-danger { color: #e74c3c; border: 1px solid #e74c3c; }
-.btn-danger:hover { background: rgba(231, 76, 60, 0.1); }
+@media (hover: hover) { .btn-danger:hover { background: rgba(231, 76, 60, 0.1); } }
 
 .btn-success { color: #2ecc71; border: 1px solid #2ecc71; }
-.btn-success:hover { background: rgba(46, 204, 113, 0.1); }
+@media (hover: hover) { .btn-success:hover { background: rgba(46, 204, 113, 0.1); } }
 
 .btn-icon {
     background: transparent !important;
@@ -141,9 +145,11 @@ button:active:not(:disabled) {
     opacity: 0.6;
     border-radius: 6px;
 }
-.btn-icon:hover {
-    background: rgba(231, 76, 60, 0.1) !important;
-    opacity: 1;
+@media (hover: hover) {
+    .btn-icon:hover {
+        background: rgba(231, 76, 60, 0.1) !important;
+        opacity: 1;
+    }
 }
 
 /* Team Grid */
@@ -227,8 +233,10 @@ button:active:not(:disabled) {
     transition: color 0.2s ease;
 }
 
-.dash-range-btn:hover {
-    color: #fff;
+@media (hover: hover) {
+    .dash-range-btn:hover {
+        color: #fff;
+    }
 }
 
 .dash-range-btn.active {
@@ -266,8 +274,10 @@ html[data-theme="dark"] .dash-range-btn {
     color: #999;
 }
 
-html[data-theme="dark"] .dash-range-btn:hover {
-    color: #fff;
+@media (hover: hover) {
+    html[data-theme="dark"] .dash-range-btn:hover {
+        color: #fff;
+    }
 }
 
 html[data-theme="dark"] .date-pill-input {
@@ -292,8 +302,10 @@ html[data-theme="light"] .dash-range-btn {
     color: #555;
 }
 
-html[data-theme="light"] .dash-range-btn:hover {
-    color: #111;
+@media (hover: hover) {
+    html[data-theme="light"] .dash-range-btn:hover {
+        color: #111;
+    }
 }
 
 html[data-theme="light"] .date-pill-input {
