@@ -11,7 +11,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const firestore = firebase.firestore();
-firestore.enablePersistence().catch(err => console.error("Persistence error:", err));
+// firestore.enablePersistence().catch(err => console.error("Persistence error:", err)); // Disabled for massive iOS performance boost
 
 // --- Auth State ---
 let currentUser = null;
