@@ -770,6 +770,9 @@ function setDashRange(type) {
 
     if (type === 'today') {
         // start and end are today
+    } else if (type === 'yesterday') {
+        start.setDate(today.getDate() - 1);
+        end = new Date(start);
     } else if (type === 'week') {
         const day = start.getDay();
         const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
