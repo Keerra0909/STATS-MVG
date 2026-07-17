@@ -205,7 +205,7 @@ button:active:not(:disabled) {
 }
 
 /* The sliding pill - sits behind the buttons */
-#seg-pill {
+#seg-pill, #academy-seg-pill {
     position: absolute;
     top: 4px;
     left: 4px;
@@ -333,7 +333,7 @@ html[data-theme="light"] .date-pill-input {
 @media (max-width: 768px) {
     .stats-cards { grid-template-columns: 1fr; } /* Stack cards on very small iPads/phones */
     .date-range { flex-wrap: wrap; justify-content: center; border-radius: 12px; padding: 0.5rem; }
-    #seg-pill { display: none; } /* Disable sliding pill on multi-line wrap */
+    #seg-pill, #academy-seg-pill { display: none; } /* Disable sliding pill on multi-line wrap */
     .dash-range-btn.active { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); color: #fff !important; }
 }
 /* KPI Cards — light mode gets subtle border/shadow */

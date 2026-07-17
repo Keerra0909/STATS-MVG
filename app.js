@@ -856,9 +856,8 @@ function moveAcademyPill(btn) {
     const containerRect = container.getBoundingClientRect();
     const btnRect = btn.getBoundingClientRect();
     
-    const offsetLeft = btnRect.left - containerRect.left;
+    pill.style.left = (btnRect.left - containerRect.left) + 'px';
     pill.style.width = `${btnRect.width}px`;
-    pill.style.transform = `translateX(${offsetLeft}px)`;
     pill.style.opacity = '1';
 }
 
@@ -1256,7 +1255,8 @@ function renderDashTable() {
         }
         
         let ventasColor = 'var(--primary)';
-        let ventasStyle = 'font-weight: bold;';
+        let ventasStyle = 'font-weight: bold; font-size: 1.05rem;';
+        let shotsStyle = 'font-weight: bold; font-size: 1.05rem;';
         let adsColor = isOffline ? 'var(--text-muted)' : 'inherit';
         let linksColor = isOffline ? 'var(--text-muted)' : 'inherit';
 
@@ -1265,14 +1265,15 @@ function renderDashTable() {
             if (v <= 8) ventasColor = '#ef4444';
             else if (v <= 13) ventasColor = '#f59e0b';
             else ventasColor = '#10b981';
-            ventasStyle = 'font-weight: 900; font-size: 1.15rem;';
+            ventasStyle = 'font-weight: 900; font-size: 1.05rem;';
+            shotsStyle = 'font-weight: 900; font-size: 1.05rem;';
             
             if (d.totals.ads === 0) adsColor = '#ef4444';
             if (d.totals.links === 0) linksColor = '#ef4444';
         }
 
         rowHTML += `
-            <td style="text-align: center; border-left: 2px solid var(--primary); font-weight: bold; color: ${isOffline ? 'var(--text-muted)' : 'inherit'};">${isOffline ? 'OFF' : d.totals.shots}</td>
+            <td style="text-align: center; border-left: 2px solid var(--primary); ${shotsStyle} color: ${isOffline ? 'var(--text-muted)' : 'inherit'};">${isOffline ? 'OFF' : d.totals.shots}</td>
             <td style="text-align: center; border-left: 1px solid var(--border); ${ventasStyle} color: ${isOffline ? 'var(--text-muted)' : ventasColor};">${isOffline ? 'OFF' : d.totals.ventas}</td>
             <td style="text-align: center; border-left: 1px solid var(--border);"><span class="${isOffline ? '' : 'badge ' + badgeClass}" style="${isOffline ? 'color: var(--text-muted); font-weight: normal;' : ''}">${isOffline ? '-' : (d.cierre * 100).toFixed(1) + '%'}</span></td>
             <td style="text-align: center; border-left: 1px solid var(--border); font-weight: ${(!isOffline && d.totals.ads === 0) ? 'bold' : 'normal'}; color: ${adsColor};">${isOffline ? '-' : d.totals.ads}</td>
