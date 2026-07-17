@@ -1068,28 +1068,43 @@ async function loadDashboard() {
     
     const rangeType = localStorage.getItem('dashRangeType') || 'week';
     const useMonthly = !isMatrixMode && ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
+    const todayMonth = new Date().toISOString().substring(0, 7); // YYYY-MM current month
     const startMonth = startStr.substring(0, 7);
     const endMonth = endStr.substring(0, 7);
+    // For the current month, always use daily stats (it's incomplete); past months use rollups
+    const pastEndMonth = (endMonth >= todayMonth) ? 
+        new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString().substring(0, 7)
+        : endMonth;
+    const usePastMonthly = useMonthly && startMonth <= pastEndMonth;
     
-    if (globalActiveUsers) {
-        if (useMonthly) {
-            statsSnap = await firestore.collection('stats_monthly')
+    if (!globalActiveUsers) {
+        usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+    }
+    
+    if (useMonthly) {
+        // Fetch in parallel: past months from rollups + current month from daily stats
+        const queries = [];
+        if (usePastMonthly) {
+            queries.push(firestore.collection('stats_monthly')
                 .where('month', '>=', startMonth)
-                .where('month', '<=', endMonth).get();
-        } else {
-            statsSnap = await firestore.collection('stats')
-                .where('date', '>=', startStr)
-                .where('date', '<=', endStr).get();
+                .where('month', '<=', pastEndMonth).get());
         }
+        // Always fetch current month from daily stats if it falls in the range
+        if (endMonth >= todayMonth) {
+            const curMonthStart = `${todayMonth}-01`;
+            queries.push(firestore.collection('stats')
+                .where('date', '>=', curMonthStart)
+                .where('date', '<=', endStr).get());
+        }
+        const snaps = await Promise.all(queries);
+        // Merge all docs into a single iterable
+        const allDocs = [];
+        snaps.forEach(snap => snap.forEach(doc => allDocs.push(doc)));
+        statsSnap = { forEach: (fn) => allDocs.forEach(fn), docs: allDocs };
     } else {
-        const statsQuery = useMonthly 
-            ? firestore.collection('stats_monthly').where('month', '>=', startMonth).where('month', '<=', endMonth)
-            : firestore.collection('stats').where('date', '>=', startStr).where('date', '<=', endStr);
-            
-        [usersSnap, statsSnap] = await Promise.all([
-            firestore.collection('users').where('active', '==', 1).get(),
-            statsQuery.get()
-        ]);
+        statsSnap = await firestore.collection('stats')
+            .where('date', '>=', startStr)
+            .where('date', '<=', endStr).get();
     }
 
     let users = [];
@@ -1122,11 +1137,14 @@ async function loadDashboard() {
             userStats[s.name].totals.ads += s.ads || 0;
             userStats[s.name].totals.links += s.links || 0;
             userStats[s.name].totals.cxl += s.cxl || 0;
-            if (!userStats[s.name].daily[s.date]) {
-                userStats[s.name].daily[s.date] = { shots: 0, ventas: 0 };
+            // Only accumulate daily breakdown when reading from daily stats (not monthly rollups)
+            if (!useMonthly && s.date) {
+                if (!userStats[s.name].daily[s.date]) {
+                    userStats[s.name].daily[s.date] = { shots: 0, ventas: 0 };
+                }
+                userStats[s.name].daily[s.date].shots += s.shots || 0;
+                userStats[s.name].daily[s.date].ventas += s.ventas || 0;
             }
-            userStats[s.name].daily[s.date].shots += s.shots || 0;
-            userStats[s.name].daily[s.date].ventas += s.ventas || 0;
         }
     });
 
@@ -2003,33 +2021,44 @@ async function loadAcademy() {
     
     const rangeType = localStorage.getItem('academyRangeType') || 'month';
     const useMonthly = ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
+    const todayMonth = new Date().toISOString().substring(0, 7);
     const startMonth = startStr.substring(0, 7);
     const endMonth = endStr.substring(0, 7);
+    const pastEndMonth = (endMonth >= todayMonth) ?
+        new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString().substring(0, 7)
+        : endMonth;
+    const usePastMonthly = useMonthly && startMonth <= pastEndMonth;
     
-    if (globalActiveUsers) {
-        if (useMonthly) {
-            statsSnap = await firestore.collection('stats_monthly')
-                .where('month', '>=', startMonth)
-                .where('month', '<=', endMonth).get();
-        } else {
-            statsSnap = await firestore.collection('stats')
-                .where('date', '>=', startStr)
-                .where('date', '<=', endStr).get();
-        }
-    } else {
-        const statsQuery = useMonthly 
-            ? firestore.collection('stats_monthly').where('month', '>=', startMonth).where('month', '<=', endMonth)
-            : firestore.collection('stats').where('date', '>=', startStr).where('date', '<=', endStr);
-            
-        [usersSnap, statsSnap] = await Promise.all([
-            firestore.collection('users').where('active', '==', 1).get(),
-            statsQuery.get()
-        ]);
+    if (!globalActiveUsers) {
+        usersSnap = await firestore.collection('users').where('active', '==', 1).get();
         let users = [];
         usersSnap.forEach(doc => {
             if (doc.data().role !== 'admin') users.push(doc.data());
         });
         globalActiveUsers = users;
+    }
+    
+    if (useMonthly) {
+        const queries = [];
+        if (usePastMonthly) {
+            queries.push(firestore.collection('stats_monthly')
+                .where('month', '>=', startMonth)
+                .where('month', '<=', pastEndMonth).get());
+        }
+        if (endMonth >= todayMonth) {
+            const curMonthStart = `${todayMonth}-01`;
+            queries.push(firestore.collection('stats')
+                .where('date', '>=', curMonthStart)
+                .where('date', '<=', endStr).get());
+        }
+        const snaps = await Promise.all(queries);
+        const allDocs = [];
+        snaps.forEach(snap => snap.forEach(doc => allDocs.push(doc)));
+        statsSnap = { forEach: (fn) => allDocs.forEach(fn), docs: allDocs };
+    } else {
+        statsSnap = await firestore.collection('stats')
+            .where('date', '>=', startStr)
+            .where('date', '<=', endStr).get();
     }
 
     let users = globalActiveUsers;
