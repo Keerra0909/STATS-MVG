@@ -813,6 +813,12 @@ function setAcademyRange(type) {
     } else if (type === 'lastMonth') {
         start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
         end = new Date(today.getFullYear(), today.getMonth(), 0);
+    } else if (type === 'last2Months') {
+        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    } else if (type === 'last4Months') {
+        start = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+    } else if (type === 'last6Months') {
+        start = new Date(today.getFullYear(), today.getMonth() - 5, 1);
     } else if (type === 'year') {
         start = new Date(today.getFullYear(), 0, 1);
     }
@@ -873,6 +879,12 @@ function setDashRange(type) {
     } else if (type === 'lastMonth') {
         start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
         end = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of previous month
+    } else if (type === 'last2Months') {
+        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    } else if (type === 'last4Months') {
+        start = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+    } else if (type === 'last6Months') {
+        start = new Date(today.getFullYear(), today.getMonth() - 5, 1);
     } else if (type === 'year') {
         start = new Date(today.getFullYear(), 0, 1);
     }
