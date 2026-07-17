@@ -254,6 +254,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         setDashRange('week');
     }
 
+    const savedAcademyRange = localStorage.getItem('academyRangeType');
+    if (savedAcademyRange) {
+        setAcademyRange(savedAcademyRange);
+    } else {
+        setAcademyRange('month'); // Defaults to month for better academy data
+    }
+
     // Position the sliding pill instantly on first load (no animation)
     requestAnimationFrame(() => {
         const pill = document.getElementById('seg-pill');
@@ -267,6 +274,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             pill.style.width = btnRect.width + 'px';
             // Re-enable transition after placement
             requestAnimationFrame(() => { pill.style.transition = ''; });
+        }
+        
+        const academyPill = document.getElementById('academy-seg-pill');
+        const activeAcademyBtn = document.querySelector('#academy-segmented .dash-range-btn.active');
+        const academyContainer = document.getElementById('academy-segmented');
+        if (academyPill && activeAcademyBtn && academyContainer) {
+            academyPill.style.transition = 'none';
+            const cRect = academyContainer.getBoundingClientRect();
+            const bRect = activeAcademyBtn.getBoundingClientRect();
+            academyPill.style.left = (bRect.left - cRect.left) + 'px';
+            academyPill.style.width = bRect.width + 'px';
+            requestAnimationFrame(() => { academyPill.style.transition = ''; });
         }
     });
 
@@ -777,6 +796,72 @@ async function saveDaily(cleanName, realName) {
 }
 
 // --- Dashboard ---
+function setAcademyRange(type) {
+    if (type) localStorage.setItem('academyRangeType', type);
+    const today = new Date();
+    let start = new Date(today);
+    let end = new Date(today);
+
+    if (type === 'today') {
+        // start and end are today
+    } else if (type === 'yesterday') {
+        start.setDate(today.getDate() - 1);
+        end = new Date(start);
+    } else if (type === 'week') {
+        const day = start.getDay();
+        const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+        start.setDate(diff);
+    } else if (type === 'lastWeek') {
+        const day = start.getDay();
+        const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+        start.setDate(diff - 7);
+        end = new Date(start);
+        end.setDate(start.getDate() + 6);
+    } else if (type === 'month') {
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
+    } else if (type === 'lastMonth') {
+        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        end = new Date(today.getFullYear(), today.getMonth(), 0);
+    } else if (type === 'year') {
+        start = new Date(today.getFullYear(), 0, 1);
+    }
+
+    const fmt = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    };
+
+    document.getElementById('academy-start').value = fmt(start);
+    document.getElementById('academy-end').value = fmt(end);
+    
+    document.querySelectorAll('#academy-segmented .dash-range-btn').forEach(btn => btn.classList.remove('active'));
+    if (type) {
+        const activeBtn = document.getElementById(`academy-btn-${type}`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+            moveAcademyPill(activeBtn);
+        }
+    }
+    
+    loadAcademy();
+}
+
+function moveAcademyPill(btn) {
+    const pill = document.getElementById('academy-seg-pill');
+    const container = document.getElementById('academy-segmented');
+    if (!pill || !container || !btn) return;
+    
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    
+    const offsetLeft = btnRect.left - containerRect.left;
+    pill.style.width = `${btnRect.width}px`;
+    pill.style.transform = `translateX(${offsetLeft}px)`;
+    pill.style.opacity = '1';
+}
+
 function setDashRange(type) {
     if (type) localStorage.setItem('dashRangeType', type);
     const today = new Date();
@@ -1170,12 +1255,28 @@ function renderDashTable() {
             });
         }
         
+        let ventasColor = 'var(--primary)';
+        let ventasStyle = 'font-weight: bold;';
+        let adsColor = isOffline ? 'var(--text-muted)' : 'inherit';
+        let linksColor = isOffline ? 'var(--text-muted)' : 'inherit';
+
+        if (!isOffline) {
+            const v = d.totals.ventas;
+            if (v <= 8) ventasColor = '#ef4444';
+            else if (v <= 13) ventasColor = '#f59e0b';
+            else ventasColor = '#10b981';
+            ventasStyle = 'font-weight: 900; font-size: 1.15rem;';
+            
+            if (d.totals.ads === 0) adsColor = '#ef4444';
+            if (d.totals.links === 0) linksColor = '#ef4444';
+        }
+
         rowHTML += `
             <td style="text-align: center; border-left: 2px solid var(--primary); font-weight: bold; color: ${isOffline ? 'var(--text-muted)' : 'inherit'};">${isOffline ? 'OFF' : d.totals.shots}</td>
-            <td style="text-align: center; border-left: 1px solid var(--border); font-weight: bold; color: ${isOffline ? 'var(--text-muted)' : 'var(--primary)'};">${isOffline ? 'OFF' : d.totals.ventas}</td>
+            <td style="text-align: center; border-left: 1px solid var(--border); ${ventasStyle} color: ${isOffline ? 'var(--text-muted)' : ventasColor};">${isOffline ? 'OFF' : d.totals.ventas}</td>
             <td style="text-align: center; border-left: 1px solid var(--border);"><span class="${isOffline ? '' : 'badge ' + badgeClass}" style="${isOffline ? 'color: var(--text-muted); font-weight: normal;' : ''}">${isOffline ? '-' : (d.cierre * 100).toFixed(1) + '%'}</span></td>
-            <td style="text-align: center; border-left: 1px solid var(--border); color: ${isOffline ? 'var(--text-muted)' : 'inherit'};">${isOffline ? '-' : d.totals.ads}</td>
-            <td style="text-align: center; border-left: 1px solid var(--border); color: ${isOffline ? 'var(--text-muted)' : 'inherit'};">${isOffline ? '-' : d.totals.links}</td>
+            <td style="text-align: center; border-left: 1px solid var(--border); font-weight: ${(!isOffline && d.totals.ads === 0) ? 'bold' : 'normal'}; color: ${adsColor};">${isOffline ? '-' : d.totals.ads}</td>
+            <td style="text-align: center; border-left: 1px solid var(--border); font-weight: ${(!isOffline && d.totals.links === 0) ? 'bold' : 'normal'}; color: ${linksColor};">${isOffline ? '-' : d.totals.links}</td>
         `;
         
         if (currentUser && currentUser.role === 'admin') {
