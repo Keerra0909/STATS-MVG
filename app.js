@@ -216,6 +216,8 @@ async function saveRepStat(index, dateStr) {
             new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
         ]);
 
+        await recalculateUserMonth(cleanName, currentUser.name, dateStr).catch(e => console.error("Error updating monthly stats:", e));
+
         document.getElementById(`rep-shots-${index}`).disabled = true;
         document.getElementById(`rep-ventas-${index}`).disabled = true;
         document.getElementById(`rep-ads-${index}`).disabled = true;
@@ -316,6 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Run migrations without blocking UI
     injectWednesdayData().catch(e => console.error(e));
     syncDexieToFirestore().catch(e => console.error(e));
+    buildMonthlyStats().catch(e => console.error(e));
 
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
@@ -341,6 +344,80 @@ async function syncDexieToFirestore() {
     } catch (e) {
         console.error(e);
     }
+}
+
+async function buildMonthlyStats() {
+    if (localStorage.getItem('monthly_stats_built_v2')) return;
+    try {
+        console.log("Building monthly stats...");
+        const statsSnap = await firestore.collection('stats').get();
+        const monthlyData = {};
+        statsSnap.forEach(doc => {
+            const data = doc.data();
+            if (!data.name || !data.date) return;
+            const month = data.date.substring(0, 7); // YYYY-MM
+            const cleanName = data.name.replace(/ /g, '_');
+            const docId = `${cleanName}_${month}`;
+            if (!monthlyData[docId]) {
+                monthlyData[docId] = {
+                    name: data.name,
+                    month: month,
+                    shots: 0, ventas: 0, ads: 0, links: 0, cxl: 0
+                };
+            }
+            monthlyData[docId].shots += (Number(data.shots) || 0);
+            monthlyData[docId].ventas += (Number(data.ventas) || 0);
+            monthlyData[docId].ads += (Number(data.ads) || 0);
+            monthlyData[docId].links += (Number(data.links) || 0);
+            monthlyData[docId].cxl += (Number(data.cxl) || 0);
+        });
+        
+        let batch = firestore.batch();
+        let count = 0;
+        for (const docId in monthlyData) {
+            const ref = firestore.collection('stats_monthly').doc(docId);
+            batch.set(ref, monthlyData[docId], { merge: true });
+            count++;
+            if (count === 400) {
+                await batch.commit();
+                batch = firestore.batch();
+                count = 0;
+            }
+        }
+        if (count > 0) await batch.commit();
+        localStorage.setItem('monthly_stats_built_v2', 'true');
+        console.log("Monthly stats built successfully");
+    } catch (e) {
+        console.error("Error building monthly stats:", e);
+    }
+}
+
+async function recalculateUserMonth(cleanName, realName, dateStr) {
+    const month = dateStr.substring(0, 7); // YYYY-MM
+    const startStr = `${month}-01`;
+    const endStr = `${month}-31`;
+    const snap = await firestore.collection('stats')
+        .where('name', '==', realName)
+        .where('date', '>=', startStr)
+        .where('date', '<=', endStr)
+        .get();
+        
+    let shots = 0, ventas = 0, ads = 0, links = 0, cxl = 0;
+    snap.forEach(doc => {
+        const d = doc.data();
+        shots += (Number(d.shots) || 0);
+        ventas += (Number(d.ventas) || 0);
+        ads += (Number(d.ads) || 0);
+        links += (Number(d.links) || 0);
+        cxl += (Number(d.cxl) || 0);
+    });
+    
+    const docId = `${cleanName}_${month}`;
+    await firestore.collection('stats_monthly').doc(docId).set({
+        name: realName,
+        month: month,
+        shots, ventas, ads, links, cxl
+    }, { merge: true });
 }
 
 function handleAuthState() {
@@ -777,6 +854,8 @@ async function saveDaily(cleanName, realName) {
             new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
         ]);
         
+        await recalculateUserMonth(cleanName, realName, dateStr).catch(e => console.error("Error updating monthly stats:", e));
+        
         // Lock the row
         document.getElementById(`shots-${cleanName}`).disabled = true;
         document.getElementById(`ventas-${cleanName}`).disabled = true;
@@ -987,18 +1066,29 @@ async function loadDashboard() {
     let usersSnap = null;
     let statsSnap = null;
     
+    const rangeType = localStorage.getItem('dashRangeType') || 'week';
+    const useMonthly = !isMatrixMode && ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
+    const startMonth = startStr.substring(0, 7);
+    const endMonth = endStr.substring(0, 7);
+    
     if (globalActiveUsers) {
-        statsSnap = await firestore.collection('stats')
-            .where('date', '>=', startStr)
-            .where('date', '<=', endStr)
-            .get();
+        if (useMonthly) {
+            statsSnap = await firestore.collection('stats_monthly')
+                .where('month', '>=', startMonth)
+                .where('month', '<=', endMonth).get();
+        } else {
+            statsSnap = await firestore.collection('stats')
+                .where('date', '>=', startStr)
+                .where('date', '<=', endStr).get();
+        }
     } else {
+        const statsQuery = useMonthly 
+            ? firestore.collection('stats_monthly').where('month', '>=', startMonth).where('month', '<=', endMonth)
+            : firestore.collection('stats').where('date', '>=', startStr).where('date', '<=', endStr);
+            
         [usersSnap, statsSnap] = await Promise.all([
             firestore.collection('users').where('active', '==', 1).get(),
-            firestore.collection('stats')
-                .where('date', '>=', startStr)
-                .where('date', '<=', endStr)
-                .get()
+            statsQuery.get()
         ]);
     }
 
@@ -1911,18 +2001,29 @@ async function loadAcademy() {
     let usersSnap = null;
     let statsSnap = null;
     
+    const rangeType = localStorage.getItem('academyRangeType') || 'month';
+    const useMonthly = ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
+    const startMonth = startStr.substring(0, 7);
+    const endMonth = endStr.substring(0, 7);
+    
     if (globalActiveUsers) {
-        statsSnap = await firestore.collection('stats')
-            .where('date', '>=', startStr)
-            .where('date', '<=', endStr)
-            .get();
+        if (useMonthly) {
+            statsSnap = await firestore.collection('stats_monthly')
+                .where('month', '>=', startMonth)
+                .where('month', '<=', endMonth).get();
+        } else {
+            statsSnap = await firestore.collection('stats')
+                .where('date', '>=', startStr)
+                .where('date', '<=', endStr).get();
+        }
     } else {
+        const statsQuery = useMonthly 
+            ? firestore.collection('stats_monthly').where('month', '>=', startMonth).where('month', '<=', endMonth)
+            : firestore.collection('stats').where('date', '>=', startStr).where('date', '<=', endStr);
+            
         [usersSnap, statsSnap] = await Promise.all([
             firestore.collection('users').where('active', '==', 1).get(),
-            firestore.collection('stats')
-                .where('date', '>=', startStr)
-                .where('date', '<=', endStr)
-                .get()
+            statsQuery.get()
         ]);
         let users = [];
         usersSnap.forEach(doc => {
