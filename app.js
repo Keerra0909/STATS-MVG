@@ -1251,6 +1251,10 @@ function renderDashTable() {
                 if (v <= 29) ventasColor = '#ef4444'; // Red up to 29
                 else if (v <= 54) ventasColor = '#f59e0b'; // Yellow up to 54
                 else ventasColor = '#10b981'; // Green for 55+
+            } else if (currentRange === 'year') {
+                if (v <= 220) ventasColor = '#ef4444'; // Red up to 220
+                else if (v <= 300) ventasColor = '#f59e0b'; // Yellow up to 300
+                else ventasColor = '#10b981'; // Green for 301+
             } else if (currentRange === 'today' || currentRange === 'yesterday') {
                 ventasColor = 'var(--primary)'; // Default blue
             } else {
