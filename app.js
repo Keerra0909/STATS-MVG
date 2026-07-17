@@ -1991,10 +1991,10 @@ async function loadAcademy() {
         }
         
         arr.forEach(rep => {
-            ul.innerHTML += `<li style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                <span style="font-weight: bold; font-size: 0.9rem;">${rep.name}</span>
+            ul.innerHTML += `<li style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.4rem;">
+                <span style="font-weight: bold; font-size: 0.9rem; color: var(--text-main);">${rep.name}</span>
                 <div style="text-align: right;">
-                    <div style="font-size: 0.8rem; color: #aaa;">${rep.shots} sh <span style="margin: 0 4px;">|</span> <span style="color: white; font-weight: bold;">${rep.pct.toFixed(1)}%</span></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">${rep.shots} sh <span style="margin: 0 4px; opacity: 0.3;">|</span> <span style="color: var(--text-main); font-weight: bold;">${rep.pct.toFixed(1)}%</span></div>
                 </div>
             </li>`;
         });
