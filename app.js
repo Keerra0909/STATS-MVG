@@ -1521,23 +1521,22 @@ function downloadImage() {
             try {
                 const res = await fetch(dataUrl);
                 const blob = await res.blob();
-                const file = new File([blob], filename, { type: 'image/png' });
-                
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file] });
-                } else {
-                    const link = document.createElement('a');
-                    link.download = filename;
-                    link.href = URL.createObjectURL(blob);
-                    link.click();
-                }
+                // Always force direct download to Downloads folder (no share sheet)
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = URL.createObjectURL(blob);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             } catch(e) {
                 console.error(e);
-                // Fallback if share fails
+                // Fallback
                 const link = document.createElement('a');
                 link.download = filename;
                 link.href = dataUrl;
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
             }
             
             btn.innerHTML = origHTML;
