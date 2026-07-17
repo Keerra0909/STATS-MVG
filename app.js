@@ -242,8 +242,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Set today for inputs
     const d = new Date();
     const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    document.getElementById('entry-date').value = today;
-    setDashRange('week');
+    
+    document.getElementById('entry-date').value = localStorage.getItem('entryDate') || today;
+    
+    const savedRange = localStorage.getItem('dashRangeType');
+    if (savedRange) {
+        setDashRange(savedRange);
+    } else {
+        setDashRange('week');
+    }
 
     // Position the sliding pill instantly on first load (no animation)
     requestAnimationFrame(() => {
@@ -632,7 +639,8 @@ async function deleteUser(id, name) {
 // --- Daily Entry ---
 async function loadDailyEntries() {
     const dateStr = document.getElementById('entry-date').value;
-    
+    localStorage.setItem('entryDate', dateStr);
+    const dateObj = new Date(dateStr + 'T12:00:00');
     const dayLabel = document.getElementById('entry-day-label');
     if (dayLabel) {
         if (!dateStr) {
@@ -764,6 +772,7 @@ async function saveDaily(cleanName, realName) {
 
 // --- Dashboard ---
 function setDashRange(type) {
+    if (type) localStorage.setItem('dashRangeType', type);
     const today = new Date();
     let start = new Date(today);
     let end = new Date(today); // Default to today
