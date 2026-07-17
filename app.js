@@ -1245,9 +1245,17 @@ function renderDashTable() {
 
         if (!isOffline) {
             const v = d.totals.ventas;
-            if (v <= 8) ventasColor = '#ef4444';
-            else if (v <= 13) ventasColor = '#f59e0b';
-            else ventasColor = '#10b981';
+            const currentRange = localStorage.getItem('dashRangeType') || 'week';
+            
+            if (currentRange === 'month' || currentRange === 'lastMonth') {
+                if (v <= 29) ventasColor = '#ef4444'; // Red up to 29
+                else if (v <= 54) ventasColor = '#f59e0b'; // Yellow up to 54
+                else ventasColor = '#10b981'; // Green for 55+
+            } else {
+                if (v <= 8) ventasColor = '#ef4444';
+                else if (v <= 13) ventasColor = '#f59e0b';
+                else ventasColor = '#10b981';
+            }
             ventasStyle = 'font-weight: 800; font-size: 0.95rem;';
             shotsStyle = 'font-weight: 800; font-size: 0.95rem;';
             
