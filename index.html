@@ -32,6 +32,7 @@
             <button onclick="navigate('rep-weekly')" class="nav-btn" id="btn-rep-weekly">Tu Semana</button>
             <button onclick="navigate('daily')" class="nav-btn" id="btn-daily">Captura Diaria</button>
             <button onclick="navigate('team')" class="nav-btn" id="btn-team">Equipo</button>
+            <button onclick="navigate('academy')" class="nav-btn" id="btn-academy">Academia</button>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <button id="btn-logout" class="btn-secondary" style="display: none; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="logout()">Cerrar Sesión</button>
@@ -300,8 +301,72 @@
                 </div>
             </div>
         </section>
+        
+        <!-- ACADEMY VIEW -->
+        <section id="view-academy" class="view hidden">
+            <div class="card" style="margin-bottom: 2rem;">
+                <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; color: var(--primary);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
+                    Academia y Análisis de Desempeño
+                </h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 20px;">
+                        <input type="date" id="academy-start" onchange="loadAcademy()" class="date-pill-input">
+                        <span style="color: #666; font-size: 0.7rem; text-transform: uppercase;">hasta</span>
+                        <input type="date" id="academy-end" onchange="loadAcademy()" class="date-pill-input">
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 2rem; padding: 1rem; background: rgba(0, 198, 255, 0.05); border: 1px solid rgba(0, 198, 255, 0.1); border-radius: 12px; text-align: center;">
+                    <h3 style="color: #aaa; margin-bottom: 0.5rem; font-size: 0.9rem;">Promedio del Equipo en este Periodo</h3>
+                    <div style="display: flex; justify-content: center; gap: 2rem;">
+                        <div><strong style="font-size: 1.5rem; color: white;" id="academy-avg-shots">-</strong> <span style="color: #888; font-size: 0.8rem;">Shots</span></div>
+                        <div><strong style="font-size: 1.5rem; color: white;" id="academy-avg-pct">-</strong> <span style="color: #888; font-size: 0.8rem;">Cierre</span></div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                    
+                    <div class="card" style="border-top: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05);">
+                        <h3 style="color: #ef4444; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            Focos Rojos
+                        </h3>
+                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 1rem;">Bajo volumen y bajo cierre.<br><em>Sugerencia: Entrenamiento básico desde cero.</em></p>
+                        <ul id="academy-list-rojos" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;"></ul>
+                    </div>
+
+                    <div class="card" style="border-top: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05);">
+                        <h3 style="color: #f59e0b; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                            Francotiradores
+                        </h3>
+                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 1rem;">Cierre alto, pero pocos clientes.<br><em>Sugerencia: Curso de prospección.</em></p>
+                        <ul id="academy-list-francotiradores" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;"></ul>
+                    </div>
+
+                    <div class="card" style="border-top: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05);">
+                        <h3 style="color: #3b82f6; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            Ametralladoras
+                        </h3>
+                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 1rem;">Muchos clientes, pero bajo cierre.<br><em>Sugerencia: Curso de cierre y objeciones.</em></p>
+                        <ul id="academy-list-ametralladoras" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;"></ul>
+                    </div>
+
+                    <div class="card" style="border-top: 4px solid #10b981; background: rgba(16, 185, 129, 0.05);">
+                        <h3 style="color: #10b981; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            Estrellas
+                        </h3>
+                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 1rem;">Alto volumen y alto cierre.<br><em>Sugerencia: Usarlos como mentores.</em></p>
+                        <ul id="academy-list-estrellas" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;"></ul>
+                    </div>
+
+                </div>
+            </div>
     </main>
 
-    <script src="app.js?v=19"></script>
+    <script src="app.js?v=20"></script>
 </body>
 </html>

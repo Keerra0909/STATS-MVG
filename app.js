@@ -244,6 +244,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     
     document.getElementById('entry-date').value = localStorage.getItem('entryDate') || today;
+    document.getElementById('academy-start').value = today;
+    document.getElementById('academy-end').value = today;
     
     const savedRange = localStorage.getItem('dashRangeType');
     if (savedRange) {
@@ -323,6 +325,7 @@ async function syncDexieToFirestore() {
 }
 
 function handleAuthState() {
+    currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (!currentUser) {
         document.getElementById('btn-logout').style.display = 'none';
         navigate('login');
@@ -336,6 +339,7 @@ function handleAuthState() {
         document.getElementById('btn-rep-weekly').style.display = 'none';
         document.getElementById('btn-daily').style.display = 'block';
         document.getElementById('btn-team').style.display = 'block';
+        document.getElementById('btn-academy').style.display = 'block';
         document.getElementById('btn-download-top3').style.display = 'inline-block';
         document.getElementById('btn-download').style.display = 'inline-block';
         document.getElementById('btn-export-excel').style.display = 'inline-block';
@@ -350,6 +354,7 @@ function handleAuthState() {
         document.getElementById('btn-rep-weekly').style.display = 'block';
         document.getElementById('btn-daily').style.display = 'none';
         document.getElementById('btn-team').style.display = 'none';
+        document.getElementById('btn-academy').style.display = 'none';
         document.getElementById('btn-download-top3').style.display = 'none';
         document.getElementById('btn-download').style.display = 'none';
         document.getElementById('btn-export-excel').style.display = 'none';
@@ -490,6 +495,7 @@ function navigate(viewId) {
     if (viewId === 'daily') loadDailyEntries();
     if (viewId === 'dashboard') loadDashboard();
     if (viewId === 'rep-weekly') loadRepWeekly();
+    if (viewId === 'academy') loadAcademy();
 }
 
 function moveNavPill(btn) {
@@ -1777,4 +1783,128 @@ async function exportToExcel() {
         btn.innerHTML = origHTML;
         btn.disabled = false;
     }
+}
+
+// --- Academy ---
+async function loadAcademy() {
+    const startStr = document.getElementById('academy-start').value;
+    const endStr = document.getElementById('academy-end').value;
+
+    if (!startStr || !endStr) return;
+
+    let usersSnap = null;
+    let statsSnap = null;
+    
+    if (globalActiveUsers) {
+        statsSnap = await firestore.collection('stats')
+            .where('date', '>=', startStr)
+            .where('date', '<=', endStr)
+            .get();
+    } else {
+        [usersSnap, statsSnap] = await Promise.all([
+            firestore.collection('users').where('active', '==', 1).get(),
+            firestore.collection('stats')
+                .where('date', '>=', startStr)
+                .where('date', '<=', endStr)
+                .get()
+        ]);
+        let users = [];
+        usersSnap.forEach(doc => {
+            if (doc.data().role !== 'admin') users.push(doc.data());
+        });
+        globalActiveUsers = users;
+    }
+
+    let users = globalActiveUsers;
+    
+    let userStats = {};
+    users.forEach(u => {
+        userStats[u.name] = { shots: 0, ventas: 0 };
+    });
+
+    statsSnap.forEach(doc => {
+        const data = doc.data();
+        if (data.name && userStats[data.name]) {
+            userStats[data.name].shots += (Number(data.shots) || 0);
+            userStats[data.name].ventas += (Number(data.ventas) || 0);
+        }
+    });
+
+    let totalShots = 0;
+    let totalVentas = 0;
+    let activeRepsCount = 0;
+
+    let repsArray = [];
+    for (let name in userStats) {
+        const s = userStats[name];
+        if (s.shots > 0) { // Only count reps that actually had traffic in this period
+            totalShots += s.shots;
+            totalVentas += s.ventas;
+            activeRepsCount++;
+            
+            repsArray.push({
+                name,
+                shots: s.shots,
+                ventas: s.ventas,
+                pct: (s.ventas / s.shots) * 100
+            });
+        }
+    }
+
+    if (activeRepsCount === 0) {
+        document.getElementById('academy-avg-shots').innerText = '0';
+        document.getElementById('academy-avg-pct').innerText = '0%';
+        ['rojos', 'francotiradores', 'ametralladoras', 'estrellas'].forEach(id => {
+            document.getElementById(`academy-list-${id}`).innerHTML = '<li style="color:#666; font-size: 0.8rem;">Sin datos en este periodo</li>';
+        });
+        return;
+    }
+
+    const avgShots = totalShots / activeRepsCount;
+    const avgPct = (totalVentas / totalShots) * 100;
+
+    document.getElementById('academy-avg-shots').innerText = avgShots.toFixed(1);
+    document.getElementById('academy-avg-pct').innerText = avgPct.toFixed(1) + '%';
+
+    const lists = {
+        rojos: [],
+        francotiradores: [],
+        ametralladoras: [],
+        estrellas: []
+    };
+
+    repsArray.forEach(rep => {
+        const highShots = rep.shots >= avgShots;
+        const highPct = rep.pct >= avgPct;
+
+        if (highShots && highPct) lists.estrellas.push(rep);
+        else if (highShots && !highPct) lists.ametralladoras.push(rep);
+        else if (!highShots && highPct) lists.francotiradores.push(rep);
+        else lists.rojos.push(rep);
+    });
+
+    const renderList = (id, arr) => {
+        const ul = document.getElementById(`academy-list-${id}`);
+        ul.innerHTML = '';
+        if (arr.length === 0) {
+            ul.innerHTML = '<li style="color:#666; font-size: 0.8rem;">Ninguno</li>';
+            return;
+        }
+        
+        arr.sort((a, b) => b.ventas - a.ventas);
+        
+        arr.forEach(rep => {
+            ul.innerHTML += `<li style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <span style="font-weight: bold; font-size: 0.9rem;">${rep.name}</span>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.8rem; color: #aaa;">${rep.shots} sh <span style="margin: 0 4px;">|</span> <span style="color: white; font-weight: bold;">${rep.pct.toFixed(1)}%</span></div>
+                </div>
+            </li>`;
+        });
+    };
+
+    renderList('rojos', lists.rojos);
+    renderList('francotiradores', lists.francotiradores);
+    renderList('ametralladoras', lists.ametralladoras);
+    renderList('estrellas', lists.estrellas);
 }
