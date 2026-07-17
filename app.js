@@ -651,26 +651,30 @@ async function loadDailyEntries() {
         tbody.style.opacity = '0.5';
     }
 
-    const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
     let users = [];
-    usersSnap.forEach(doc => {
-        if (doc.data().role !== 'admin') users.push(doc.data());
-    });
-    users.sort((a, b) => a.name.localeCompare(b.name));
+    if (globalActiveUsers) {
+        users = globalActiveUsers;
+    } else {
+        const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+        usersSnap.forEach(doc => {
+            if (doc.data().role !== 'admin') users.push(doc.data());
+        });
+        users.sort((a, b) => a.name.localeCompare(b.name));
+        globalActiveUsers = users;
+    }
     
-    // Fetch all stats in parallel for massive performance boost on slow networks
-    const statPromises = users.map(u => {
-        const cleanName = u.name.replace(/ /g, '_');
-        const docId = `${cleanName}_${dateStr}`;
-        return firestore.collection('stats').doc(docId).get();
+    // Fetch all stats in a single query for massive performance boost
+    const statsSnap = await firestore.collection('stats').where('date', '==', dateStr).get();
+    const statsMap = {};
+    statsSnap.forEach(doc => {
+        statsMap[doc.id] = doc.data();
     });
-    const statDocs = await Promise.all(statPromises);
     
     for (let i = 0; i < users.length; i++) {
         const u = users[i];
         const cleanName = u.name.replace(/ /g, '_');
-        const statDoc = statDocs[i];
-        const stat = statDoc.exists ? statDoc.data() : null;
+        const docId = `${cleanName}_${dateStr}`;
+        const stat = statsMap[docId] || null;
         
         const isLocked = !!stat;
         const disabledAttr = isLocked ? 'disabled' : '';
@@ -824,6 +828,7 @@ let sortAsc = false;
 let isMatrixMode = false;
 let matrixDates = [];
 let hideOffline = false;
+let globalActiveUsers = null;
 
 function toggleOffline() {
     hideOffline = !hideOffline;
@@ -873,18 +878,33 @@ async function loadDashboard() {
     // Matrix mode for ranges between 2 and 7 days
     isMatrixMode = matrixDates.length > 1 && matrixDates.length <= 7;
 
-    const [usersSnap, statsSnap] = await Promise.all([
-        firestore.collection('users').where('active', '==', 1).get(),
-        firestore.collection('stats')
+    let usersSnap = null;
+    let statsSnap = null;
+    
+    if (globalActiveUsers) {
+        statsSnap = await firestore.collection('stats')
             .where('date', '>=', startStr)
             .where('date', '<=', endStr)
-            .get()
-    ]);
+            .get();
+    } else {
+        [usersSnap, statsSnap] = await Promise.all([
+            firestore.collection('users').where('active', '==', 1).get(),
+            firestore.collection('stats')
+                .where('date', '>=', startStr)
+                .where('date', '<=', endStr)
+                .get()
+        ]);
+    }
 
     let users = [];
-    usersSnap.forEach(doc => {
-        if (doc.data().role !== 'admin') users.push(doc.data());
-    });
+    if (globalActiveUsers) {
+        users = globalActiveUsers;
+    } else {
+        usersSnap.forEach(doc => {
+            if (doc.data().role !== 'admin') users.push(doc.data());
+        });
+        globalActiveUsers = users;
+    }
 
     let userStats = {};
     users.forEach(u => {
