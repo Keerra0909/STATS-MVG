@@ -261,39 +261,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         setAcademyRange('month'); // Defaults to month for better academy data
     }
 
-    // Position the sliding pill instantly on first load (no animation)
-    requestAnimationFrame(() => {
-        const pill = document.getElementById('seg-pill');
-        const activeBtn = document.querySelector('.dash-range-btn.active');
-        if (pill && activeBtn) {
-            pill.style.transition = 'none';
-            pill.style.left = activeBtn.offsetLeft + 'px';
-            pill.style.width = activeBtn.offsetWidth + 'px';
-            // Re-enable transition after placement
-            requestAnimationFrame(() => { pill.style.transition = ''; });
-        }
-        
-        const academyPill = document.getElementById('academy-seg-pill');
-        const activeAcademyBtn = document.querySelector('#academy-segmented .dash-range-btn.active');
-        if (academyPill && activeAcademyBtn) {
-            academyPill.style.transition = 'none';
-            academyPill.style.left = activeAcademyBtn.offsetLeft + 'px';
-            academyPill.style.width = activeAcademyBtn.offsetWidth + 'px';
-            requestAnimationFrame(() => { academyPill.style.transition = ''; });
-        }
-    });
+    function initPills() {
+        requestAnimationFrame(() => {
+            const pill = document.getElementById('seg-pill');
+            const activeBtn = document.querySelector('.dash-range-btn.active');
+            if (pill && activeBtn) {
+                pill.style.transition = 'none';
+                pill.style.left = activeBtn.offsetLeft + 'px';
+                pill.style.width = activeBtn.offsetWidth + 'px';
+                requestAnimationFrame(() => { pill.style.transition = ''; });
+            }
+            
+            const academyPill = document.getElementById('academy-seg-pill');
+            const activeAcademyBtn = document.querySelector('#academy-segmented .dash-range-btn.active');
+            if (academyPill && activeAcademyBtn) {
+                academyPill.style.transition = 'none';
+                academyPill.style.left = activeAcademyBtn.offsetLeft + 'px';
+                academyPill.style.width = activeAcademyBtn.offsetWidth + 'px';
+                requestAnimationFrame(() => { academyPill.style.transition = ''; });
+            }
 
-    // Position the nav pill instantly on first load
-    requestAnimationFrame(() => {
-        const navPill = document.getElementById('nav-pill');
-        const activeNavBtn = document.querySelector('.nav-btn.active');
-        if (navPill && activeNavBtn) {
-            navPill.style.transition = 'none';
-            navPill.style.left = activeNavBtn.offsetLeft + 'px';
-            navPill.style.width = activeNavBtn.offsetWidth + 'px';
-            requestAnimationFrame(() => { navPill.style.transition = ''; });
-        }
-    });
+            const navPill = document.getElementById('nav-pill');
+            const activeNavBtn = document.querySelector('.nav-btn.active');
+            if (navPill && activeNavBtn) {
+                navPill.style.transition = 'none';
+                navPill.style.left = activeNavBtn.offsetLeft + 'px';
+                navPill.style.width = activeNavBtn.offsetWidth + 'px';
+                requestAnimationFrame(() => { navPill.style.transition = ''; });
+            }
+        });
+    }
+
+    // Run immediately on DOMContentLoaded
+    initPills();
+    
+    // Run when all resources (including fonts) have fully loaded
+    window.addEventListener('load', initPills);
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(initPills);
+    }
+    
+    // Run on window resize to keep pills aligned
+    window.addEventListener('resize', initPills);
 
 
     // Pre-populate users if empty
