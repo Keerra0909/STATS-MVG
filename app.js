@@ -265,26 +265,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     requestAnimationFrame(() => {
         const pill = document.getElementById('seg-pill');
         const activeBtn = document.querySelector('.dash-range-btn.active');
-        const container = document.getElementById('dash-segmented');
-        if (pill && activeBtn && container) {
+        if (pill && activeBtn) {
             pill.style.transition = 'none';
-            const containerRect = container.getBoundingClientRect();
-            const btnRect = activeBtn.getBoundingClientRect();
-            pill.style.left = (btnRect.left - containerRect.left) + 'px';
-            pill.style.width = btnRect.width + 'px';
+            pill.style.left = activeBtn.offsetLeft + 'px';
+            pill.style.width = activeBtn.offsetWidth + 'px';
             // Re-enable transition after placement
             requestAnimationFrame(() => { pill.style.transition = ''; });
         }
         
         const academyPill = document.getElementById('academy-seg-pill');
         const activeAcademyBtn = document.querySelector('#academy-segmented .dash-range-btn.active');
-        const academyContainer = document.getElementById('academy-segmented');
-        if (academyPill && activeAcademyBtn && academyContainer) {
+        if (academyPill && activeAcademyBtn) {
             academyPill.style.transition = 'none';
-            const cRect = academyContainer.getBoundingClientRect();
-            const bRect = activeAcademyBtn.getBoundingClientRect();
-            academyPill.style.left = (bRect.left - cRect.left) + 'px';
-            academyPill.style.width = bRect.width + 'px';
+            academyPill.style.left = activeAcademyBtn.offsetLeft + 'px';
+            academyPill.style.width = activeAcademyBtn.offsetWidth + 'px';
             requestAnimationFrame(() => { academyPill.style.transition = ''; });
         }
     });
@@ -293,13 +287,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     requestAnimationFrame(() => {
         const navPill = document.getElementById('nav-pill');
         const activeNavBtn = document.querySelector('.nav-btn.active');
-        const navContainer = document.getElementById('nav-links');
-        if (navPill && activeNavBtn && navContainer) {
+        if (navPill && activeNavBtn) {
             navPill.style.transition = 'none';
-            const cRect = navContainer.getBoundingClientRect();
-            const bRect = activeNavBtn.getBoundingClientRect();
-            navPill.style.left = (bRect.left - cRect.left) + 'px';
-            navPill.style.width = bRect.width + 'px';
+            navPill.style.left = activeNavBtn.offsetLeft + 'px';
+            navPill.style.width = activeNavBtn.offsetWidth + 'px';
             requestAnimationFrame(() => { navPill.style.transition = ''; });
         }
     });
@@ -850,14 +841,9 @@ function setAcademyRange(type) {
 
 function moveAcademyPill(btn) {
     const pill = document.getElementById('academy-seg-pill');
-    const container = document.getElementById('academy-segmented');
-    if (!pill || !container || !btn) return;
-    
-    const containerRect = container.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    
-    pill.style.left = (btnRect.left - containerRect.left) + 'px';
-    pill.style.width = `${btnRect.width}px`;
+    if (!pill || !btn) return;
+    pill.style.left = btn.offsetLeft + 'px';
+    pill.style.width = btn.offsetWidth + 'px';
     pill.style.opacity = '1';
 }
 
@@ -916,12 +902,9 @@ function setDashRange(type) {
 
 function movePill(btn) {
     const pill = document.getElementById('seg-pill');
-    const container = document.getElementById('dash-segmented');
-    if (!pill || !btn || !container) return;
-    const containerRect = container.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    pill.style.left = (btnRect.left - containerRect.left) + 'px';
-    pill.style.width = btnRect.width + 'px';
+    if (!pill || !btn) return;
+    pill.style.left = btn.offsetLeft + 'px';
+    pill.style.width = btn.offsetWidth + 'px';
 }
 
 let dashData = [];
