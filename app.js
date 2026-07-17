@@ -1255,8 +1255,8 @@ function renderDashTable() {
         }
         
         let ventasColor = 'var(--primary)';
-        let ventasStyle = 'font-weight: bold; font-size: 1.05rem;';
-        let shotsStyle = 'font-weight: bold; font-size: 1.05rem;';
+        let ventasStyle = 'font-weight: bold; font-size: 0.95rem;';
+        let shotsStyle = 'font-weight: bold; font-size: 0.95rem;';
         let adsColor = isOffline ? 'var(--text-muted)' : 'inherit';
         let linksColor = isOffline ? 'var(--text-muted)' : 'inherit';
 
@@ -1265,8 +1265,8 @@ function renderDashTable() {
             if (v <= 8) ventasColor = '#ef4444';
             else if (v <= 13) ventasColor = '#f59e0b';
             else ventasColor = '#10b981';
-            ventasStyle = 'font-weight: 900; font-size: 1.05rem;';
-            shotsStyle = 'font-weight: 900; font-size: 1.05rem;';
+            ventasStyle = 'font-weight: 800; font-size: 0.95rem;';
+            shotsStyle = 'font-weight: 800; font-size: 0.95rem;';
             
             if (d.totals.ads === 0) adsColor = '#ef4444';
             if (d.totals.links === 0) linksColor = '#ef4444';
@@ -1633,16 +1633,12 @@ function downloadTop3() {
             try {
                 const res = await fetch(dataUrl);
                 const blob = await res.blob();
-                const file = new File([blob], filename, { type: 'image/png' });
                 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file] });
-                } else {
-                    const link = document.createElement('a');
-                    link.download = filename;
-                    link.href = URL.createObjectURL(blob);
-                    link.click();
-                }
+                // Force direct download to the Downloads folder
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = URL.createObjectURL(blob);
+                link.click();
             } catch(e) {
                 console.error(e);
                 const link = document.createElement('a');
@@ -1993,7 +1989,15 @@ async function loadAcademy() {
             return;
         }
         
-        arr.sort((a, b) => b.ventas - a.ventas);
+        if (id === 'ametralladoras') {
+            arr.sort((a, b) => b.shots - a.shots);
+        } else if (id === 'francotiradores') {
+            arr.sort((a, b) => b.pct - a.pct);
+        } else if (id === 'estrellas') {
+            arr.sort((a, b) => b.ventas - a.ventas);
+        } else if (id === 'rojos') {
+            arr.sort((a, b) => a.pct - b.pct); // Worst close % first
+        }
         
         arr.forEach(rep => {
             ul.innerHTML += `<li style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
