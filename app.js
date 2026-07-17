@@ -386,7 +386,10 @@ async function buildMonthlyStats() {
         }
         if (count > 0) await batch.commit();
         localStorage.setItem('monthly_stats_built_v2', 'true');
-        console.log("Monthly stats built successfully");
+        console.log("Monthly stats built successfully - reloading dashboard");
+        // Reload dashboard so fast path (stats_monthly) kicks in immediately
+        if (typeof loadDashboard === 'function') loadDashboard();
+        if (typeof loadAcademy === 'function') loadAcademy();
     } catch (e) {
         console.error("Error building monthly stats:", e);
     }
@@ -1067,7 +1070,8 @@ async function loadDashboard() {
     let statsSnap = null;
     
     const rangeType = localStorage.getItem('dashRangeType') || 'week';
-    const useMonthly = !isMatrixMode && ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
+    const monthlyReady = !!localStorage.getItem('monthly_stats_built_v2');
+    const useMonthly = monthlyReady && !isMatrixMode && ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
     const todayMonth = new Date().toISOString().substring(0, 7); // YYYY-MM current month
     const startMonth = startStr.substring(0, 7);
     const endMonth = endStr.substring(0, 7);
@@ -2020,7 +2024,8 @@ async function loadAcademy() {
     let statsSnap = null;
     
     const rangeType = localStorage.getItem('academyRangeType') || 'month';
-    const useMonthly = ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
+    const monthlyReady = !!localStorage.getItem('monthly_stats_built_v2');
+    const useMonthly = monthlyReady && ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
     const todayMonth = new Date().toISOString().substring(0, 7);
     const startMonth = startStr.substring(0, 7);
     const endMonth = endStr.substring(0, 7);
