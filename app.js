@@ -11,7 +11,8 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const firestore = firebase.firestore();
-// firestore.enablePersistence().catch(err => console.error("Persistence error:", err)); // Disabled for massive iOS performance boost
+firestore.enablePersistence({ synchronizeTabs: true })
+    .catch(err => console.warn("Firestore persistence disabled:", err.code));
 
 // --- Auth State ---
 let currentUser = null;
@@ -998,8 +999,28 @@ async function loadDashboard() {
 
     const tbody = document.getElementById('dash-table-body');
     if (tbody) {
-        tbody.style.opacity = '0.5';
+        let skeletonRows = '';
+        for(let i=0; i<6; i++) {
+            skeletonRows += `<tr><td colspan="15" style="padding: 15px;"><div class="skeleton" style="width: 100%; height: 20px;"></div></td></tr>`;
+        }
+        tbody.innerHTML = skeletonRows;
+        tbody.style.opacity = '1';
         tbody.style.pointerEvents = 'none';
+    }
+
+    const podium = document.getElementById('top3-podium');
+    if (podium) {
+        podium.innerHTML = `
+            <div class="podium-bar skeleton" style="height: 120px;"></div>
+            <div class="podium-bar skeleton" style="height: 160px; transform: scale(1.1); margin: 0 15px;"></div>
+            <div class="podium-bar skeleton" style="height: 90px;"></div>
+        `;
+    }
+
+    const chartContainer = document.getElementById('dash-chart-container');
+    if (chartContainer) {
+        const h = chartContainer.offsetHeight || 150;
+        chartContainer.innerHTML = `<div class="skeleton" style="width: 100%; height: ${h}px;"></div><canvas id="dash-trend-chart" style="display:none;"></canvas>`;
     }
 
     const startDate = new Date(startStr + 'T00:00:00');
@@ -2171,6 +2192,11 @@ async function renderDashChart(startStr, endStr, rangeType) {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
     const textColor = isDark ? '#888' : '#aaa';
+
+    // Remove skeleton
+    const skeleton = container.querySelector('.skeleton');
+    if (skeleton) skeleton.remove();
+    canvas.style.display = 'block';
 
     try {
         if (dashChartInstance) {
