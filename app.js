@@ -2093,18 +2093,37 @@ async function renderDashChart(startStr, endStr, rangeType) {
                 .where('date', '>=', `${todayMonth}-01`)
                 .where('date', '<=', endStr).get());
         }
-        const snaps = await Promise.all(queries);
-        snaps.forEach(snap => snap.forEach(doc => {
-            const d = doc.data();
-            let key = d.month;
-            if (!key && d.date) key = d.date.substring(0, 7);
-            if (!key && doc.id.includes('_')) key = doc.id.split('_').pop(); // Fallback for legacy stats_monthly docs like "NANCY_2026-06"
+        let hasMonthlyData = false;
+        snaps.forEach(snap => {
+            if (!snap.empty) hasMonthlyData = true;
+            snap.forEach(doc => {
+                const d = doc.data();
+                let key = d.month;
+                if (!key && d.date) key = d.date.substring(0, 7);
+                if (!key && doc.id.includes('_')) key = doc.id.split('_').pop(); 
+                
+                if (!key) return;
+                if (!buckets[key]) buckets[key] = { shots: 0, ventas: 0 };
+                buckets[key].shots  += Number(d.shots)  || 0;
+                buckets[key].ventas += Number(d.ventas) || 0;
+            });
+        });
+
+        // FALLBACK: If stats_monthly was completely empty (e.g. migration failed), fetch from raw stats
+        if (!hasMonthlyData && startMonth <= pastEnd) {
+            const fallbackSnap = await firestore.collection('stats')
+                .where('date', '>=', startStr)
+                .where('date', '<=', endStr).get();
             
-            if (!key) return;
-            if (!buckets[key]) buckets[key] = { shots: 0, ventas: 0 };
-            buckets[key].shots  += Number(d.shots)  || 0;
-            buckets[key].ventas += Number(d.ventas) || 0;
-        }));
+            fallbackSnap.forEach(doc => {
+                const d = doc.data();
+                if (!d.date) return;
+                const key = d.date.substring(0, 7);
+                if (!buckets[key]) buckets[key] = { shots: 0, ventas: 0 };
+                buckets[key].shots  += Number(d.shots)  || 0;
+                buckets[key].ventas += Number(d.ventas) || 0;
+            });
+        }
     } else {
         // Fetch daily stats directly for day-by-day granularity (Este Mes, Mes Pasado)
         const snap = await firestore.collection('stats')
@@ -2248,7 +2267,9 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     ]);
 
     const byMonth = {};
+    let hasMonthlyData = false;
     pastSnap.forEach(doc => {
+        hasMonthlyData = true;
         const d = doc.data();
         let m = d.month;
         if (!m && doc.id.includes('_')) m = doc.id.split('_').pop();
@@ -2258,15 +2279,35 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
         byMonth[m].shots  += Number(d.shots)  || 0;
         byMonth[m].ventas += Number(d.ventas) || 0;
     });
-    // Merge current month daily
-    curSnap.forEach(doc => {
-        const d = doc.data();
-        const m = d.date ? d.date.substring(0, 7) : null;
-        if (!m) return;
-        if (!byMonth[m]) byMonth[m] = { shots: 0, ventas: 0 };
-        byMonth[m].shots  += Number(d.shots)  || 0;
-        byMonth[m].ventas += Number(d.ventas) || 0;
-    });
+
+    if (!hasMonthlyData) {
+        // Fallback for academy modal if stats_monthly is empty
+        const fallbackSnap = await firestore.collection('stats')
+            .where('name', '==', repName)
+            .where('date', '>=', startMonth + '-01')
+            .where('date', '<=', todayMonth + '-31')
+            .get();
+        fallbackSnap.forEach(doc => {
+            const d = doc.data();
+            if (!d.date) return;
+            const m = d.date.substring(0, 7);
+            if (!byMonth[m]) byMonth[m] = { shots: 0, ventas: 0 };
+            byMonth[m].shots  += Number(d.shots)  || 0;
+            byMonth[m].ventas += Number(d.ventas) || 0;
+        });
+    }
+
+    // Merge current month daily (only needed if fallback wasn't triggered, but safe to do anyway as it will just overwrite/add)
+    if (hasMonthlyData) {
+        curSnap.forEach(doc => {
+            const d = doc.data();
+            const m = d.date ? d.date.substring(0, 7) : null;
+            if (!m) return;
+            if (!byMonth[m]) byMonth[m] = { shots: 0, ventas: 0 };
+            byMonth[m].shots  += Number(d.shots)  || 0;
+            byMonth[m].ventas += Number(d.ventas) || 0;
+        });
+    }
 
     const sortedMonths = Object.keys(byMonth).sort();
     const labels  = sortedMonths.map(k => {
