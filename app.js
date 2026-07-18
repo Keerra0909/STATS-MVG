@@ -2056,6 +2056,7 @@ async function loadAcademy() {
     renderList('estrellas', lists.estrellas);
 }
 // --- Dashboard Trend Chart ---
+let dashChartInstance = null;
 async function renderDashChart(startStr, endStr, rangeType) {
     const chartRanges = ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'];
     const container = document.getElementById('dash-chart-container');
@@ -2142,63 +2143,81 @@ async function renderDashChart(startStr, endStr, rangeType) {
     const shotsData  = sortedKeys.map(k => buckets[k].shots);
     const ventasData = sortedKeys.map(k => buckets[k].ventas);
 
-    if (dashTrendChart) { dashTrendChart.destroy(); dashTrendChart = null; }
-
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
     const textColor = isDark ? '#888' : '#aaa';
 
-    dashTrendChart = new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: 'Shots',
-                    data: shotsData,
-                    borderColor: '#00d2ff',
-                    backgroundColor: 'rgba(0,210,255,0.08)',
-                    borderWidth: 2.5,
-                    pointRadius: sortedKeys.length <= 31 ? 3 : 0,
-                    pointHoverRadius: 5,
-                    tension: 0.35,
-                    fill: true,
-                },
-                {
-                    label: 'Ventas',
-                    data: ventasData,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16,185,129,0.08)',
-                    borderWidth: 2.5,
-                    pointRadius: sortedKeys.length <= 31 ? 3 : 0,
-                    pointHoverRadius: 5,
-                    tension: 0.35,
-                    fill: true,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.85)',
-                    titleColor: '#fff',
-                    bodyColor: '#ccc',
-                    padding: 10,
-                    callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`
-                    }
-                }
-            },
-            scales: {
-                x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, maxTicksLimit: 12 } },
-                y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } }, beginAtZero: true }
-            }
+    let debugEl = document.getElementById('debug-dash');
+    if (!debugEl) {
+        debugEl = document.createElement('div');
+        debugEl.id = 'debug-dash';
+        debugEl.style.fontSize = '9px';
+        debugEl.style.color = 'gray';
+        debugEl.style.marginTop = '10px';
+        container.appendChild(debugEl);
+    }
+    debugEl.textContent = "DEBUG DASH: " + JSON.stringify(sortedKeys) + " | " + labels.join(',') + " | " + startStr;
+
+    try {
+        if (dashChartInstance) {
+            dashChartInstance.destroy();
+            dashChartInstance = null;
         }
-    });
+
+        dashChartInstance = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Shots',
+                        data: shotsData,
+                        borderColor: '#00d2ff',
+                        backgroundColor: 'rgba(0,210,255,0.08)',
+                        borderWidth: 2.5,
+                        pointRadius: sortedKeys.length <= 31 ? 3 : 0,
+                        pointHoverRadius: 5,
+                        tension: 0.35,
+                        fill: true,
+                    },
+                    {
+                        label: 'Ventas',
+                        data: ventasData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,0.08)',
+                        borderWidth: 2.5,
+                        pointRadius: sortedKeys.length <= 31 ? 3 : 0,
+                        pointHoverRadius: 5,
+                        tension: 0.35,
+                        fill: true,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        titleColor: '#fff',
+                        bodyColor: '#ccc',
+                        padding: 10,
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, maxTicksLimit: 12 } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } }, beginAtZero: true }
+                }
+            }
+        });
+    } catch (e) {
+        debugEl.textContent += " | ERROR: " + e.message;
+    }
 }
 
 // --- Academy Modal ---
