@@ -33,6 +33,7 @@
             <button onclick="navigate('daily')" class="nav-btn" id="btn-daily">Captura Diaria</button>
             <button onclick="navigate('team')" class="nav-btn" id="btn-team">Equipo</button>
             <button onclick="navigate('academy')" class="nav-btn" id="btn-academy">Academia</button>
+            <button onclick="navigate('spiffs')" class="nav-btn" id="btn-spiffs">SPIFF</button>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <button id="btn-logout" class="btn-secondary" style="display: none; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="logout()">Cerrar Sesión</button>
@@ -315,6 +316,59 @@
             </div>
         </section>
         
+        <!-- VISTA: SPIFFS -->
+        <section id="view-spiffs" class="view hidden">
+            <div class="card" style="margin-bottom: 2rem;">
+                <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; color: var(--primary);">
+                    <div style="background: rgba(79,172,254,0.1); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        💰
+                    </div>
+                    Muro de Spiffs
+                </h2>
+                
+                <div id="spiff-admin-panel" style="display: none; background: var(--bg-color); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border);">
+                    <h3 style="margin-top:0; color: #fff;">Crear Nuevo Spiff</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Título / Nombre</label>
+                            <input type="text" id="spiff-title" placeholder="Ej. Ventas tempraneras" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Horario (Opcional)</label>
+                            <input type="text" id="spiff-time" placeholder="Ej. 7:00 AM a 11:00 AM" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Periodo</label>
+                            <select id="spiff-period" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
+                                <option value="diario">Diario</option>
+                                <option value="semanal">Semanal</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Premio</label>
+                            <input type="text" id="spiff-prize" placeholder="Ej. $150 USD" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Métrica a evaluar</label>
+                            <input type="text" id="spiff-metric" placeholder="Ej. Mínimo 7 ventas" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <button onclick="createSpiff()" class="btn-primary" style="width: 100%; height: 42px;">Lanzar Spiff 🔥</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="spiffs-active-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <!-- Active Spiffs injectados aquí -->
+                </div>
+
+                <h3 style="margin-top: 3rem; margin-bottom: 1rem; color: var(--text-muted);">Spiffs Completados (Salón de la fama)</h3>
+                <div id="spiffs-completed-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; opacity: 0.7;">
+                    <!-- Completed Spiffs injectados aquí -->
+                </div>
+            </div>
+        </section>
+
         <!-- ACADEMY VIEW -->
         <section id="view-academy" class="view hidden">
             <div class="card" style="margin-bottom: 2rem;">
@@ -411,7 +465,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=54"></script>
+    <script src="app.js?v=55"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

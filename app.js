@@ -526,6 +526,7 @@ function navigate(viewId) {
     if (viewId === 'dashboard') loadDashboard();
     if (viewId === 'rep-weekly') loadRepWeekly();
     if (viewId === 'academy') loadAcademy();
+    if (viewId === 'spiffs') loadSpiffs();
 }
 
 function moveNavPill(btn) {
@@ -2408,4 +2409,113 @@ function closeAcademyModal(e) {
     if (e && e.target !== document.getElementById('academy-modal')) return;
     document.getElementById('academy-modal').style.display = 'none';
     if (academyModalChart) { academyModalChart.destroy(); academyModalChart = null; }
+}
+
+// --- SPIFFS ---
+async function loadSpiffs() {
+    const adminPanel = document.getElementById('spiff-admin-panel');
+    if (currentUser && currentUser.role === 'admin') {
+        adminPanel.style.display = 'block';
+    } else {
+        adminPanel.style.display = 'none';
+    }
+    
+    const activeContainer = document.getElementById('spiffs-active-container');
+    const completedContainer = document.getElementById('spiffs-completed-container');
+    if(!activeContainer) return;
+    
+    activeContainer.innerHTML = '<div class="skeleton" style="height:150px; width:100%;"></div>';
+    completedContainer.innerHTML = '<div class="skeleton" style="height:100px; width:100%;"></div>';
+
+    try {
+        const snap = await firestore.collection('spiffs').orderBy('createdAt', 'desc').get();
+        activeContainer.innerHTML = '';
+        completedContainer.innerHTML = '';
+        
+        if (snap.empty) {
+            activeContainer.innerHTML = '<p style="color:var(--text-muted);">No hay Spiffs activos.</p>';
+            return;
+        }
+
+        snap.forEach(doc => {
+            const s = doc.data();
+            s.id = doc.id;
+            const card = document.createElement('div');
+            card.style.background = 'var(--surface)';
+            card.style.padding = '1.5rem';
+            card.style.borderRadius = '12px';
+            card.style.border = '1px solid var(--border)';
+            card.style.position = 'relative';
+            
+            if (s.status === 'active') {
+                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">🔥 ${s.title}</h3>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">🕒 ${s.time || 'Día completo'} | 🗓️ ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">🎯 Métrica: ${s.metric}</p>
+                    <div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.5rem 1rem; border-radius:8px; display:inline-block; font-weight:bold; margin-bottom:1rem;">
+                        Premio: ${s.prize}
+                    </div>`;
+                
+                if (currentUser && currentUser.role === 'admin') {
+                    const adminControls = document.createElement('div');
+                    adminControls.style.marginTop = '1rem';
+                    adminControls.style.borderTop = '1px solid var(--border)';
+                    adminControls.style.paddingTop = '1rem';
+                    let selectHtml = `<select id="winner-${s.id}" style="width:100%; margin-bottom:10px; padding:0.5rem; border-radius:6px; background:var(--bg-color); color:var(--text); border:1px solid var(--border);"><option value="">Seleccionar Ganador...</option>`;
+                    
+                    if (globalActiveUsers) {
+                        globalActiveUsers.forEach(u => {
+                            if(u.role !== 'admin') selectHtml += `<option value="${u.name}">${u.name}</option>`;
+                        });
+                    }
+                    
+                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem;">Declarar Ganador 🏆</button>`;
+                    adminControls.innerHTML = selectHtml;
+                    card.appendChild(adminControls);
+                }
+                activeContainer.appendChild(card);
+            } else {
+                card.style.opacity = '0.6';
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">✅ ${s.title}</h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
+                    <div style="background:rgba(79,172,254,0.1); color:#4facfe; padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
+                        👑 Ganador: ${s.winner}
+                    </div>`;
+                completedContainer.appendChild(card);
+            }
+        });
+    } catch (e) {
+        console.error("Error loading spiffs", e);
+    }
+}
+
+async function createSpiff() {
+    const title = document.getElementById('spiff-title').value;
+    const time = document.getElementById('spiff-time').value;
+    const period = document.getElementById('spiff-period').value;
+    const prize = document.getElementById('spiff-prize').value;
+    const metric = document.getElementById('spiff-metric').value;
+    
+    if (!title || !prize || !metric) return alert('Por favor llena el título, premio y métrica.');
+    
+    try {
+        await firestore.collection('spiffs').add({
+            title, time, period, prize, metric, status: 'active', winner: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('spiff-title').value = '';
+        document.getElementById('spiff-time').value = '';
+        document.getElementById('spiff-prize').value = '';
+        document.getElementById('spiff-metric').value = '';
+        loadSpiffs();
+    } catch (e) { console.error(e); alert('Error al crear spiff'); }
+}
+
+async function declareSpiffWinner(id) {
+    const winner = document.getElementById('winner-' + id).value;
+    if (!winner) return alert('Selecciona un ganador primero');
+    try {
+        await firestore.collection('spiffs').doc(id).update({
+            status: 'completed', winner: winner, completedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        loadSpiffs();
+    } catch(e) { console.error(e); alert('Error al declarar ganador'); }
 }
