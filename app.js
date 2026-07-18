@@ -2172,17 +2172,6 @@ async function renderDashChart(startStr, endStr, rangeType) {
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
     const textColor = isDark ? '#888' : '#aaa';
 
-    let debugEl = document.getElementById('debug-dash');
-    if (!debugEl) {
-        debugEl = document.createElement('div');
-        debugEl.id = 'debug-dash';
-        debugEl.style.fontSize = '9px';
-        debugEl.style.color = 'gray';
-        debugEl.style.marginTop = '10px';
-        container.appendChild(debugEl);
-    }
-    debugEl.textContent = "DEBUG DASH: " + JSON.stringify(sortedKeys) + " | " + labels.join(',') + " | " + startStr;
-
     try {
         if (dashChartInstance) {
             dashChartInstance.destroy();
@@ -2241,7 +2230,7 @@ async function renderDashChart(startStr, endStr, rangeType) {
             }
         });
     } catch (e) {
-        debugEl.textContent += " | ERROR: " + e.message;
+        console.error("Error drawing dash chart:", e);
     }
 }
 
@@ -2332,18 +2321,6 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
     const textColor = isDark ? '#888' : '#999';
 
-    let debugEl = document.getElementById('debug-academy');
-    if (!debugEl) {
-        debugEl = document.createElement('div');
-        debugEl.id = 'debug-academy';
-        debugEl.style.fontSize = '9px';
-        debugEl.style.color = 'gray';
-        debugEl.style.marginTop = '10px';
-        const modalInner = document.querySelector('#academy-modal > div');
-        if (modalInner) modalInner.appendChild(debugEl);
-    }
-    if (debugEl) debugEl.textContent = "DEBUG ACADEMY: " + JSON.stringify(sortedMonths) + " | " + labels.join(',');
-
     try {
         academyModalChart = new Chart(canvas, {
             type: 'line',
@@ -2397,7 +2374,7 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
             }
         });
     } catch (e) {
-        if (debugEl) debugEl.textContent += " | ERROR: " + e.message;
+        console.error("Error drawing academy chart:", e);
     }
 }
 
