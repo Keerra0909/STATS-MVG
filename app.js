@@ -2093,9 +2093,15 @@ async function renderDashChart(startStr, endStr, rangeType) {
                 .where('date', '>=', `${todayMonth}-01`)
                 .where('date', '<=', endStr).get());
         }
+        const snaps = await Promise.all(queries);
+        
+        // queries[0] is stats_monthly IF startMonth <= pastEnd
         let hasMonthlyData = false;
+        if (startMonth <= pastEnd && snaps.length > 0) {
+            hasMonthlyData = !snaps[0].empty;
+        }
+
         snaps.forEach(snap => {
-            if (!snap.empty) hasMonthlyData = true;
             snap.forEach(doc => {
                 const d = doc.data();
                 let key = d.month;
@@ -2326,57 +2332,73 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
     const textColor = isDark ? '#888' : '#999';
 
-    academyModalChart = new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: 'Shots',
-                    data: shotsArr,
-                    borderColor: '#4facfe',
-                    backgroundColor: 'rgba(79,172,254,0.1)',
-                    borderWidth: 2.5,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    tension: 0.35,
-                    fill: true,
-                },
-                {
-                    label: 'Ventas',
-                    data: ventasArr,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16,185,129,0.1)',
-                    borderWidth: 2.5,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    tension: 0.35,
-                    fill: true,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.85)',
-                    titleColor: '#fff',
-                    bodyColor: '#ccc',
-                    padding: 10,
-                    callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}`
+    let debugEl = document.getElementById('debug-academy');
+    if (!debugEl) {
+        debugEl = document.createElement('div');
+        debugEl.id = 'debug-academy';
+        debugEl.style.fontSize = '9px';
+        debugEl.style.color = 'gray';
+        debugEl.style.marginTop = '10px';
+        const modalInner = document.querySelector('#academy-modal > div');
+        if (modalInner) modalInner.appendChild(debugEl);
+    }
+    if (debugEl) debugEl.textContent = "DEBUG ACADEMY: " + JSON.stringify(sortedMonths) + " | " + labels.join(',');
+
+    try {
+        academyModalChart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Shots',
+                        data: shotsArr,
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79,172,254,0.1)',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.35,
+                        fill: true,
+                    },
+                    {
+                        label: 'Ventas',
+                        data: ventasArr,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,0.1)',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.35,
+                        fill: true,
                     }
-                }
+                ]
             },
-            scales: {
-                x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
-                y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } }, beginAtZero: true }
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        titleColor: '#fff',
+                        bodyColor: '#ccc',
+                        padding: 10,
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } }, beginAtZero: true }
+                }
             }
-        }
-    });
+        });
+    } catch (e) {
+        if (debugEl) debugEl.textContent += " | ERROR: " + e.message;
+    }
 }
 
 function closeAcademyModal(e) {
