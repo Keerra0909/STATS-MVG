@@ -303,10 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('resize', initPills);
 
 
-    // Pre-populate users if empty
-    );
-        }
-    }
+
     // Run migrations without blocking UI
     buildMonthlyStats().catch(e => console.error(e));
 
