@@ -923,7 +923,16 @@ function setAcademyRange(type) {
 
     document.getElementById('academy-start').value = fmt(start);
     document.getElementById('academy-end').value = fmt(end);
-    
+
+    // Update period label
+    const labelMap = {
+        week: 'Esta Semana', lastWeek: 'Semana Pasada',
+        month: 'Este Mes', lastMonth: 'Mes Pasado',
+        last2Months: 'Últimos 2 Meses', last4Months: 'Últimos 4 Meses',
+        last6Months: 'Últimos 6 Meses', year: 'Este Año'
+    };
+    const labelEl = document.getElementById('academy-period-label');
+    if (labelEl && type) labelEl.textContent = labelMap[type] || '';
     document.querySelectorAll('#academy-segmented .dash-range-btn').forEach(btn => btn.classList.remove('active'));
     if (type) {
         const activeBtn = document.getElementById(`academy-btn-${type}`);
