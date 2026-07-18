@@ -1112,8 +1112,8 @@ async function loadDashboard() {
     const totLinks  = dashData.reduce((sum, u) => sum + u.totals.links, 0);
     const totCierre = totShots > 0 ? (totVentas / totShots) : 0;
 
-    // --- Render Trend Chart ---
-    renderDashChart(statsSnap, startStr, endStr, rangeType);
+    // --- Render Trend Chart (async, runs in background) ---
+    renderDashChart(startStr, endStr, rangeType);
 
     const animateValue = (id, start, end, duration, isPercentage = false) => {
         const obj = document.getElementById(id);
@@ -2056,7 +2056,7 @@ async function loadAcademy() {
     renderList('estrellas', lists.estrellas);
 }
 // --- Dashboard Trend Chart ---
-function renderDashChart(statsSnap, startStr, endStr, rangeType) {
+async function renderDashChart(startStr, endStr, rangeType) {
     const chartRanges = ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'];
     const container = document.getElementById('dash-chart-container');
     const canvas = document.getElementById('dash-trend-chart');
@@ -2070,16 +2070,50 @@ function renderDashChart(statsSnap, startStr, endStr, rangeType) {
 
     const byMonth = ['last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
 
-    // Aggregate by day or month
     const buckets = {};
-    statsSnap.forEach(doc => {
-        const d = doc.data();
-        const key = byMonth ? (d.month || (d.date ? d.date.substring(0, 7) : null)) : d.date;
-        if (!key) return;
-        if (!buckets[key]) buckets[key] = { shots: 0, ventas: 0 };
-        buckets[key].shots  += Number(d.shots)  || 0;
-        buckets[key].ventas += Number(d.ventas) || 0;
-    });
+
+    if (byMonth) {
+        // Use stats_monthly collection — fast rollup data, grouped by month
+        const todayMonth = new Date().toISOString().substring(0, 7);
+        const startMonth = startStr.substring(0, 7);
+        const endMonth   = endStr.substring(0, 7);
+        const pastEnd    = endMonth >= todayMonth
+            ? new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString().substring(0, 7)
+            : endMonth;
+
+        const queries = [];
+        if (startMonth <= pastEnd) {
+            queries.push(firestore.collection('stats_monthly')
+                .where('month', '>=', startMonth)
+                .where('month', '<=', pastEnd).get());
+        }
+        if (endMonth >= todayMonth) {
+            queries.push(firestore.collection('stats')
+                .where('date', '>=', `${todayMonth}-01`)
+                .where('date', '<=', endStr).get());
+        }
+        const snaps = await Promise.all(queries);
+        snaps.forEach(snap => snap.forEach(doc => {
+            const d = doc.data();
+            const key = d.month || (d.date ? d.date.substring(0, 7) : null);
+            if (!key) return;
+            if (!buckets[key]) buckets[key] = { shots: 0, ventas: 0 };
+            buckets[key].shots  += Number(d.shots)  || 0;
+            buckets[key].ventas += Number(d.ventas) || 0;
+        }));
+    } else {
+        // Fetch daily stats directly for day-by-day granularity (Este Mes, Mes Pasado)
+        const snap = await firestore.collection('stats')
+            .where('date', '>=', startStr)
+            .where('date', '<=', endStr).get();
+        snap.forEach(doc => {
+            const d = doc.data();
+            if (!d.date) return;
+            if (!buckets[d.date]) buckets[d.date] = { shots: 0, ventas: 0 };
+            buckets[d.date].shots  += Number(d.shots)  || 0;
+            buckets[d.date].ventas += Number(d.ventas) || 0;
+        });
+    }
 
     const sortedKeys = Object.keys(buckets).sort();
 
