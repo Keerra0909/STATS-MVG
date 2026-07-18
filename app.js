@@ -21,6 +21,9 @@ let globalGoals = { ventas: 55, cierre: 30 }; // Default goals
 
 
 let myChart = null;
+let dashTrendChart = null;
+let academyModalChart = null;
+let academyChartData = {}; // { repName: { months: [], shots: [], ventas: [] } }
 
 // --- Rep Weekly View ---
 async function loadRepWeekly() {
@@ -1104,10 +1107,13 @@ async function loadDashboard() {
     });
 
     const totVentas = dashData.reduce((sum, u) => sum + u.totals.ventas, 0);
-    const totShots = dashData.reduce((sum, u) => sum + u.totals.shots, 0);
-    const totAds = dashData.reduce((sum, u) => sum + u.totals.ads, 0);
-    const totLinks = dashData.reduce((sum, u) => sum + u.totals.links, 0);
+    const totShots  = dashData.reduce((sum, u) => sum + u.totals.shots, 0);
+    const totAds    = dashData.reduce((sum, u) => sum + u.totals.ads, 0);
+    const totLinks  = dashData.reduce((sum, u) => sum + u.totals.links, 0);
     const totCierre = totShots > 0 ? (totVentas / totShots) : 0;
+
+    // --- Render Trend Chart ---
+    renderDashChart(statsSnap, startStr, endStr, rangeType);
 
     const animateValue = (id, start, end, duration, isPercentage = false) => {
         const obj = document.getElementById(id);
@@ -2032,10 +2038,13 @@ async function loadAcademy() {
         }
         
         arr.forEach(rep => {
-            ul.innerHTML += `<li style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.4rem;">
+            ul.innerHTML += `<li onclick="openAcademyModal('${rep.name.replace(/'/g, "\\'")}', ${rep.shots}, ${rep.ventas}, ${rep.pct})"
+                style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.4rem; cursor: pointer; transition: background 0.15s;" 
+                onmouseover="this.style.background='rgba(0,210,255,0.06)'" onmouseout="this.style.background='var(--bg-color)'">
                 <span style="font-weight: bold; font-size: 0.9rem; color: var(--text-main);">${rep.name}</span>
-                <div style="text-align: right;">
+                <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
                     <div style="font-size: 0.8rem; color: var(--text-muted);">${rep.shots} sh <span style="margin: 0 4px; opacity: 0.3;">|</span> <span style="color: var(--text-main); font-weight: bold;">${rep.pct.toFixed(1)}%</span></div>
+                    <span style="font-size: 0.7rem; color: #00d2ff; opacity: 0.6;">📈</span>
                 </div>
             </li>`;
         });
@@ -2046,4 +2055,220 @@ async function loadAcademy() {
     renderList('ametralladoras', lists.ametralladoras);
     renderList('estrellas', lists.estrellas);
 }
+// --- Dashboard Trend Chart ---
+function renderDashChart(statsSnap, startStr, endStr, rangeType) {
+    const chartRanges = ['month', 'lastMonth', 'last2Months', 'last4Months', 'last6Months', 'year'];
+    const container = document.getElementById('dash-chart-container');
+    const canvas = document.getElementById('dash-trend-chart');
+    if (!container || !canvas) return;
 
+    if (!chartRanges.includes(rangeType)) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'block';
+
+    const byMonth = ['last2Months', 'last4Months', 'last6Months', 'year'].includes(rangeType);
+
+    // Aggregate by day or month
+    const buckets = {};
+    statsSnap.forEach(doc => {
+        const d = doc.data();
+        const key = byMonth ? (d.month || (d.date ? d.date.substring(0, 7) : null)) : d.date;
+        if (!key) return;
+        if (!buckets[key]) buckets[key] = { shots: 0, ventas: 0 };
+        buckets[key].shots  += Number(d.shots)  || 0;
+        buckets[key].ventas += Number(d.ventas) || 0;
+    });
+
+    const sortedKeys = Object.keys(buckets).sort();
+
+    const labels = sortedKeys.map(k => {
+        if (byMonth) {
+            const [y, m] = k.split('-');
+            return new Date(+y, +m - 1).toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+        } else {
+            const d = new Date(k + 'T12:00:00');
+            return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+        }
+    });
+
+    const shotsData  = sortedKeys.map(k => buckets[k].shots);
+    const ventasData = sortedKeys.map(k => buckets[k].ventas);
+
+    if (dashTrendChart) { dashTrendChart.destroy(); dashTrendChart = null; }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    const textColor = isDark ? '#888' : '#aaa';
+
+    dashTrendChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Shots',
+                    data: shotsData,
+                    borderColor: '#00d2ff',
+                    backgroundColor: 'rgba(0,210,255,0.08)',
+                    borderWidth: 2.5,
+                    pointRadius: sortedKeys.length <= 31 ? 3 : 0,
+                    pointHoverRadius: 5,
+                    tension: 0.35,
+                    fill: true,
+                },
+                {
+                    label: 'Ventas',
+                    data: ventasData,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16,185,129,0.08)',
+                    borderWidth: 2.5,
+                    pointRadius: sortedKeys.length <= 31 ? 3 : 0,
+                    pointHoverRadius: 5,
+                    tension: 0.35,
+                    fill: true,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.85)',
+                    titleColor: '#fff',
+                    bodyColor: '#ccc',
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, maxTicksLimit: 12 } },
+                y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } }, beginAtZero: true }
+            }
+        }
+    });
+}
+
+// --- Academy Modal ---
+async function openAcademyModal(repName, repShots, repVentas, repPct) {
+    const modal = document.getElementById('academy-modal');
+    document.getElementById('academy-modal-name').textContent = repName;
+    document.getElementById('academy-modal-stats').textContent =
+        `${repShots} shots · ${repVentas} ventas · ${repPct.toFixed(1)}% cierre`;
+    modal.style.display = 'flex';
+
+    // Fetch last 6 months of data for this rep from stats_monthly
+    const today = new Date();
+    const sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 5, 1);
+    const startMonth = sixMonthsAgo.toISOString().substring(0, 7);
+    const todayMonth = today.toISOString().substring(0, 7);
+
+    // Fetch past months from rollups + current month from daily
+    const [pastSnap, curSnap] = await Promise.all([
+        firestore.collection('stats_monthly')
+            .where('name', '==', repName)
+            .where('month', '>=', startMonth)
+            .where('month', '<=', todayMonth)
+            .get(),
+        firestore.collection('stats')
+            .where('name', '==', repName)
+            .where('date', '>=', `${todayMonth}-01`)
+            .get()
+    ]);
+
+    const byMonth = {};
+    pastSnap.forEach(doc => {
+        const d = doc.data();
+        if (!byMonth[d.month]) byMonth[d.month] = { shots: 0, ventas: 0 };
+        byMonth[d.month].shots  += Number(d.shots)  || 0;
+        byMonth[d.month].ventas += Number(d.ventas) || 0;
+    });
+    // Merge current month daily
+    curSnap.forEach(doc => {
+        const d = doc.data();
+        const m = d.date ? d.date.substring(0, 7) : null;
+        if (!m) return;
+        if (!byMonth[m]) byMonth[m] = { shots: 0, ventas: 0 };
+        byMonth[m].shots  += Number(d.shots)  || 0;
+        byMonth[m].ventas += Number(d.ventas) || 0;
+    });
+
+    const sortedMonths = Object.keys(byMonth).sort();
+    const labels  = sortedMonths.map(k => {
+        const [y, m] = k.split('-');
+        return new Date(+y, +m - 1).toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+    });
+    const shotsArr  = sortedMonths.map(k => byMonth[k].shots);
+    const ventasArr = sortedMonths.map(k => byMonth[k].ventas);
+
+    const canvas = document.getElementById('academy-modal-chart');
+    if (academyModalChart) { academyModalChart.destroy(); academyModalChart = null; }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    const textColor = isDark ? '#888' : '#999';
+
+    academyModalChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Shots',
+                    data: shotsArr,
+                    borderColor: '#4facfe',
+                    backgroundColor: 'rgba(79,172,254,0.1)',
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    tension: 0.35,
+                    fill: true,
+                },
+                {
+                    label: 'Ventas',
+                    data: ventasArr,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16,185,129,0.1)',
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    tension: 0.35,
+                    fill: true,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.85)',
+                    titleColor: '#fff',
+                    bodyColor: '#ccc',
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}`
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
+                y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } }, beginAtZero: true }
+            }
+        }
+    });
+}
+
+function closeAcademyModal(e) {
+    if (e && e.target !== document.getElementById('academy-modal')) return;
+    document.getElementById('academy-modal').style.display = 'none';
+    if (academyModalChart) { academyModalChart.destroy(); academyModalChart = null; }
+}

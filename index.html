@@ -257,6 +257,17 @@
                     <div class="stat-value" id="stat-links" style="font-size: 2.5rem; font-weight: 900; background: linear-gradient(90deg, #F36265 0%, #961276 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(243,98,101,0.3));">0</div>
                 </div>
             </div>
+            <!-- TREND CHART -->
+            <div id="dash-chart-container" class="card" style="margin-bottom: 1.5rem; padding: 1.2rem 1.2rem 0.8rem; display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px;">Tendencia del Equipo</span>
+                    <div style="display: flex; gap: 1rem; font-size: 0.75rem; color: var(--text-muted);">
+                        <span style="display: flex; align-items: center; gap: 5px;"><span style="width:10px; height:3px; background:#00d2ff; border-radius:2px; display:inline-block;"></span>Shots</span>
+                        <span style="display: flex; align-items: center; gap: 5px;"><span style="width:10px; height:3px; background:#10b981; border-radius:2px; display:inline-block;"></span>Ventas</span>
+                    </div>
+                </div>
+                <canvas id="dash-trend-chart" height="85"></canvas>
+            </div>
 
             <!-- TOP 3 PODIUM -->
             <div id="top3-container" class="card" style="margin-bottom: 1rem; display: none;">
@@ -382,6 +393,24 @@
         </section>
     </main>
 
-    <script src="app.js?v=44"></script>
+    <!-- ACADEMY VENDOR MODAL -->
+    <div id="academy-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); z-index:9000; align-items:center; justify-content:center; padding:1rem;" onclick="closeAcademyModal(event)">
+        <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.5rem; width:100%; max-width:520px; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
+                <div>
+                    <h2 id="academy-modal-name" style="margin:0; font-size:1.4rem; font-weight:900;"></h2>
+                    <p id="academy-modal-stats" style="margin:0.2rem 0 0; font-size:0.85rem; color:var(--text-muted);"></p>
+                </div>
+                <button onclick="closeAcademyModal()" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-muted); width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;">✕</button>
+            </div>
+            <div style="margin-bottom:0.6rem; display:flex; gap:1rem;">
+                <div style="display:flex; align-items:center; gap:5px; font-size:0.75rem; color:var(--text-muted);"><span style="width:10px; height:3px; background:#4facfe; border-radius:2px; display:inline-block;"></span>Shots</div>
+                <div style="display:flex; align-items:center; gap:5px; font-size:0.75rem; color:var(--text-muted);"><span style="width:10px; height:3px; background:#10b981; border-radius:2px; display:inline-block;"></span>Ventas</div>
+            </div>
+            <canvas id="academy-modal-chart" height="180"></canvas>
+        </div>
+    </div>
+
+    <script src="app.js?v=45"></script>
 </body>
 </html>
