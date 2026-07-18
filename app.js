@@ -18,11 +18,7 @@ let currentUser = null;
 let globalGoals = { ventas: 55, cierre: 30 }; // Default goals
 
 // --- Database Setup (Legacy Local) ---
-const db = new Dexie('StatsMasterDB');
-db.version(1).stores({
-    users: '++id, name, active', // active: 1 or 0
-    stats: '++id, userId, date, shots, ventas, ads, links, cxl' // date format: YYYY-MM-DD
-});
+
 
 let myChart = null;
 
@@ -308,16 +304,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // Pre-populate users if empty
-    const count = await db.users.count();
-    if (count === 0) {
-        const initialUsers = ["ADRIAN", "ALEX", "ANA M", "ANDERSON"];
-        for (const name of initialUsers) {
-            await db.users.add({ name, active: 1 });
+    );
         }
     }
     // Run migrations without blocking UI
-    injectWednesdayData().catch(e => console.error(e));
-    syncDexieToFirestore().catch(e => console.error(e));
     buildMonthlyStats().catch(e => console.error(e));
 
     const savedUser = localStorage.getItem('currentUser');
@@ -329,27 +319,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-async function syncDexieToFirestore() {
-    if (localStorage.getItem('dexie_synced')) return;
-    try {
-        const localUsers = await db.users.toArray();
-        for (const lu of localUsers) {
-            if (lu.active === 0) {
-                const cleanName = lu.name.replace(/ /g, '_');
-                await firestore.collection('users').doc(cleanName).update({ active: 0 }).catch(() => {});
-            }
-        }
-        localStorage.setItem('dexie_synced', 'true');
-        console.log("Synced local statuses to Firestore");
-    } catch (e) {
-        console.error(e);
-    }
-}
 
 async function buildMonthlyStats() {
     if (localStorage.getItem('monthly_stats_built_v3')) return;
     try {
-        console.log("Building monthly stats...");
         const statsSnap = await firestore.collection('stats').get();
         const monthlyData = {};
         statsSnap.forEach(doc => {
@@ -386,7 +359,7 @@ async function buildMonthlyStats() {
         }
         if (count > 0) await batch.commit();
         localStorage.setItem('monthly_stats_built_v3', 'true');
-        console.log("Monthly stats built successfully - reloading dashboard");
+        // Monthly stats built successfully
         // Reload dashboard so fast path (stats_monthly) kicks in immediately
         if (typeof loadDashboard === 'function') loadDashboard();
         if (typeof loadAcademy === 'function') loadAcademy();
@@ -513,49 +486,6 @@ function logout() {
     navigate('login');
 }
 
-async function injectWednesdayData() {
-    if (localStorage.getItem('wednesday_injected')) return;
-
-    const wedData = [
-        {name: "ADRIAN", shots: 8, ventas: 3},
-        {name: "ALEX", shots: 7, ventas: 1},
-        {name: "ANA M", shots: 6, ventas: 2},
-        {name: "ANDERSON", shots: 9, ventas: 7},
-        {name: "ANDRES G", shots: 4, ventas: 2},
-        {name: "BONJO", shots: 7, ventas: 0},
-        {name: "CHRIS", shots: 6, ventas: 0},
-        {name: "ERICK", shots: 1, ventas: 0},
-        {name: "GALA", shots: 5, ventas: 13},
-        {name: "GONZALO", shots: 4, ventas: 2},
-        {name: "JP", shots: 8, ventas: 0},
-        {name: "JUANJO JJ", shots: 6, ventas: 0},
-        {name: "MIKE", shots: 12, ventas: 6},
-        {name: "MONTSE", shots: 9, ventas: 0},
-        {name: "NANCY", shots: 8, ventas: 4},
-        {name: "NONO", shots: 5, ventas: 2},
-        {name: "PANCHO", shots: 4, ventas: 0},
-        {name: "RICKY", shots: 5, ventas: 5},
-        {name: "SEBASTIAN", shots: 6, ventas: 0},
-        {name: "SERGIO", shots: 7, ventas: 1},
-        {name: "TONY", shots: 7, ventas: 3}
-    ];
-
-    const date = '2026-07-15';
-
-    for (const d of wedData) {
-        const u = await db.users.where('name').equals(d.name).first();
-        if (u) {
-            const existing = await db.stats.get({ userId: u.id, date: date });
-            if (existing) {
-                await db.stats.update(existing.id, { shots: d.shots, ventas: d.ventas });
-            } else {
-                await db.stats.add({ userId: u.id, date: date, shots: d.shots, ventas: d.ventas, ads: 0, links: 0, cxl: 0 });
-            }
-        }
-    }
-
-    localStorage.setItem('wednesday_injected', 'true');
-}
 
 // --- Theme Toggle ---
 function toggleTheme() {
@@ -715,12 +645,14 @@ async function addUser(e) {
             pin: '1234'
         });
         input.value = '';
+        globalActiveUsers = null; // Invalidate cache
         loadTeam();
     }
 }
 
 async function toggleUser(id, status) {
     await firestore.collection('users').doc(id).update({ active: status });
+    globalActiveUsers = null; // Invalidate cache
     loadTeam();
 }
 
@@ -728,13 +660,21 @@ async function deleteUser(id, name) {
     if (confirm(`¿Estás súper seguro de borrar PERMANENTEMENTE a "${name}"?\n\n¡Esto eliminará todo su historial de la base de datos de inmediato!`)) {
         await firestore.collection('users').doc(id).delete();
         
-        // Also delete their stats
+        // Delete daily stats
         const statsSnap = await firestore.collection('stats').where('name', '==', name).get();
         const batch = firestore.batch();
         statsSnap.forEach(doc => {
             batch.delete(doc.ref);
         });
+        
+        // Delete monthly stats
+        const monthlySnap = await firestore.collection('stats_monthly').where('name', '==', name).get();
+        monthlySnap.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
         await batch.commit();
+        globalActiveUsers = null; // Invalidate cache
         
         loadTeam();
         loadDashboard();
@@ -1000,7 +940,7 @@ function setDashRange(type) {
     document.getElementById('dash-end').value = fmt(end);
     
     // Update active button styling + slide the pill
-    document.querySelectorAll('.dash-range-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('#dash-segmented .dash-range-btn').forEach(btn => btn.classList.remove('active'));
     if (type) {
         const activeBtn = document.getElementById(`dash-btn-${type}`);
         if (activeBtn) {
@@ -1434,76 +1374,6 @@ function renderDashTable() {
 }
 
 // --- Import Historical Data ---
-async function importExcelData() {
-    const btn = document.getElementById('btn-import');
-    btn.innerText = 'Importando...';
-    btn.disabled = true;
-
-    try {
-        const response = await fetch('initial_data.json?t=' + new Date().getTime());
-        if (!response.ok) throw new Error("JSON no encontrado. Asegurate de correr el script de extracción.");
-        const jsonData = await response.json();
-        const data = jsonData.stats || jsonData; // Support both old array and new dict format
-
-        // Find max date to determine active users
-        let maxDate = '2000-01-01';
-        data.forEach(d => {
-            if (d.date > maxDate) maxDate = d.date;
-        });
-
-        // The "last week" is within 7 days of maxDate
-        const lastWeekStart = new Date(maxDate);
-        lastWeekStart.setDate(lastWeekStart.getDate() - 7);
-        const lastWeekStr = lastWeekStart.toISOString().split('T')[0];
-
-        const activeNames = new Set();
-        data.forEach(d => {
-            if (d.date >= lastWeekStr) activeNames.add(d.name);
-        });
-
-        // Insert all users
-        const allNames = new Set(data.map(d => d.name));
-        for (const name of allNames) {
-            const existing = await db.users.where('name').equals(name).first();
-            const isActive = activeNames.has(name) ? 1 : 0;
-            if (!existing) {
-                await db.users.add({ name, active: isActive });
-            } else {
-                await db.users.update(existing.id, { active: isActive });
-            }
-        }
-
-        // Fetch users map for IDs
-        const users = await db.users.toArray();
-        const userMap = {};
-        users.forEach(u => userMap[u.name] = u.id);
-
-        // Clear existing stats and bulk insert new
-        await db.stats.clear();
-        const statsToInsert = data.map(d => ({
-            userId: userMap[d.name],
-            date: d.date,
-            shots: d.shots,
-            ventas: d.ventas,
-            ads: d.ads || 0,
-            links: d.links || 0,
-            cxl: d.cxl || 0
-        }));
-        
-        await db.stats.bulkAdd(statsToInsert);
-
-        btn.innerText = '¡Historial Importado Exitosamente!';
-        btn.style.background = 'var(--success)';
-        btn.style.color = 'white';
-        
-        loadTeam();
-        loadDashboard();
-
-    } catch (e) {
-        console.error(e);
-        btn.innerText = 'Error al importar (Revisa la consola)';
-    }
-}
 
 // --- Download Image ---
 function downloadImage() {
@@ -1533,10 +1403,12 @@ function downloadImage() {
                 // Always force direct download to Downloads folder (no share sheet)
                 const link = document.createElement('a');
                 link.download = filename;
-                link.href = URL.createObjectURL(blob);
+                const blobUrl = URL.createObjectURL(blob);
+                link.href = blobUrl;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
             } catch(e) {
                 console.error(e);
                 // Fallback
@@ -1775,8 +1647,10 @@ function downloadTop3() {
                 // Force direct download to the Downloads folder
                 const link = document.createElement('a');
                 link.download = filename;
-                link.href = URL.createObjectURL(blob);
+                const blobUrl = URL.createObjectURL(blob);
+                link.href = blobUrl;
                 link.click();
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
             } catch(e) {
                 console.error(e);
                 const link = document.createElement('a');
@@ -2175,3 +2049,4 @@ async function loadAcademy() {
     renderList('ametralladoras', lists.ametralladoras);
     renderList('estrellas', lists.estrellas);
 }
+

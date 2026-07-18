@@ -138,7 +138,6 @@
                     <button type="submit" class="btn-primary">Agregar Vendedor</button>
                 </form>
                 <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
-                <button onclick="importExcelData()" class="btn-secondary" id="btn-import">📥 Importar Historial del Excel (Solo una vez)</button>
             </div>
 
             <div class="card" style="margin-top: 1.5rem;">
@@ -198,7 +197,7 @@
         </section>
 
         <!-- DASHBOARD VIEW -->
-        <section id="view-dashboard" class="view">
+        <section id="view-dashboard" class="view hidden">
             <div class="header-box dashboard-header" style="flex-direction: column; align-items: flex-start; gap: 1rem;">
                 <div>
                     <h2 style="display: flex; align-items: center; gap: 0.6rem;">
@@ -378,8 +377,9 @@
 
                 </div>
             </div>
+        </section>
     </main>
 
-    <script src="app.js?v=41"></script>
+    <script src="app.js?v=42"></script>
 </body>
 </html>
