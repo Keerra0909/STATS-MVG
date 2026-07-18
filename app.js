@@ -2122,11 +2122,20 @@ async function renderDashChart(startStr, endStr, rangeType) {
 
     const labels = sortedKeys.map(k => {
         if (byMonth) {
-            const [y, m] = k.split('-');
-            return new Date(+y, +m - 1).toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+            try {
+                const parts = k.split('-');
+                if (parts.length < 2) return k;
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10);
+                if (isNaN(y) || isNaN(m)) return k;
+                return new Date(y, m - 1).toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+            } catch (e) { return k; }
         } else {
-            const d = new Date(k + 'T12:00:00');
-            return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+            try {
+                const d = new Date(k + 'T12:00:00');
+                if (isNaN(d.getTime())) return k;
+                return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+            } catch (e) { return k; }
         }
     });
 
@@ -2242,8 +2251,14 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
 
     const sortedMonths = Object.keys(byMonth).sort();
     const labels  = sortedMonths.map(k => {
-        const [y, m] = k.split('-');
-        return new Date(+y, +m - 1).toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+        try {
+            const parts = k.split('-');
+            if (parts.length < 2) return k;
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10);
+            if (isNaN(y) || isNaN(m)) return k;
+            return new Date(y, m - 1).toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+        } catch (e) { return k; }
     });
     const shotsArr  = sortedMonths.map(k => byMonth[k].shots);
     const ventasArr = sortedMonths.map(k => byMonth[k].ventas);
