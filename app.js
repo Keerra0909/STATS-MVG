@@ -2095,7 +2095,10 @@ async function renderDashChart(startStr, endStr, rangeType) {
         const snaps = await Promise.all(queries);
         snaps.forEach(snap => snap.forEach(doc => {
             const d = doc.data();
-            const key = d.month || (d.date ? d.date.substring(0, 7) : null);
+            let key = d.month;
+            if (!key && d.date) key = d.date.substring(0, 7);
+            if (!key && doc.id.includes('_')) key = doc.id.split('_').pop(); // Fallback for legacy stats_monthly docs like "NANCY_2026-06"
+            
             if (!key) return;
             if (!buckets[key]) buckets[key] = { shots: 0, ventas: 0 };
             buckets[key].shots  += Number(d.shots)  || 0;
@@ -2219,9 +2222,13 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     const byMonth = {};
     pastSnap.forEach(doc => {
         const d = doc.data();
-        if (!byMonth[d.month]) byMonth[d.month] = { shots: 0, ventas: 0 };
-        byMonth[d.month].shots  += Number(d.shots)  || 0;
-        byMonth[d.month].ventas += Number(d.ventas) || 0;
+        let m = d.month;
+        if (!m && doc.id.includes('_')) m = doc.id.split('_').pop();
+        if (!m) return;
+        
+        if (!byMonth[m]) byMonth[m] = { shots: 0, ventas: 0 };
+        byMonth[m].shots  += Number(d.shots)  || 0;
+        byMonth[m].ventas += Number(d.ventas) || 0;
     });
     // Merge current month daily
     curSnap.forEach(doc => {
