@@ -2468,7 +2468,8 @@ async function loadSpiffs() {
                         });
                     }
                     
-                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem;">Declarar Ganador 🏆</button>`;
+                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem; margin-bottom: 0.5rem;">Declarar Ganador 🏆</button>
+                    <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="width:100%; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar Spiff 🗑️</button>`;
                     adminControls.innerHTML = selectHtml;
                     card.appendChild(adminControls);
                 }
@@ -2480,6 +2481,16 @@ async function loadSpiffs() {
                     <div style="background:rgba(79,172,254,0.1); color:#4facfe; padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
                         👑 Ganador: ${s.winner}
                     </div>`;
+                
+                if (currentUser && currentUser.role === 'admin') {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-secondary';
+                    deleteBtn.style.cssText = 'width: 100%; margin-top: 10px; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
+                    deleteBtn.innerText = 'Eliminar 🗑️';
+                    deleteBtn.onclick = () => deleteSpiff(s.id);
+                    card.appendChild(deleteBtn);
+                }
+
                 completedContainer.appendChild(card);
             }
         });
@@ -2518,4 +2529,12 @@ async function declareSpiffWinner(id) {
         });
         loadSpiffs();
     } catch(e) { console.error(e); alert('Error al declarar ganador'); }
+}
+
+async function deleteSpiff(id) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este Spiff? Esta acción no se puede deshacer.')) return;
+    try {
+        await firestore.collection('spiffs').doc(id).delete();
+        loadSpiffs();
+    } catch(e) { console.error(e); alert('Error al eliminar Spiff'); }
 }
