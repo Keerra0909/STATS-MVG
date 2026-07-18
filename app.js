@@ -2253,28 +2253,25 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     const startMonth = sixMonthsAgo.toISOString().substring(0, 7);
     const todayMonth = today.toISOString().substring(0, 7);
 
-    // Fetch past months from rollups + current month from daily
+    // Fetch past months from rollups + current month from daily without composite queries
     const [pastSnap, curSnap] = await Promise.all([
         firestore.collection('stats_monthly')
             .where('name', '==', repName)
-            .where('month', '>=', startMonth)
-            .where('month', '<=', todayMonth)
             .get(),
         firestore.collection('stats')
             .where('name', '==', repName)
-            .where('date', '>=', `${todayMonth}-01`)
             .get()
     ]);
 
     const byMonth = {};
     let hasMonthlyData = false;
     pastSnap.forEach(doc => {
-        hasMonthlyData = true;
         const d = doc.data();
         let m = d.month;
         if (!m && doc.id.includes('_')) m = doc.id.split('_').pop();
-        if (!m) return;
+        if (!m || m < startMonth || m > todayMonth) return;
         
+        hasMonthlyData = true;
         if (!byMonth[m]) byMonth[m] = { shots: 0, ventas: 0 };
         byMonth[m].shots  += Number(d.shots)  || 0;
         byMonth[m].ventas += Number(d.ventas) || 0;
@@ -2284,12 +2281,10 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
         // Fallback for academy modal if stats_monthly is empty
         const fallbackSnap = await firestore.collection('stats')
             .where('name', '==', repName)
-            .where('date', '>=', startMonth + '-01')
-            .where('date', '<=', todayMonth + '-31')
             .get();
         fallbackSnap.forEach(doc => {
             const d = doc.data();
-            if (!d.date) return;
+            if (!d.date || d.date < startMonth + '-01' || d.date > todayMonth + '-31') return;
             const m = d.date.substring(0, 7);
             if (!byMonth[m]) byMonth[m] = { shots: 0, ventas: 0 };
             byMonth[m].shots  += Number(d.shots)  || 0;
@@ -2301,7 +2296,8 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     if (hasMonthlyData) {
         curSnap.forEach(doc => {
             const d = doc.data();
-            const m = d.date ? d.date.substring(0, 7) : null;
+            if (!d.date || d.date < todayMonth + '-01' || d.date > todayMonth + '-31') return;
+            const m = d.date.substring(0, 7);
             if (!m) return;
             if (!byMonth[m]) byMonth[m] = { shots: 0, ventas: 0 };
             byMonth[m].shots  += Number(d.shots)  || 0;
