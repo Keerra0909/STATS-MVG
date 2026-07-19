@@ -390,3 +390,8 @@ html[data-theme="dark"] .stat-card {
  h t m l [ d a t a - t h e m e = \ " l i g h t \ " ]   s e l e c t ,   h t m l [ d a t a - t h e m e = \ " l i g h t \ " ]   i n p u t   {   c o l o r - s c h e m e :   l i g h t ;   } 
   
  
+ 
+ / *   F i x   f o r   o p t i o n   e l e m e n t s   * / 
+ s e l e c t   o p t i o n   {   b a c k g r o u n d - c o l o r :   v a r ( - - b g - c o l o r )   ! i m p o r t a n t ;   c o l o r :   v a r ( - - t e x t - m a i n )   ! i m p o r t a n t ;   } 
+  
+ 
