@@ -105,6 +105,10 @@
                         <div id="rep-goal-cierre-bar" style="width: 0%; height: 100%; background: var(--danger); transition: width 1s ease, background 1s ease;"></div>
                     </div>
                 </div>
+                <div style="margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; background: rgba(0, 200, 255, 0.05); border: 1px solid rgba(0, 200, 255, 0.2); padding: 0.8rem; border-radius: 8px;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">🧊 Días en Blanco (Mes)</span>
+                    <strong id="rep-blanqueos-text" style="font-size: 1.2rem; color: #00bfff;">0</strong>
+                </div>
             </div>
 
             <div class="card" style="overflow-x: auto;">
@@ -469,7 +473,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=76"></script>
+    <script src="app.js?v=77"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

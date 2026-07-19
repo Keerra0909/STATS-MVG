@@ -158,6 +158,8 @@ async function loadRepWeekly() {
         const barVentas = document.getElementById('rep-goal-ventas-bar');
         barVentas.style.width = `${percVentas}%`;
         
+        document.getElementById('rep-blanqueos-text').innerText = globalMonthlyBlanks[currentUser.name] || 0;
+        
         // Ventas colors: Red <= 30, Yellow 31-54, Green >= 55
         if (monthVentas <= 30) {
             barVentas.style.backgroundColor = 'var(--danger)';
