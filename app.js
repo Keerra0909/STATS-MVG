@@ -2672,6 +2672,19 @@ async function loadCarrera() {
             .map(name => ({ name, points: userPoints[name] }))
             .sort((a, b) => b.points - a.points);
 
+        // TEMPORARY OVERRIDE FOR THIS WEEK (July 13 - 19)
+        if (weekDates.includes('2026-07-13')) {
+            leaderboard.forEach(item => {
+                const n = item.name.toUpperCase();
+                if (n.includes('ISA')) item.points = 12.5;
+                if (n.includes('MICHELLE')) item.points = 10;
+                if (n.includes('ANDERSON')) item.points = 9.5;
+                if (n.includes('RICKY')) item.points = 8.5; // Capped
+                if (n.includes('GALA')) item.points = 8.0;  // Capped
+            });
+            leaderboard.sort((a, b) => b.points - a.points);
+        }
+
         const renderMedal = (idx, idPrefix) => {
             const data = leaderboard[idx];
             const nameEl = document.getElementById(`${idPrefix}-${idx + 1}`);
