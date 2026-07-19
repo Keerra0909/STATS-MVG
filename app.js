@@ -133,12 +133,16 @@ async function loadRepWeekly() {
 
         let monthVentas = 0;
         let monthShots = 0;
+        let monthCxl = 0;
 
         monthDocs.forEach(data => {
             if (!data) return;
             monthVentas += data.ventas || 0;
             monthShots += data.shots || 0;
+            monthCxl += data.cxl || 0;
         });
+
+        monthVentas = Math.max(0, monthVentas - monthCxl);
 
         const goalVentas = globalGoals.ventas || 55;
         const goalCierre = (globalGoals.cierre || 30) / 100;
@@ -1124,6 +1128,7 @@ async function loadDashboard() {
     });
 
     dashData = Object.values(userStats).map(u => {
+        u.totals.ventas = Math.max(0, u.totals.ventas - u.totals.cxl);
         u.cierre = u.totals.shots > 0 ? (u.totals.ventas / u.totals.shots) : 0;
         return u;
     });
