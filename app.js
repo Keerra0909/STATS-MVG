@@ -2779,7 +2779,13 @@ async function createSpiff() {
     const title = document.getElementById('spiff-title').value;
     const time = document.getElementById('spiff-time').value;
     const period = document.getElementById('spiff-period').value;
-    const prize = document.getElementById('spiff-prize').value;
+    let prize = document.getElementById('spiff-prize').value.trim();
+    
+    // Auto-format prize to $X USD
+    const prizeMatch = prize.match(/\d+/);
+    if (prizeMatch) {
+        prize = `$${prizeMatch[0]} USD`;
+    }
     const metric = document.getElementById('spiff-metric').value;
     const cierre = document.getElementById('spiff-cierre').value;
     
