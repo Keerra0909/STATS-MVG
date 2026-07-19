@@ -982,10 +982,64 @@ function toggleOffline() {
     }
     renderDashTable();
 }
+// --- Streaks Logic ---
+let globalStreaks = {};
+
+async function fetchStreaks() {
+    globalStreaks = {};
+    try {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+        
+        const streakSnap = await firestore.collection('stats')
+            .where('date', '>=', thirtyDaysAgoStr)
+            .get();
+            
+        const userHistory = {}; 
+        streakSnap.forEach(doc => {
+            const s = doc.data();
+            if (!userHistory[s.name]) userHistory[s.name] = {};
+            userHistory[s.name][s.date] = s;
+        });
+        
+        const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+        
+        const last30Dates = [];
+        for (let i = 0; i < 30; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            last30Dates.push(d.toISOString().split('T')[0]);
+        }
+        
+        usersSnap.forEach(doc => {
+            const name = doc.data().name;
+            const history = userHistory[name] || {};
+            let streak = 0;
+            
+            for (const dStr of last30Dates) {
+                const stat = history[dStr];
+                if (stat) {
+                    if (stat.ventas > 0) {
+                        streak++;
+                    } else if (stat.ventas === 0 && stat.shots > 0) {
+                        break;
+                    }
+                }
+            }
+            globalStreaks[name] = streak;
+        });
+    } catch (e) {
+        console.error("Error fetching streaks:", e);
+    }
+    return globalStreaks;
+}
 
 async function loadDashboard() {
     const startStr = document.getElementById('dash-start').value;
     const endStr = document.getElementById('dash-end').value;
+
+    await fetchStreaks();
 
     const subtitle = document.getElementById('dash-table-subtitle');
     if (subtitle && startStr && endStr) {
@@ -1334,8 +1388,13 @@ function renderDashTable() {
 
         const isOffline = (!isSpecial && d.totals.shots === 0 && d.totals.ventas === 0);
 
+        let streakBadge = '';
+        if (!isSpecial && globalStreaks && globalStreaks[d.name] >= 2) {
+            streakBadge = `<span style="display: inline-block; background: linear-gradient(135deg, #ff4d4d, #ff8c00); color: white; padding: 1px 6px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-left: 8px; box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);" data-html2canvas-ignore="true">🔥 x${globalStreaks[d.name]}</span>`;
+        }
+
         let rowHTML = `<td style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-right: 1px solid var(--border);">${idx}</td>`;
-        rowHTML += `<td style="${isOffline ? 'color: var(--text-muted);' : ''}"><strong>${d.name}</strong></td>`;
+        rowHTML += `<td style="${isOffline ? 'color: var(--text-muted);' : ''}"><strong>${d.name}</strong>${streakBadge}</td>`;
         
         if (isMatrixMode) {
             matrixDates.forEach(date => {
