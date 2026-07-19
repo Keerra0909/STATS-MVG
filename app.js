@@ -1651,16 +1651,14 @@ function downloadTop3() {
     logo.style.marginBottom = '2.5rem';
     logo.style.letterSpacing = '2px';
     
-    // Title
     const title = document.createElement('h1');
     title.innerText = 'TOP 3 VENDEDORES';
     title.style.fontSize = '2.2rem';
     title.style.marginBottom = '0.5rem';
-    title.style.background = 'linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)';
-    title.style.webkitBackgroundClip = 'text';
-    title.style.webkitTextFillColor = 'transparent';
-    title.style.textShadow = '0 10px 20px rgba(0,0,0,0.5)';
+    title.style.color = '#ffdf00'; // Bright gold
+    title.style.textShadow = '0 4px 15px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8)';
     title.style.fontWeight = '900';
+    title.style.letterSpacing = '1px';
     
     // Date
     const dateSub = document.createElement('h2');
