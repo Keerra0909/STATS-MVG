@@ -2412,6 +2412,8 @@ function closeAcademyModal(e) {
 }
 
 // --- SPIFFS ---
+let editingSpiffId = null;
+
 async function loadSpiffs() {
     const adminPanel = document.getElementById('spiff-admin-panel');
     if (currentUser && currentUser.role === 'admin') {
@@ -2476,7 +2478,10 @@ async function loadSpiffs() {
                     }
                     
                     selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem; margin-bottom: 0.5rem;">Declarar Ganador 🏆</button>
-                    <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="width:100%; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar Spiff 🗑️</button>`;
+                    <div style="display:flex; gap:0.5rem;">
+                        <button onclick="editSpiff('${s.id}', '${s.title.replace(/'/g, "\\'")}', '${(s.time||'').replace(/'/g, "\\'")}', '${s.period}', '${(s.prize||'').replace(/'/g, "\\'")}', '${(s.metric||'').replace(/'/g, "\\'")}', '${(s.cierre||'').replace(/'/g, "\\'")}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">Editar ✏️</button>
+                        <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar 🗑️</button>
+                    </div>`;
                     adminControls.innerHTML = selectHtml;
                     card.appendChild(adminControls);
                 }
@@ -2489,12 +2494,26 @@ async function loadSpiffs() {
                     </div>`;
                 
                 if (currentUser && currentUser.role === 'admin') {
+                    const controls = document.createElement('div');
+                    controls.style.display = 'flex';
+                    controls.style.gap = '0.5rem';
+                    controls.style.marginTop = '10px';
+                    
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn-secondary';
+                    editBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);';
+                    editBtn.innerText = 'Editar ✏️';
+                    editBtn.onclick = () => editSpiff(s.id, s.title, s.time, s.period, s.prize, s.metric, s.cierre);
+                    
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-secondary';
-                    deleteBtn.style.cssText = 'width: 100%; margin-top: 10px; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
+                    deleteBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
                     deleteBtn.innerText = 'Eliminar 🗑️';
                     deleteBtn.onclick = () => deleteSpiff(s.id);
-                    card.appendChild(deleteBtn);
+                    
+                    controls.appendChild(editBtn);
+                    controls.appendChild(deleteBtn);
+                    card.appendChild(controls);
                 }
 
                 completedContainer.appendChild(card);
@@ -2516,9 +2535,17 @@ async function createSpiff() {
     if (!title || !prize || !metric) return alert('Por favor llena el título, premio y métrica.');
     
     try {
-        await firestore.collection('spiffs').add({
-            title, time, period, prize, metric, cierre, status: 'active', winner: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        if (editingSpiffId) {
+            await firestore.collection('spiffs').doc(editingSpiffId).update({
+                title, time, period, prize, metric, cierre, status: 'active', winner: null // Reactivates if completed
+            });
+            editingSpiffId = null;
+            document.getElementById('spiff-submit-btn').innerText = 'Lanzar Spiff 🔥';
+        } else {
+            await firestore.collection('spiffs').add({
+                title, time, period, prize, metric, cierre, status: 'active', winner: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
         document.getElementById('spiff-title').value = '';
         document.getElementById('spiff-time').value = '';
         document.getElementById('spiff-prize').value = '';
@@ -2545,4 +2572,17 @@ async function deleteSpiff(id) {
         await firestore.collection('spiffs').doc(id).delete();
         loadSpiffs();
     } catch(e) { console.error(e); alert('Error al eliminar Spiff'); }
+}
+
+function editSpiff(id, title, time, period, prize, metric, cierre) {
+    editingSpiffId = id;
+    document.getElementById('spiff-title').value = title || '';
+    document.getElementById('spiff-time').value = time || '';
+    document.getElementById('spiff-period').value = period || 'diario';
+    document.getElementById('spiff-prize').value = prize || '';
+    document.getElementById('spiff-metric').value = metric || '';
+    document.getElementById('spiff-cierre').value = cierre || '';
+    
+    document.getElementById('spiff-submit-btn').innerText = 'Guardar Cambios 💾';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
