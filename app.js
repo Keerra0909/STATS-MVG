@@ -819,7 +819,7 @@ function deleteUser(id, name) {
         globalActiveUsers = null; // Invalidate cache
         loadTeam();
         loadDashboard();
-    }
+    });
 }
 
 // --- Daily Entry ---
