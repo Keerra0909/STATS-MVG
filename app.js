@@ -1613,6 +1613,28 @@ function downloadTop3() {
     exportDiv.style.alignItems = 'center';
     exportDiv.style.justifyContent = 'center';
     exportDiv.style.fontFamily = 'Inter, sans-serif';
+    exportDiv.style.overflow = 'hidden';
+    
+    // Premium Background Elements (Stars/Confetti effect)
+    const bgEffect = document.createElement('div');
+    bgEffect.style.position = 'absolute';
+    bgEffect.style.inset = '0';
+    bgEffect.style.background = 'radial-gradient(circle at 50% 10%, rgba(0,210,255,0.15) 0%, transparent 50%), radial-gradient(circle at 50% 80%, rgba(196,113,237,0.1) 0%, transparent 50%)';
+    bgEffect.style.pointerEvents = 'none';
+    
+    // Add some "confetti" dots via box-shadow
+    const dots = document.createElement('div');
+    dots.style.width = '4px';
+    dots.style.height = '4px';
+    dots.style.background = 'transparent';
+    dots.style.borderRadius = '50%';
+    dots.style.position = 'absolute';
+    dots.style.top = '0';
+    dots.style.left = '0';
+    dots.style.boxShadow = '100px 200px #ffd700, 400px 150px #ff007a, 250px 400px #00d2ff, 450px 600px #00ff88, 150px 700px #ffd700, 350px 850px #c471ed, 50px 500px #ff007a, 480px 300px #00d2ff, 200px 100px #c471ed';
+    dots.style.opacity = '0.6';
+    bgEffect.appendChild(dots);
+    exportDiv.appendChild(bgEffect);
     
     // Logo
     const logo = document.createElement('div');
@@ -1626,10 +1648,13 @@ function downloadTop3() {
     // Title
     const title = document.createElement('h1');
     title.innerText = 'TOP 3 VENDEDORES';
-    title.style.color = '#fff';
-    title.style.fontSize = '2rem';
+    title.style.fontSize = '2.2rem';
     title.style.marginBottom = '0.5rem';
-    title.style.textShadow = '0 4px 10px rgba(0,0,0,0.5)';
+    title.style.background = 'linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)';
+    title.style.webkitBackgroundClip = 'text';
+    title.style.webkitTextFillColor = 'transparent';
+    title.style.textShadow = '0 10px 20px rgba(0,0,0,0.5)';
+    title.style.fontWeight = '900';
     
     // Date
     const dateSub = document.createElement('h2');
@@ -1644,19 +1669,36 @@ function downloadTop3() {
     const podiumClone = document.getElementById('top3-podium').cloneNode(true);
     podiumClone.style.borderBottom = 'none';
     
+    // Glowing pedestal underneath
+    const pedestal = document.createElement('div');
+    pedestal.style.width = '100%';
+    pedestal.style.height = '20px';
+    pedestal.style.background = 'radial-gradient(ellipse at center, rgba(0, 210, 255, 0.4) 0%, transparent 70%)';
+    pedestal.style.marginTop = '-10px';
+    pedestal.style.zIndex = '-1';
+    
+    const podiumWrapper = document.createElement('div');
+    podiumWrapper.style.position = 'relative';
+    podiumWrapper.style.display = 'flex';
+    podiumWrapper.style.flexDirection = 'column';
+    podiumWrapper.style.alignItems = 'center';
+    podiumWrapper.appendChild(podiumClone);
+    podiumWrapper.appendChild(pedestal);
+    
     // Append all
     exportDiv.appendChild(logo);
     exportDiv.appendChild(title);
     exportDiv.appendChild(dateSub);
-    exportDiv.appendChild(podiumClone);
+    exportDiv.appendChild(podiumWrapper);
     
     // Watermark
     const water = document.createElement('div');
-    water.innerText = 'Generado automáticamente por StatsMaster';
+    water.innerHTML = '🔥 POWERED BY <strong>MVG STATS</strong>';
     water.style.position = 'absolute';
     water.style.bottom = '2rem';
-    water.style.color = '#444';
+    water.style.color = 'rgba(255,255,255,0.2)';
     water.style.fontSize = '0.9rem';
+    water.style.letterSpacing = '1px';
     exportDiv.appendChild(water);
     
     document.body.appendChild(exportDiv);
