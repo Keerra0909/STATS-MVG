@@ -1390,7 +1390,7 @@ function renderDashTable() {
         `;
         
         if (currentUser && currentUser.role === 'admin') {
-            rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); color: ${isOffline ? 'var(--text-muted)' : 'var(--danger)'};">${isOffline ? '-' : d.totals.cxl}</td>`;
+            rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); color: ${isOffline ? 'var(--text-muted)' : (d.totals.cxl > 0 ? 'var(--danger)' : 'var(--text-main)')}; font-weight: ${(!isOffline && d.totals.cxl > 0) ? 'bold' : 'normal'};">${isOffline ? '-' : d.totals.cxl}</td>`;
         }
         
         tr.innerHTML = rowHTML;
