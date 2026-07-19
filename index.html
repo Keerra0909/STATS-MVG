@@ -405,8 +405,9 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
                     <h2 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #f59e0b; text-shadow: 0 2px 10px rgba(245,158,11,0.3);">Carrera Semanal 🏆</h2>
                     <div>
+                        <button onclick="openCarreraConfig()" class="btn-secondary" id="btn-config-carrera" style="display: none; margin-right: 10px; font-size: 0.8rem; padding: 0.4rem 0.8rem;">⚙️ Configurar</button>
                         <button onclick="downloadCarreraImage()" class="btn-primary" id="btn-download-carrera" style="margin-right: 10px; font-size: 0.8rem; padding: 0.4rem 0.8rem;">Descargar Foto 📸</button>
-                        <span style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; font-size: 0.85rem;">Mínimo 10 Puntos</span>
+                        <span id="carrera-min-pts-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; font-size: 0.85rem;">Mínimo 10 Puntos</span>
                     </div>
                 </div>
 
@@ -544,7 +545,53 @@
         </div>
     </div>
 
-    <script src="app.js?v=93"></script>
+    <!-- CARRERA CONFIG MODAL -->
+    <div id="carrera-config-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); z-index:9000; align-items:center; justify-content:center; padding:1rem;" onclick="closeCarreraConfig(event)">
+        <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.5rem; width:100%; max-width:400px; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+                <h3 style="margin:0; font-size:1.4rem; color:var(--primary);">⚙️ Configurar Spiff</h3>
+                <button onclick="closeCarreraConfig()" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="input-group">
+                    <label>1x (Single)</label>
+                    <input type="number" step="0.5" id="cfg-p1" class="form-input" value="0.5">
+                </div>
+                <div class="input-group">
+                    <label>2x (Doble)</label>
+                    <input type="number" step="0.5" id="cfg-p2" class="form-input" value="1.0">
+                </div>
+                <div class="input-group">
+                    <label>3x (Triple)</label>
+                    <input type="number" step="0.5" id="cfg-p3" class="form-input" value="1.5">
+                </div>
+                <div class="input-group">
+                    <label>4x (Cuádruple)</label>
+                    <input type="number" step="0.5" id="cfg-p4" class="form-input" value="2.0">
+                </div>
+                <div class="input-group">
+                    <label>5x+ (Quíntuple o mayor - Tope)</label>
+                    <input type="number" step="0.5" id="cfg-p5" class="form-input" value="2.5">
+                </div>
+                <div class="input-group">
+                    <label>Arpón</label>
+                    <input type="number" step="0.5" id="cfg-pa" class="form-input" value="1.0">
+                </div>
+                <hr style="border-color: rgba(255,255,255,0.1);">
+                <div class="input-group">
+                    <label>Mínimo de Puntos (Meta)</label>
+                    <input type="number" step="1" id="cfg-min" class="form-input" value="10">
+                </div>
+            </div>
+            <div style="margin-top:2rem; text-align:right;">
+                <button onclick="closeCarreraConfig()" class="btn-secondary" style="margin-right: 10px;">Cancelar</button>
+                <button onclick="saveCarreraConfig()" class="btn-primary" id="btn-save-carrera-cfg">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=94"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

@@ -420,6 +420,8 @@ function handleAuthState() {
         document.getElementById('btn-team').style.display = 'block';
         document.getElementById('btn-academy').style.display = 'block';
         document.getElementById('btn-download-top3').style.display = 'inline-block';
+        const cfgBtn = document.getElementById('btn-config-carrera');
+        if (cfgBtn) cfgBtn.style.display = 'inline-block';
         document.getElementById('btn-download').style.display = 'inline-block';
         document.getElementById('btn-export-excel').style.display = 'inline-block';
         const savedView = localStorage.getItem('view');
@@ -549,6 +551,63 @@ async function downloadCarreraImage() {
         alert("Hubo un error al generar la imagen.");
     } finally {
         if (btn) btn.style.display = 'inline-block';
+    }
+}
+
+// --- Carrera Config ---
+let carreraConfig = { p1: 0.5, p2: 1.0, p3: 1.5, p4: 2.0, p5: 2.5, pa: 1.0, min: 10 };
+
+async function openCarreraConfig() {
+    try {
+        const doc = await firestore.collection('settings').doc('carrera').get();
+        if (doc.exists) {
+            carreraConfig = { ...carreraConfig, ...doc.data() };
+        }
+    } catch(e) { console.error("Error loading config", e); }
+    
+    document.getElementById('cfg-p1').value = carreraConfig.p1;
+    document.getElementById('cfg-p2').value = carreraConfig.p2;
+    document.getElementById('cfg-p3').value = carreraConfig.p3;
+    document.getElementById('cfg-p4').value = carreraConfig.p4;
+    document.getElementById('cfg-p5').value = carreraConfig.p5;
+    document.getElementById('cfg-pa').value = carreraConfig.pa;
+    document.getElementById('cfg-min').value = carreraConfig.min;
+    
+    document.getElementById('carrera-config-modal').style.display = 'flex';
+}
+
+function closeCarreraConfig(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('carrera-config-modal').style.display = 'none';
+}
+
+async function saveCarreraConfig() {
+    const btn = document.getElementById('btn-save-carrera-cfg');
+    btn.disabled = true;
+    btn.innerText = 'Guardando...';
+
+    const newCfg = {
+        p1: parseFloat(document.getElementById('cfg-p1').value) || 0,
+        p2: parseFloat(document.getElementById('cfg-p2').value) || 0,
+        p3: parseFloat(document.getElementById('cfg-p3').value) || 0,
+        p4: parseFloat(document.getElementById('cfg-p4').value) || 0,
+        p5: parseFloat(document.getElementById('cfg-p5').value) || 0,
+        pa: parseFloat(document.getElementById('cfg-pa').value) || 0,
+        min: parseInt(document.getElementById('cfg-min').value) || 0
+    };
+
+    try {
+        await firestore.collection('settings').doc('carrera').set(newCfg, { merge: true });
+        carreraConfig = newCfg;
+        closeCarreraConfig();
+        // Reload carrera view to reflect changes
+        loadCarrera();
+    } catch(e) {
+        console.error("Error saving config", e);
+        alert("Error al guardar configuración");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Guardar';
     }
 }
 
@@ -2669,6 +2728,15 @@ async function loadCarrera() {
     }
 
     try {
+        // Fetch config first
+        const cfgDoc = await firestore.collection('settings').doc('carrera').get();
+        if (cfgDoc.exists) {
+            carreraConfig = { ...carreraConfig, ...cfgDoc.data() };
+        }
+        
+        const badge = document.getElementById('carrera-min-pts-badge');
+        if (badge) badge.innerText = `Mínimo ${carreraConfig.min} Puntos`;
+
         const snap = await firestore.collection('stats')
             .where('date', 'in', weekDates)
             .get();
@@ -2679,16 +2747,18 @@ async function loadCarrera() {
             const data = doc.data();
             if (!userPoints[data.name]) userPoints[data.name] = 0;
             
-            let pts = data.spiffPoints;
-            if (pts === undefined) {
-                const s = data.singles !== undefined ? data.singles : (data.ventas || 0);
-                const d = data.dobles || 0;
-                const t = data.triples || 0;
-                const c = data.cuadruples || 0;
-                const q = data.quintuples || 0;
-                const a = data.arpones || 0;
-                pts = (s * 0.5) + (d * 1.0) + (t * 1.5) + (c * 2.0) + (q * 2.5) + (a * 1.0);
-            }
+            // Dynamic points calculation based on current config
+            const s = data.singles !== undefined ? data.singles : (data.ventas || 0);
+            const d = data.dobles || 0;
+            const t = data.triples || 0;
+            const c = data.cuadruples || 0;
+            const q = data.quintuples || 0;
+            const a = data.arpones || 0;
+            
+            // Wait, if old data didn't have singles, it used ventas.
+            // That's fine, it will multiply by p1.
+            let pts = (s * carreraConfig.p1) + (d * carreraConfig.p2) + (t * carreraConfig.p3) + (c * carreraConfig.p4) + (q * carreraConfig.p5) + (a * carreraConfig.pa);
+            
             userPoints[data.name] += pts;
         });
 
@@ -2717,7 +2787,7 @@ async function loadCarrera() {
             if (data && data.points > 0) {
                 nameEl.innerText = data.name;
                 ptsEl.innerText = `${data.points} pts`;
-                if (data.points < 10) {
+                if (data.points < carreraConfig.min) {
                     nameEl.style.opacity = '0.5';
                     ptsEl.style.opacity = '0.5';
                 } else {
@@ -2740,7 +2810,7 @@ async function loadCarrera() {
         tbody.innerHTML = '';
         leaderboard.forEach((item, index) => {
             if (item.points === 0) return;
-            const opacity = item.points < 10 ? '0.5' : '1';
+            const opacity = item.points < carreraConfig.min ? '0.5' : '1';
             let posStr = `${index + 1}`;
             if (index === 0) posStr = '🥇 1';
             if (index === 1) posStr = '🥈 2';
