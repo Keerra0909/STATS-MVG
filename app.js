@@ -883,7 +883,12 @@ async function loadDailyEntries() {
 
 function editDaily(cleanName) {
     document.getElementById(`shots-${cleanName}`).disabled = false;
-    document.getElementById(`ventas-${cleanName}`).disabled = false;
+    document.getElementById(`singles-${cleanName}`).disabled = false;
+    document.getElementById(`dobles-${cleanName}`).disabled = false;
+    document.getElementById(`triples-${cleanName}`).disabled = false;
+    document.getElementById(`cuadruples-${cleanName}`).disabled = false;
+    document.getElementById(`quintuples-${cleanName}`).disabled = false;
+    document.getElementById(`arpones-${cleanName}`).disabled = false;
     document.getElementById(`ads-${cleanName}`).disabled = false;
     document.getElementById(`links-${cleanName}`).disabled = false;
     document.getElementById(`cxl-${cleanName}`).disabled = false;
