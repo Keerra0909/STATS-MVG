@@ -2660,7 +2660,9 @@ async function loadSpiffs() {
                     adminControls.style.marginTop = '1rem';
                     adminControls.style.borderTop = '1px solid var(--border)';
                     adminControls.style.paddingTop = '1rem';
-                    let selectHtml = `<select id="winner-${s.id}" style="width:100%; margin-bottom:10px; padding:0.5rem; border-radius:6px; background:var(--bg-color); color:var(--text); border:1px solid var(--border);"><option value="">Seleccionar Ganador...</option>`;
+                    let selectHtml = `<select id="winner-${s.id}" style="width:100%; margin-bottom:10px; padding:0.5rem; border-radius:6px; background:var(--bg-color); color:var(--text); border:1px solid var(--border);">
+                        <option value="">Seleccionar Ganador...</option>
+                        <option value="SIN GANADOR">❌ Nadie (Sin ganador)</option>`;
                     
                     if (globalActiveUsers) {
                         globalActiveUsers.forEach(u => {
@@ -2684,7 +2686,7 @@ async function loadSpiffs() {
                     ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Min % Cierre: ${s.cierre}</p>` : ''}
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(79,172,254,0.1); color:#4facfe; padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
-                        👑 Ganador: ${s.winner}
+                        ${s.winner === 'SIN GANADOR' ? '❌ SIN GANADOR' : `👑 Ganador: ${s.winner}`}
                     </div>`;
                 
                 if (currentUser && currentUser.role === 'admin') {
