@@ -2679,7 +2679,7 @@ async function loadSpiffs() {
                     card.appendChild(adminControls);
                 }
                 activeContainer.appendChild(card);
-            } else {
+            } else if (s.status === 'completed') {
                 card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">✔️ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">⏱️ ${s.time || 'Día completo'} | 📅 ${s.period.toUpperCase()}</p>
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">📊 Métrica: ${s.metric}</p>
@@ -2708,8 +2708,15 @@ async function loadSpiffs() {
                     deleteBtn.innerText = 'Eliminar 🗑️';
                     deleteBtn.onclick = () => deleteSpiff(s.id);
                     
+                    const archiveBtn = document.createElement('button');
+                    archiveBtn.className = 'btn-secondary';
+                    archiveBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #f59e0b; border-color: rgba(245, 158, 11, 0.3);';
+                    archiveBtn.innerText = 'Archivar 📦';
+                    archiveBtn.onclick = () => archiveSpiff(s.id);
+                    
                     controls.appendChild(editBtn);
                     controls.appendChild(deleteBtn);
+                    controls.appendChild(archiveBtn);
                     card.appendChild(controls);
                 }
                 
@@ -2770,6 +2777,16 @@ async function declareSpiffWinner(id) {
         });
         loadSpiffs();
     } catch(e) { console.error(e); alert('Error al declarar ganador'); }
+}
+
+async function archiveSpiff(id) {
+    if (!confirm('¿Estás seguro de que deseas archivar este Spiff? Desaparecerá del historial.')) return;
+    try {
+        await firestore.collection('spiffs').doc(id).update({
+            status: 'archived', archivedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        loadSpiffs();
+    } catch(e) { console.error(e); alert('Error al archivar Spiff'); }
 }
 
 async function deleteSpiff(id) {
