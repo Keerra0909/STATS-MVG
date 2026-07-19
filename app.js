@@ -95,7 +95,12 @@ async function loadRepWeekly() {
                 <div style="font-size: 0.75rem; color: var(--text-muted);">${dateStr.substring(5).replace('-', '/')}</div>
             </td>
             <td style="text-align: center;"><input type="number" min="0" id="rep-shots-${i}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-ventas-${i}" value="${stat ? (stat.ventas !== undefined ? stat.ventas : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-singles-${i}" value="${stat ? (stat.singles !== undefined ? stat.singles : (stat.ventas || 0)) : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-dobles-${i}" value="${stat ? (stat.dobles || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-triples-${i}" value="${stat ? (stat.triples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-cuadruples-${i}" value="${stat ? (stat.cuadruples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-quintuples-${i}" value="${stat ? (stat.quintuples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-arpones-${i}" value="${stat ? (stat.arpones || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="rep-ads-${i}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="rep-links-${i}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
             <td style="text-align: center; vertical-align: middle;">
@@ -190,10 +195,18 @@ function editRepStat(index) {
 async function saveRepStat(index, dateStr) {
     const cleanName = currentUser.name.replace(/ /g, '_');
     const shots = Math.max(0, parseInt(document.getElementById(`rep-shots-${index}`).value) || 0);
-    const ventas = Math.max(0, parseInt(document.getElementById(`rep-ventas-${index}`).value) || 0);
+    const singles = Math.max(0, parseInt(document.getElementById(`rep-singles-${index}`).value) || 0);
+    const dobles = Math.max(0, parseInt(document.getElementById(`rep-dobles-${index}`).value) || 0);
+    const triples = Math.max(0, parseInt(document.getElementById(`rep-triples-${index}`).value) || 0);
+    const cuadruples = Math.max(0, parseInt(document.getElementById(`rep-cuadruples-${index}`).value) || 0);
+    const quintuples = Math.max(0, parseInt(document.getElementById(`rep-quintuples-${index}`).value) || 0);
+    const arpones = Math.max(0, parseInt(document.getElementById(`rep-arpones-${index}`).value) || 0);
     const ads = Math.max(0, parseInt(document.getElementById(`rep-ads-${index}`).value) || 0);
     const links = Math.max(0, parseInt(document.getElementById(`rep-links-${index}`).value) || 0);
     const cxl = 0; // Not edited by rep directly yet
+
+    const ventas = singles + (dobles * 2) + (triples * 3) + (cuadruples * 4) + (quintuples * 5) + arpones;
+    const spiffPoints = (singles * 0.5) + (dobles * 1.0) + (triples * 1.5) + (cuadruples * 2.0) + (quintuples * 2.5) + (arpones * 1.0);
 
     const docId = `${cleanName}_${dateStr}`;
     const btn = document.getElementById(`btn-save-${index}`);
@@ -205,7 +218,7 @@ async function saveRepStat(index, dateStr) {
             firestore.collection('stats').doc(docId).set({
                 name: currentUser.name,
                 date: dateStr,
-                shots, ventas, ads, links, cxl
+                shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl
             }, { merge: true }),
             new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
         ]);
@@ -544,6 +557,7 @@ function navigate(viewId) {
     if (viewId === 'rep-weekly') loadRepWeekly();
     if (viewId === 'academy') loadAcademy();
     if (viewId === 'spiffs') loadSpiffs();
+    if (viewId === 'carrera') loadCarrera();
 }
 
 function moveNavPill(btn) {
@@ -762,7 +776,12 @@ async function loadDailyEntries() {
         tr.innerHTML = `
             <td><strong>${u.name}</strong></td>
             <td style="text-align: center;"><input type="number" min="0" id="shots-${cleanName}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="ventas-${cleanName}" value="${stat ? (stat.ventas !== undefined ? stat.ventas : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="singles-${cleanName}" value="${stat ? (stat.singles !== undefined ? stat.singles : (stat.ventas || 0)) : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="dobles-${cleanName}" value="${stat ? (stat.dobles || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="triples-${cleanName}" value="${stat ? (stat.triples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="cuadruples-${cleanName}" value="${stat ? (stat.cuadruples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="quintuples-${cleanName}" value="${stat ? (stat.quintuples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="arpones-${cleanName}" value="${stat ? (stat.arpones || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="ads-${cleanName}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="links-${cleanName}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="cxl-${cleanName}" value="${stat ? (stat.cxl !== undefined ? stat.cxl : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
@@ -796,10 +815,18 @@ function editDaily(cleanName) {
 async function saveDaily(cleanName, realName) {
     const dateStr = document.getElementById('entry-date').value;
     const shots = Math.max(0, parseInt(document.getElementById(`shots-${cleanName}`).value) || 0);
-    const ventas = Math.max(0, parseInt(document.getElementById(`ventas-${cleanName}`).value) || 0);
+    const singles = Math.max(0, parseInt(document.getElementById(`singles-${cleanName}`).value) || 0);
+    const dobles = Math.max(0, parseInt(document.getElementById(`dobles-${cleanName}`).value) || 0);
+    const triples = Math.max(0, parseInt(document.getElementById(`triples-${cleanName}`).value) || 0);
+    const cuadruples = Math.max(0, parseInt(document.getElementById(`cuadruples-${cleanName}`).value) || 0);
+    const quintuples = Math.max(0, parseInt(document.getElementById(`quintuples-${cleanName}`).value) || 0);
+    const arpones = Math.max(0, parseInt(document.getElementById(`arpones-${cleanName}`).value) || 0);
     const ads = Math.max(0, parseInt(document.getElementById(`ads-${cleanName}`).value) || 0);
     const links = Math.max(0, parseInt(document.getElementById(`links-${cleanName}`).value) || 0);
     const cxl = Math.max(0, parseInt(document.getElementById(`cxl-${cleanName}`).value) || 0);
+
+    const ventas = singles + (dobles * 2) + (triples * 3) + (cuadruples * 4) + (quintuples * 5) + arpones;
+    const spiffPoints = (singles * 0.5) + (dobles * 1.0) + (triples * 1.5) + (cuadruples * 2.0) + (quintuples * 2.5) + (arpones * 1.0);
 
     const docId = `${cleanName}_${dateStr}`;
     const btn = document.getElementById(`btn-save-admin-${cleanName}`);
@@ -811,7 +838,7 @@ async function saveDaily(cleanName, realName) {
             firestore.collection('stats').doc(docId).set({
                 name: realName,
                 date: dateStr,
-                shots, ventas, ads, links, cxl
+                shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl
             }, { merge: true }),
             new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
         ]);
@@ -2603,6 +2630,98 @@ function closeAcademyModal(e) {
 
 // --- SPIFFS ---
 let editingSpiffId = null;
+
+async function loadCarrera() {
+    const today = new Date();
+    const day = today.getDay() || 7; 
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - day + 1);
+    
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        weekDates.push(d.toISOString().split('T')[0]);
+    }
+
+    try {
+        const snap = await firestore.collection('stats')
+            .where('date', 'in', weekDates)
+            .get();
+
+        const userPoints = {};
+        
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (!userPoints[data.name]) userPoints[data.name] = 0;
+            
+            let pts = data.spiffPoints;
+            if (pts === undefined) {
+                const s = data.singles !== undefined ? data.singles : (data.ventas || 0);
+                const d = data.dobles || 0;
+                const t = data.triples || 0;
+                const c = data.cuadruples || 0;
+                const q = data.quintuples || 0;
+                const a = data.arpones || 0;
+                pts = (s * 0.5) + (d * 1.0) + (t * 1.5) + (c * 2.0) + (q * 2.5) + (a * 1.0);
+            }
+            userPoints[data.name] += pts;
+        });
+
+        const leaderboard = Object.keys(userPoints)
+            .map(name => ({ name, points: userPoints[name] }))
+            .sort((a, b) => b.points - a.points);
+
+        const renderMedal = (idx, idPrefix) => {
+            const data = leaderboard[idx];
+            const nameEl = document.getElementById(`${idPrefix}-${idx + 1}`);
+            const ptsEl = document.getElementById(`${idPrefix}-pts-${idx + 1}`);
+            
+            if (data && data.points > 0) {
+                nameEl.innerText = data.name;
+                ptsEl.innerText = `${data.points} pts`;
+                if (data.points < 10) {
+                    nameEl.style.opacity = '0.5';
+                    ptsEl.style.opacity = '0.5';
+                } else {
+                    nameEl.style.opacity = '1';
+                    ptsEl.style.opacity = '1';
+                }
+            } else {
+                nameEl.innerText = '--';
+                ptsEl.innerText = '0 pts';
+                nameEl.style.opacity = '1';
+                ptsEl.style.opacity = '1';
+            }
+        };
+
+        renderMedal(0, 'carrera');
+        renderMedal(1, 'carrera');
+        renderMedal(2, 'carrera');
+
+        const tbody = document.getElementById('carrera-table-body');
+        tbody.innerHTML = '';
+        leaderboard.forEach((item, index) => {
+            if (item.points === 0) return;
+            const opacity = item.points < 10 ? '0.5' : '1';
+            let posStr = `${index + 1}`;
+            if (index === 0) posStr = '🥇 1';
+            if (index === 1) posStr = '🥈 2';
+            if (index === 2) posStr = '🥉 3';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="padding: 1rem; border-bottom: 1px solid var(--border); font-weight: bold; opacity: ${opacity};">${posStr}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid var(--border); opacity: ${opacity};">${item.name}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid var(--border); text-align: center; font-weight: bold; color: var(--primary); opacity: ${opacity};">${item.points}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (e) {
+        console.error("Error loading carrera", e);
+    }
+}
 
 async function loadSpiffs() {
     const adminPanel = document.getElementById('spiff-admin-panel');

@@ -34,6 +34,7 @@
             <button onclick="navigate('team')" class="nav-btn" id="btn-team">Equipo</button>
             <button onclick="navigate('academy')" class="nav-btn" id="btn-academy">Academia</button>
             <button onclick="navigate('spiffs')" class="nav-btn" id="btn-spiffs">SPIFF</button>
+            <button onclick="navigate('carrera')" class="nav-btn" id="btn-carrera">Carrera 🏆</button>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <button id="btn-logout" class="btn-secondary" style="display: none; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="logout()">Cerrar Sesión</button>
@@ -117,7 +118,12 @@
                         <tr>
                             <th>Día</th>
                             <th style="text-align: center;">Shots</th>
-                            <th style="text-align: center;">Ventas</th>
+                            <th style="text-align: center;" title="Singles">1x(S)</th>
+                            <th style="text-align: center;" title="Dobles">2x(D)</th>
+                            <th style="text-align: center;" title="Triples">3x(T)</th>
+                            <th style="text-align: center;" title="Cuádruples">4x(C)</th>
+                            <th style="text-align: center;" title="Quíntuples+">5x+</th>
+                            <th style="text-align: center;" title="Arpones">Arpón</th>
                             <th style="text-align: center;">Ads</th>
                             <th style="text-align: center;">Links</th>
                             <th>Acción</th>
@@ -187,7 +193,12 @@
                         <tr>
                             <th style="width: 200px;">Vendedor</th>
                             <th style="text-align: center;">Shots</th>
-                            <th style="text-align: center;">Ventas</th>
+                            <th style="text-align: center;" title="Singles">1x(S)</th>
+                            <th style="text-align: center;" title="Dobles">2x(D)</th>
+                            <th style="text-align: center;" title="Triples">3x(T)</th>
+                            <th style="text-align: center;" title="Cuádruples">4x(C)</th>
+                            <th style="text-align: center;" title="Quíntuples+">5x+</th>
+                            <th style="text-align: center;" title="Arpones">Arpón</th>
                             <th style="text-align: center;">Ads</th>
                             <th style="text-align: center;">Links</th>
                             <th style="text-align: center;">CXL</th>
@@ -388,6 +399,54 @@
             </div>
         </section>
 
+        <!-- CARRERA SEMANAL VIEW -->
+        <section id="view-carrera" class="view hidden">
+            <div class="card" style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                    <h2 style="margin:0; font-size: 1.8rem; font-weight: 800; background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Carrera Semanal 🏆</h2>
+                    <div>
+                        <span style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; font-size: 0.85rem;">Mínimo 10 Puntos</span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,215,0,0.3); border-radius: 12px; padding: 1.5rem; text-align: center;">
+                        <h3 style="margin: 0 0 10px 0; color: #ffd700; font-size: 1.5rem;">🥇 1er Lugar</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 15px 0;">Premio: $400 USD</p>
+                        <h4 id="carrera-1" style="font-size: 1.2rem; color: #fff; margin: 0;">--</h4>
+                        <p id="carrera-pts-1" style="color: #ffd700; font-weight: bold; margin-top: 5px;">0 pts</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(192,192,192,0.3); border-radius: 12px; padding: 1.5rem; text-align: center;">
+                        <h3 style="margin: 0 0 10px 0; color: #c0c0c0; font-size: 1.5rem;">🥈 2do Lugar</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 15px 0;">Premio: $200 USD</p>
+                        <h4 id="carrera-2" style="font-size: 1.2rem; color: #fff; margin: 0;">--</h4>
+                        <p id="carrera-pts-2" style="color: #c0c0c0; font-weight: bold; margin-top: 5px;">0 pts</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(205,127,50,0.3); border-radius: 12px; padding: 1.5rem; text-align: center;">
+                        <h3 style="margin: 0 0 10px 0; color: #cd7f32; font-size: 1.5rem;">🥉 3er Lugar</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 15px 0;">Premio: $100 USD</p>
+                        <h4 id="carrera-3" style="font-size: 1.2rem; color: #fff; margin: 0;">--</h4>
+                        <p id="carrera-pts-3" style="color: #cd7f32; font-weight: bold; margin-top: 5px;">0 pts</p>
+                    </div>
+                </div>
+
+                <div style="background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: rgba(0,0,0,0.2);">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--border);">Posición</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--border);">Vendedor</th>
+                                <th style="padding: 1rem; text-align: center; border-bottom: 1px solid var(--border);">Puntos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="carrera-table-body">
+                            <!-- Filled by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- ACADEMY VIEW -->
         <section id="view-academy" class="view hidden">
             <div class="card" style="margin-bottom: 2rem;">
@@ -484,7 +543,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=89"></script>
+    <script src="app.js?v=90"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
