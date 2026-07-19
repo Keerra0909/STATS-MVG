@@ -2456,7 +2456,8 @@ async function loadSpiffs() {
             if (s.status === 'active') {
                 card.innerHTML = `<h3 style="margin-top:0; color:#fff;">🔥 ${s.title} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:10px;">(${dateStr})</span></h3>
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">🕒 ${s.time || 'Día completo'} | 🗓️ ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">🎯 Métrica: ${s.metric}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Métrica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">📈 Min % Cierre: ${s.cierre}</p>` : `<div style="margin-bottom:1rem;"></div>`}
                     <div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.5rem 1rem; border-radius:8px; display:inline-block; font-weight:bold; margin-bottom:1rem;">
                         Premio: ${s.prize}
                     </div>`;
@@ -2511,17 +2512,19 @@ async function createSpiff() {
     const period = document.getElementById('spiff-period').value;
     const prize = document.getElementById('spiff-prize').value;
     const metric = document.getElementById('spiff-metric').value;
+    const cierre = document.getElementById('spiff-cierre').value;
     
     if (!title || !prize || !metric) return alert('Por favor llena el título, premio y métrica.');
     
     try {
         await firestore.collection('spiffs').add({
-            title, time, period, prize, metric, status: 'active', winner: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            title, time, period, prize, metric, cierre, status: 'active', winner: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         document.getElementById('spiff-title').value = '';
         document.getElementById('spiff-time').value = '';
         document.getElementById('spiff-prize').value = '';
         document.getElementById('spiff-metric').value = '';
+        document.getElementById('spiff-cierre').value = '';
         loadSpiffs();
     } catch (e) { console.error(e); alert('Error al crear spiff'); }
 }
