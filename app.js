@@ -1500,8 +1500,8 @@ function renderTop3() {
         glow: 'rgba(102, 166, 255, 0.4)',
         textColor: '#89f7fe',
         delay: 0,
-        medalBg: 'radial-gradient(circle at 30% 30%, #ffffff, #e6e9f0 40%, #aeb4c3 80%, #767d8f)',
-        medalColor: '#3a4256'
+        medalBg: 'linear-gradient(135deg, #e6e9f0 0%, #aeb4c3 100%)',
+        medalColor: '#111'
     });
     if (top3[0]) places.push({ 
         ...top3[0], 
@@ -1512,8 +1512,8 @@ function renderTop3() {
         glow: 'rgba(0, 210, 255, 0.5)',
         textColor: '#00d2ff',
         delay: 200,
-        medalBg: 'radial-gradient(circle at 30% 30%, #fffbf0, #f9d976 40%, #e9b646 80%, #b48529)',
-        medalColor: '#7a5214'
+        medalBg: 'linear-gradient(135deg, #ffe066 0%, #f9a826 100%)',
+        medalColor: '#111'
     });
     if (top3[2]) places.push({ 
         ...top3[2], 
@@ -1524,8 +1524,8 @@ function renderTop3() {
         glow: 'rgba(178, 36, 239, 0.5)',
         textColor: '#d946ef',
         delay: 100,
-        medalBg: 'radial-gradient(circle at 30% 30%, #ffebd9, #e69d73 40%, #cd7241 80%, #9a4820)',
-        medalColor: '#4f200d'
+        medalBg: 'linear-gradient(135deg, #e69d73 0%, #b85c34 100%)',
+        medalColor: '#111'
     });
     
     // Build HTML with data attributes for animation targets
@@ -1541,7 +1541,7 @@ function renderTop3() {
                 <div style="width: 100%; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 0 25px ${p.glow}, inset 0 2px 10px rgba(255,255,255,0.3); overflow: hidden; background: ${p.gradient};">
                     <div class="podium-bar" style="height: 0px; display: flex; justify-content: center; align-items: flex-start; padding-top: 15px; position: relative; transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);">
                         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%); pointer-events: none;"></div>
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: ${p.medalBg}; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 1rem; color: ${p.medalColor}; box-shadow: inset 0 -2px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.7), 0 4px 8px rgba(0,0,0,0.4); z-index: 1; border: 1px solid rgba(255,255,255,0.3);">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: ${p.medalBg}; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; color: ${p.medalColor}; box-shadow: 0 4px 8px rgba(0,0,0,0.5); z-index: 1; border: 1px solid rgba(255,255,255,0.5);">
                             ${p.rank}
                         </div>
                     </div>
