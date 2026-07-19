@@ -491,6 +491,30 @@ function toggleTheme() {
     document.getElementById('theme-toggle').innerText = next === 'light' ? '🌙' : '☀️';
 }
 
+async function downloadSpiffImage(spiffId) {
+    const card = document.getElementById(`spiff-card-${spiffId}`);
+    if (!card) return;
+    
+    const origBg = card.style.background;
+    card.style.background = '#1a1a1a'; // Ensure dark background for image
+    
+    try {
+        const canvas = await html2canvas(card, {
+            backgroundColor: '#1a1a1a',
+            scale: 2
+        });
+        const link = document.createElement('a');
+        link.download = `Spiff_${spiffId}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (err) {
+        console.error("Error downloading spiff:", err);
+        alert("Hubo un error al generar la imagen.");
+    } finally {
+        card.style.background = origBg;
+    }
+}
+
 // --- Navigation ---
 function navigate(viewId) {
     document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
@@ -2609,6 +2633,7 @@ async function loadSpiffs() {
             const s = doc.data();
             s.id = doc.id;
             const card = document.createElement('div');
+            card.id = `spiff-card-${s.id}`;
             card.style.background = 'var(--surface)';
             card.style.padding = '1.5rem';
             card.style.borderRadius = '12px';
@@ -2661,6 +2686,7 @@ async function loadSpiffs() {
                 
                 if (currentUser && currentUser.role === 'admin') {
                     const controls = document.createElement('div');
+                    controls.setAttribute('data-html2canvas-ignore', 'true');
                     controls.style.display = 'flex';
                     controls.style.gap = '0.5rem';
                     controls.style.marginTop = '10px';
@@ -2681,6 +2707,15 @@ async function loadSpiffs() {
                     controls.appendChild(deleteBtn);
                     card.appendChild(controls);
                 }
+                
+                const dlBtn = document.createElement('button');
+                dlBtn.setAttribute('data-html2canvas-ignore', 'true');
+                dlBtn.className = 'btn-secondary';
+                dlBtn.style.cssText = 'width: 100%; padding: 0.5rem; margin-top: 10px; font-size: 0.85rem; border-color: rgba(255, 255, 255, 0.2);';
+                dlBtn.innerHTML = 'Descargar Foto 📸';
+                dlBtn.onclick = () => downloadSpiffImage(s.id);
+                card.appendChild(dlBtn);
+                
 
                 completedContainer.appendChild(card);
             }
