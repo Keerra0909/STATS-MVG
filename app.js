@@ -986,9 +986,16 @@ function toggleOffline() {
 }
 // --- Streaks Logic ---
 let globalStreaks = {};
+let globalIceStreaks = {};
+let globalMonthlyBlanks = {};
+let globalLastWeekMvp = null;
 
 async function fetchStreaks() {
     globalStreaks = {};
+    globalIceStreaks = {};
+    globalMonthlyBlanks = {};
+    globalLastWeekMvp = null;
+    
     try {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -1007,6 +1014,23 @@ async function fetchStreaks() {
         
         const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
         
+        const currentMonthPrefix = new Date().toISOString().substring(0, 7); // "YYYY-MM"
+        
+        // Calculate last week's dates
+        const dToday = new Date();
+        const dayOfWeek = dToday.getDay() === 0 ? 7 : dToday.getDay(); 
+        const lastSunday = new Date(dToday);
+        lastSunday.setDate(dToday.getDate() - dayOfWeek);
+        const lastMonday = new Date(lastSunday);
+        lastMonday.setDate(lastSunday.getDate() - 6);
+        
+        const lastWeekDates = [];
+        for (let i = 0; i < 7; i++) {
+            const temp = new Date(lastMonday);
+            temp.setDate(lastMonday.getDate() + i);
+            lastWeekDates.push(temp.toISOString().split('T')[0]);
+        }
+        
         const last30Dates = [];
         for (let i = 0; i < 30; i++) {
             const d = new Date();
@@ -1014,27 +1038,63 @@ async function fetchStreaks() {
             last30Dates.push(d.toISOString().split('T')[0]);
         }
         
+        let mvpName = null;
+        let mvpVentas = -1;
+        
         usersSnap.forEach(doc => {
             const name = doc.data().name;
             const history = userHistory[name] || {};
-            let streak = 0;
+            
+            // Fire Streak & Ice Streak
+            let fireStreak = 0;
+            let iceStreak = 0;
+            let breakFire = false;
+            let breakIce = false;
             
             for (const dStr of last30Dates) {
                 const stat = history[dStr];
                 if (stat) {
-                    if (stat.ventas > 0) {
-                        streak++;
-                    } else if (stat.ventas === 0 && stat.shots > 0) {
-                        break;
+                    // Fire logic
+                    if (!breakFire) {
+                        if (stat.ventas > 0) fireStreak++;
+                        else if (stat.ventas === 0 && stat.shots > 0) breakFire = true;
+                    }
+                    // Ice logic
+                    if (!breakIce) {
+                        if (stat.ventas === 0 && stat.shots > 0) iceStreak++;
+                        else if (stat.ventas > 0) breakIce = true;
                     }
                 }
             }
-            globalStreaks[name] = streak;
+            
+            // Monthly Blanks
+            let mBlanks = 0;
+            Object.values(history).forEach(stat => {
+                if (stat.date.startsWith(currentMonthPrefix) && stat.ventas === 0 && stat.shots > 0) {
+                    mBlanks++;
+                }
+            });
+            
+            // Last Week MVP
+            let lWeekVentas = 0;
+            lastWeekDates.forEach(dStr => {
+                if (history[dStr]) lWeekVentas += (history[dStr].ventas || 0);
+            });
+            if (lWeekVentas > mvpVentas && lWeekVentas > 0) {
+                mvpVentas = lWeekVentas;
+                mvpName = name;
+            }
+            
+            globalStreaks[name] = fireStreak;
+            globalIceStreaks[name] = iceStreak;
+            globalMonthlyBlanks[name] = mBlanks;
         });
+        
+        globalLastWeekMvp = mvpName;
+        
     } catch (e) {
         console.error("Error fetching streaks:", e);
     }
-    return globalStreaks;
 }
 
 async function loadDashboard() {
@@ -1393,10 +1453,17 @@ function renderDashTable() {
         let streakBadge = '';
         if (!isSpecial && globalStreaks && globalStreaks[d.name] >= 2) {
             streakBadge = `<span style="display: inline-block; background: rgba(255, 100, 0, 0.15); color: #ff8c00; border: 1px solid rgba(255, 100, 0, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(255, 100, 0, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">🔥 x${globalStreaks[d.name]}</span>`;
+        } else if (!isSpecial && globalIceStreaks && globalIceStreaks[d.name] >= 2) {
+            streakBadge = `<span style="display: inline-block; background: rgba(0, 200, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 200, 255, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(0, 200, 255, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">🧊 x${globalIceStreaks[d.name]}</span>`;
+        }
+        
+        let mvpBadge = '';
+        if (!isSpecial && globalLastWeekMvp === d.name) {
+            mvpBadge = `<span style="margin-left: 6px; font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); vertical-align: middle;" title="MVP Semana Pasada" data-html2canvas-ignore="true">👑</span>`;
         }
 
         let rowHTML = `<td style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-right: 1px solid var(--border);">${idx}</td>`;
-        rowHTML += `<td style="${isOffline ? 'color: var(--text-muted);' : ''}"><strong>${d.name}</strong>${streakBadge}</td>`;
+        rowHTML += `<td style="${isOffline ? 'color: var(--text-muted);' : ''}"><strong>${d.name}</strong>${mvpBadge}${streakBadge}</td>`;
         
         if (isMatrixMode) {
             matrixDates.forEach(date => {
