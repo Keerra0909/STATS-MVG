@@ -591,7 +591,22 @@
         </div>
     </div>
 
-    <script src="app.js?v=96"></script>
+    <!-- CONFIRM MODAL -->
+    <div id="confirm-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); z-index:10000; align-items:center; justify-content:center; padding:1rem;">
+        <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.5rem; width:100%; max-width:400px; text-align:center;">
+            <div style="margin-bottom:1.5rem;">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚠️</div>
+                <h3 style="margin:0; font-size:1.2rem; color:var(--text-main); font-weight: bold;">Confirmación</h3>
+                <p id="confirm-modal-msg" style="margin: 1rem 0 0; color:var(--text-muted); font-size: 0.95rem; line-height: 1.5;"></p>
+            </div>
+            <div style="display:flex; gap:1rem; justify-content:center;">
+                <button onclick="closeConfirmModal()" class="btn-secondary" style="flex:1;">Cancelar</button>
+                <button id="btn-confirm-yes" class="btn-primary" style="flex:1;">Sí, continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=98"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

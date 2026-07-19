@@ -586,6 +586,25 @@ function closeCarreraConfig(e) {
     document.getElementById('carrera-config-modal').style.display = 'none';
 }
 
+// --- Custom Confirm Modal ---
+let confirmCallback = null;
+
+function showConfirmModal(message, onConfirm) {
+    document.getElementById('confirm-modal-msg').innerText = message;
+    confirmCallback = onConfirm;
+    document.getElementById('confirm-modal').style.display = 'flex';
+    
+    document.getElementById('btn-confirm-yes').onclick = () => {
+        closeConfirmModal();
+        if (confirmCallback) confirmCallback();
+    };
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirm-modal').style.display = 'none';
+    confirmCallback = null;
+}
+
 async function saveCarreraConfig() {
     const btn = document.getElementById('btn-save-carrera-cfg');
     btn.disabled = true;
@@ -777,8 +796,8 @@ async function toggleUser(id, status) {
     loadTeam();
 }
 
-async function deleteUser(id, name) {
-    if (confirm(`¿Estás súper seguro de borrar PERMANENTEMENTE a "${name}"?\n\n¡Esto eliminará todo su historial de la base de datos de inmediato!`)) {
+function deleteUser(id, name) {
+    showConfirmModal(`¿Estás súper seguro de borrar PERMANENTEMENTE a "${name}"?\n\n¡Esto eliminará todo su historial de la base de datos de inmediato!`, async () => {
         await firestore.collection('users').doc(id).delete();
         
         // Delete daily stats
@@ -787,16 +806,17 @@ async function deleteUser(id, name) {
         statsSnap.forEach(doc => {
             batch.delete(doc.ref);
         });
+        await batch.commit();
         
         // Delete monthly stats
-        const monthlySnap = await firestore.collection('stats_monthly').where('name', '==', name).get();
-        monthlySnap.forEach(doc => {
-            batch.delete(doc.ref);
+        const monthSnap = await firestore.collection('monthly_stats').where('name', '==', name).get();
+        const batch2 = firestore.batch();
+        monthSnap.forEach(doc => {
+            batch2.delete(doc.ref);
         });
+        await batch2.commit();
         
-        await batch.commit();
         globalActiveUsers = null; // Invalidate cache
-        
         loadTeam();
         loadDashboard();
     }
@@ -3071,22 +3091,24 @@ async function declareSpiffWinner(id) {
     } catch(e) { console.error(e); alert('Error al declarar ganador'); }
 }
 
-async function archiveSpiff(id) {
-    if (!confirm('¿Estás seguro de que deseas archivar este Spiff? Desaparecerá del historial.')) return;
-    try {
-        await firestore.collection('spiffs').doc(id).update({
-            status: 'archived', archivedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        loadSpiffs();
-    } catch(e) { console.error(e); alert('Error al archivar Spiff'); }
+function archiveSpiff(id) {
+    showConfirmModal('¿Estás seguro de que deseas archivar este Spiff? Desaparecerá del historial.', async () => {
+        try {
+            await firestore.collection('spiffs').doc(id).update({
+                status: 'archived', archivedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            loadSpiffs();
+        } catch(e) { console.error(e); alert('Error al archivar Spiff'); }
+    });
 }
 
-async function deleteSpiff(id) {
-    if (!confirm('¿Estás seguro de que deseas eliminar este Spiff? Esta acción no se puede deshacer.')) return;
-    try {
-        await firestore.collection('spiffs').doc(id).delete();
-        loadSpiffs();
-    } catch(e) { console.error(e); alert('Error al eliminar Spiff'); }
+function deleteSpiff(id) {
+    showConfirmModal('¿Estás seguro de que deseas eliminar este Spiff? Esta acción no se puede deshacer.', async () => {
+        try {
+            await firestore.collection('spiffs').doc(id).delete();
+            loadSpiffs();
+        } catch(e) { console.error(e); alert('Error al eliminar Spiff'); }
+    });
 }
 
 async function unarchiveSpiff(id) {
