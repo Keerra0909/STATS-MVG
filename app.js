@@ -2482,7 +2482,6 @@ async function loadSpiffs() {
                 }
                 activeContainer.appendChild(card);
             } else {
-                card.style.opacity = '0.6';
                 card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">✅ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(79,172,254,0.1); color:#4facfe; padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
