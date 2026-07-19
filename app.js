@@ -2447,8 +2447,14 @@ async function loadSpiffs() {
             card.style.border = '1px solid var(--border)';
             card.style.position = 'relative';
             
+            let dateStr = 'Hoy';
+            if (s.createdAt) {
+                const dateObj = s.createdAt.toDate ? s.createdAt.toDate() : new Date();
+                dateStr = dateObj.toLocaleDateString('es-ES', {day: 'numeric', month: 'short'});
+            }
+
             if (s.status === 'active') {
-                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">🔥 ${s.title}</h3>
+                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">🔥 ${s.title} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:10px;">(${dateStr})</span></h3>
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">🕒 ${s.time || 'Día completo'} | 🗓️ ${s.period.toUpperCase()}</p>
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">🎯 Métrica: ${s.metric}</p>
                     <div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.5rem 1rem; border-radius:8px; display:inline-block; font-weight:bold; margin-bottom:1rem;">
@@ -2476,7 +2482,7 @@ async function loadSpiffs() {
                 activeContainer.appendChild(card);
             } else {
                 card.style.opacity = '0.6';
-                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">✅ ${s.title}</h4>
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">✅ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(79,172,254,0.1); color:#4facfe; padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
                         👑 Ganador: ${s.winner}
