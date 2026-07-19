@@ -384,3 +384,9 @@ html[data-theme="dark"] .stat-card {
  } 
   
  
+ 
+ / *   S e l e c t   C o l o r   S c h e m e   F i x   * / 
+ h t m l [ d a t a - t h e m e = \ " d a r k \ " ]   s e l e c t ,   h t m l [ d a t a - t h e m e = \ " d a r k \ " ]   i n p u t   {   c o l o r - s c h e m e :   d a r k ;   } 
+ h t m l [ d a t a - t h e m e = \ " l i g h t \ " ]   s e l e c t ,   h t m l [ d a t a - t h e m e = \ " l i g h t \ " ]   i n p u t   {   c o l o r - s c h e m e :   l i g h t ;   } 
+  
+ 

@@ -2460,11 +2460,11 @@ async function loadSpiffs() {
                     adminControls.style.marginTop = '1rem';
                     adminControls.style.borderTop = '1px solid var(--border)';
                     adminControls.style.paddingTop = '1rem';
-                    let selectHtml = `<select id="winner-${s.id}" style="width:100%; margin-bottom:10px; padding:0.5rem; border-radius:6px; background:var(--bg-color); color:var(--text); border:1px solid var(--border);"><option value="" style="color:#000;">Seleccionar Ganador...</option>`;
+                    let selectHtml = `<select id="winner-${s.id}" style="width:100%; margin-bottom:10px; padding:0.5rem; border-radius:6px; background:var(--bg-color); color:var(--text); border:1px solid var(--border);"><option value="">Seleccionar Ganador...</option>`;
                     
                     if (globalActiveUsers) {
                         globalActiveUsers.forEach(u => {
-                            if(u.role !== 'admin') selectHtml += `<option value="${u.name}" style="color:#000;">${u.name}</option>`;
+                            if(u.role !== 'admin') selectHtml += `<option value="${u.name}">${u.name}</option>`;
                         });
                     }
                     
