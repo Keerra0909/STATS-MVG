@@ -335,7 +335,13 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
                         <div>
                             <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Título / Nombre</label>
-                            <input type="text" id="spiff-title" placeholder="Ej. Ventas tempraneras" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
+                            <input type="text" id="spiff-title" list="spiff-titles-list" placeholder="Ej. Ventas tempraneras" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
+                            <datalist id="spiff-titles-list">
+                                <option value="Más ventas en el día">
+                                <option value="Spiff Mañanero (Primeras ventas)">
+                                <option value="Sprint de la Tarde">
+                                <option value="El Rey del Cierre (Mejor %)">
+                            </datalist>
                         </div>
                         <div>
                             <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Horario (Opcional)</label>
@@ -473,7 +479,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=84"></script>
+    <script src="app.js?v=85"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
