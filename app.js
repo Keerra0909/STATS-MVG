@@ -84,12 +84,9 @@ async function loadRepWeekly() {
             btnHtml = `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Próximamente</span>`;
         } else {
             btnHtml = isLocked 
-                ? `<button id="btn-save-${i}" class="btn-success" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: none;" onclick="saveRepStat(${i}, '${dateStr}')">Guardar</button>
-                   <span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
-                   <button id="btn-edit-${i}" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editRepStat(${i})">Editar</button>`
+                ? `<span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>`
                 : `<button id="btn-save-${i}" class="btn-primary" onclick="saveRepStat(${i}, '${dateStr}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Guardar</button>
-                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
-                   <button id="btn-edit-${i}" class="btn-secondary" style="display: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editRepStat(${i})">Editar</button>`;
+                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>`;
         }
 
         tr.innerHTML = `
@@ -187,16 +184,7 @@ async function loadRepWeekly() {
 }
 
 function editRepStat(index) {
-    document.getElementById(`rep-shots-${index}`).disabled = false;
-    document.getElementById(`rep-ventas-${index}`).disabled = false;
-    document.getElementById(`rep-ads-${index}`).disabled = false;
-    document.getElementById(`rep-links-${index}`).disabled = false;
-    
-    document.getElementById(`btn-save-${index}`).style.display = 'block';
-    document.getElementById(`btn-save-${index}`).className = 'btn-primary';
-    document.getElementById(`btn-save-${index}`).innerText = 'Guardar';
-    document.getElementById(`saved-msg-${index}`).style.display = 'none';
-    document.getElementById(`btn-edit-${index}`).style.display = 'none';
+    // Deprecated: Reps can no longer edit their own stats once saved.
 }
 
 async function saveRepStat(index, dateStr) {
@@ -232,7 +220,6 @@ async function saveRepStat(index, dateStr) {
         btn.style.display = 'none';
         btn.disabled = false;
         document.getElementById(`saved-msg-${index}`).style.display = 'inline-block';
-        document.getElementById(`btn-edit-${index}`).style.display = 'inline-block';
     } catch (err) {
         alert(err.message || "Error al guardar. Revisa tu conexión a internet.");
         btn.innerText = 'Guardar';
