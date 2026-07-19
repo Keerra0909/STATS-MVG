@@ -2786,8 +2786,15 @@ async function createSpiff() {
     if (prizeMatch) {
         prize = `$${prizeMatch[0]} USD`;
     }
-    const metric = document.getElementById('spiff-metric').value;
-    const cierre = document.getElementById('spiff-cierre').value;
+    let metric = document.getElementById('spiff-metric').value.trim();
+    let cierre = document.getElementById('spiff-cierre').value.trim();
+    
+    if (/^\d+$/.test(metric)) {
+        metric = `Mínimo ${metric} ventas`;
+    }
+    if (/^\d+$/.test(cierre)) {
+        cierre = `${cierre}%`;
+    }
     
     if (!title || !prize || !metric) return alert('Por favor llena el título, premio y métrica.');
     
