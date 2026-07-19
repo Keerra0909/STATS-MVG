@@ -2614,15 +2614,18 @@ async function loadSpiffs() {
     
     const activeContainer = document.getElementById('spiffs-active-container');
     const completedContainer = document.getElementById('spiffs-completed-container');
+    const archivedContainer = document.getElementById('spiffs-archived-container');
     if(!activeContainer) return;
     
     activeContainer.innerHTML = '<div class="skeleton" style="height:150px; width:100%;"></div>';
     completedContainer.innerHTML = '<div class="skeleton" style="height:100px; width:100%;"></div>';
+    if(archivedContainer) archivedContainer.innerHTML = '';
 
     try {
         const snap = await firestore.collection('spiffs').orderBy('createdAt', 'desc').get();
         activeContainer.innerHTML = '';
         completedContainer.innerHTML = '';
+        if(archivedContainer) archivedContainer.innerHTML = '';
         
         if (snap.empty) {
             activeContainer.innerHTML = '<p style="color:var(--text-muted);">No hay Spiffs activos.</p>';
@@ -2730,6 +2733,41 @@ async function loadSpiffs() {
                 
 
                 completedContainer.appendChild(card);
+            } else if (s.status === 'archived') {
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">📦 ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">⏱️ ${s.time || 'Día completo'} | 📅 ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">📊 Métrica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Min % Cierre: ${s.cierre}</p>` : ''}
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
+                    <div style="background:rgba(255,255,255,0.05); color:var(--text-muted); padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
+                        ${s.winner === 'SIN GANADOR' ? '❌ SIN GANADOR' : `👑 Ganador: ${s.winner}`}
+                    </div>`;
+                
+                if (currentUser && currentUser.role === 'admin') {
+                    const controls = document.createElement('div');
+                    controls.setAttribute('data-html2canvas-ignore', 'true');
+                    controls.style.display = 'flex';
+                    controls.style.gap = '0.5rem';
+                    controls.style.marginTop = '10px';
+                    
+                    const unarchiveBtn = document.createElement('button');
+                    unarchiveBtn.className = 'btn-secondary';
+                    unarchiveBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #10b981; border-color: rgba(16, 185, 129, 0.3);';
+                    unarchiveBtn.innerText = 'Desarchivar ♻️';
+                    unarchiveBtn.onclick = () => unarchiveSpiff(s.id);
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-secondary';
+                    deleteBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
+                    deleteBtn.innerText = 'Eliminar 🗑️';
+                    deleteBtn.onclick = () => deleteSpiff(s.id);
+                    
+                    controls.appendChild(unarchiveBtn);
+                    controls.appendChild(deleteBtn);
+                    card.appendChild(controls);
+                }
+                
+                if(archivedContainer) archivedContainer.appendChild(card);
             }
         });
     } catch (e) {
@@ -2795,6 +2833,28 @@ async function deleteSpiff(id) {
         await firestore.collection('spiffs').doc(id).delete();
         loadSpiffs();
     } catch(e) { console.error(e); alert('Error al eliminar Spiff'); }
+}
+
+async function unarchiveSpiff(id) {
+    try {
+        await firestore.collection('spiffs').doc(id).update({
+            status: 'completed'
+        });
+        loadSpiffs();
+    } catch(e) { console.error(e); alert('Error al desarchivar Spiff'); }
+}
+
+function toggleArchivedSpiffs() {
+    const container = document.getElementById('spiffs-archived-container');
+    const btn = document.getElementById('btn-toggle-archived');
+    if (!container || !btn) return;
+    if (container.style.display === 'none') {
+        container.style.display = 'grid';
+        btn.innerText = 'Ocultar Archivados 📦';
+    } else {
+        container.style.display = 'none';
+        btn.innerText = 'Ver Archivados 📦';
+    }
 }
 
 function editSpiff(id, title, time, period, prize, metric, cierre) {
