@@ -226,7 +226,12 @@ async function saveRepStat(index, dateStr) {
         await recalculateUserMonth(cleanName, currentUser.name, dateStr).catch(e => console.error("Error updating monthly stats:", e));
 
         document.getElementById(`rep-shots-${index}`).disabled = true;
-        document.getElementById(`rep-ventas-${index}`).disabled = true;
+        document.getElementById(`rep-singles-${index}`).disabled = true;
+        document.getElementById(`rep-dobles-${index}`).disabled = true;
+        document.getElementById(`rep-triples-${index}`).disabled = true;
+        document.getElementById(`rep-cuadruples-${index}`).disabled = true;
+        document.getElementById(`rep-quintuples-${index}`).disabled = true;
+        document.getElementById(`rep-arpones-${index}`).disabled = true;
         document.getElementById(`rep-ads-${index}`).disabled = true;
         document.getElementById(`rep-links-${index}`).disabled = true;
         
@@ -935,7 +940,12 @@ async function saveDaily(cleanName, realName) {
         
         // Lock the row
         document.getElementById(`shots-${cleanName}`).disabled = true;
-        document.getElementById(`ventas-${cleanName}`).disabled = true;
+        document.getElementById(`singles-${cleanName}`).disabled = true;
+        document.getElementById(`dobles-${cleanName}`).disabled = true;
+        document.getElementById(`triples-${cleanName}`).disabled = true;
+        document.getElementById(`cuadruples-${cleanName}`).disabled = true;
+        document.getElementById(`quintuples-${cleanName}`).disabled = true;
+        document.getElementById(`arpones-${cleanName}`).disabled = true;
         document.getElementById(`ads-${cleanName}`).disabled = true;
         document.getElementById(`links-${cleanName}`).disabled = true;
         document.getElementById(`cxl-${cleanName}`).disabled = true;
