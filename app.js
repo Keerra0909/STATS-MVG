@@ -595,8 +595,9 @@ function showConfirmModal(message, onConfirm) {
     document.getElementById('confirm-modal').style.display = 'flex';
     
     document.getElementById('btn-confirm-yes').onclick = () => {
+        const cb = confirmCallback;
         closeConfirmModal();
-        if (confirmCallback) confirmCallback();
+        if (cb) cb();
     };
 }
 
