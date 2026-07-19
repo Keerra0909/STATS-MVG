@@ -1390,7 +1390,7 @@ function renderDashTable() {
 
         let streakBadge = '';
         if (!isSpecial && globalStreaks && globalStreaks[d.name] >= 2) {
-            streakBadge = `<span style="display: inline-block; background: linear-gradient(135deg, #ff4d4d, #ff8c00); color: white; padding: 1px 6px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-left: 8px; box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);" data-html2canvas-ignore="true">🔥 x${globalStreaks[d.name]}</span>`;
+            streakBadge = `<span style="display: inline-block; background: linear-gradient(135deg, #ff4d4d, #ff8c00); color: white; padding: 0px 5px; border-radius: 8px; font-size: 0.6rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 5px rgba(255, 140, 0, 0.4); vertical-align: middle;" data-html2canvas-ignore="true">🔥 x${globalStreaks[d.name]}</span>`;
         }
 
         let rowHTML = `<td style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-right: 1px solid var(--border);">${idx}</td>`;
