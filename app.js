@@ -528,6 +528,30 @@ async function downloadSpiffImage(spiffId) {
     }
 }
 
+async function downloadCarreraImage() {
+    const container = document.querySelector('#view-carrera .card');
+    if (!container) return;
+    
+    const btn = document.getElementById('btn-download-carrera');
+    if (btn) btn.style.display = 'none';
+
+    try {
+        const canvas = await html2canvas(container, {
+            backgroundColor: '#1a1a1a',
+            scale: 2
+        });
+        const link = document.createElement('a');
+        link.download = `Carrera_Semanal.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (err) {
+        console.error("Error downloading carrera:", err);
+        alert("Hubo un error al generar la imagen.");
+    } finally {
+        if (btn) btn.style.display = 'inline-block';
+    }
+}
+
 // --- Navigation ---
 function navigate(viewId) {
     document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
