@@ -1529,7 +1529,7 @@ function renderTop3() {
             <div class="podium-card" data-rank="${p.rank}" data-ventas="${p.totals.ventas}" data-cierre="${(p.cierre * 100).toFixed(1)}" data-delay="${p.delay}"
                  style="display: flex; flex-direction: column; align-items: center; width: 140px; opacity: 0; transform: translateY(30px); transition: opacity 0.4s ease, transform 0.4s ease;">
                 <div style="font-size: 1.5rem; margin-bottom: 0.2rem; filter: drop-shadow(0 0 8px ${p.textColor}); height: 24px;">${p.icon}</div>
-                <strong style="font-size: 1rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.2rem; text-shadow: 0 0 10px rgba(255,255,255,0.3); text-align: center;">${p.name}</strong>
+                <strong style="font-size: 1.15rem; color: #ffffff; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 12px rgba(255,255,255,0.6); text-align: center; font-weight: 900;">${p.name}</strong>
                 <div class="podium-cierre" style="font-size: 0.75rem; color: ${p.textColor}; font-weight: bold; margin-bottom: 0.8rem; text-shadow: 0 0 8px ${p.glow}; letter-spacing: 0.5px;">Cierre: 0%</div>
                 
                 <div style="width: 100%; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 0 25px ${p.glow}, inset 0 2px 10px rgba(255,255,255,0.3); overflow: hidden; background: ${p.gradient};">
