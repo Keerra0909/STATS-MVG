@@ -168,11 +168,17 @@
             </div>
 
             <div class="card">
-                <h3>Vendedores Activos <span id="active-count" style="font-size: 1rem; color: var(--accent); margin-left: 0.5rem; font-weight: normal;"></span></h3>
+                <div style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="document.getElementById('active-users-list').classList.toggle('hidden');">
+                    <h3 style="margin: 0;">Vendedores Activos <span id="active-count" style="font-size: 1rem; color: var(--accent); margin-left: 0.5rem; font-weight: normal;"></span></h3>
+                    <span style="color: var(--text-muted); font-size: 1.2rem;">↕️</span>
+                </div>
                 <div id="active-users-list" class="user-grid"></div>
                 
-                <h3 style="margin-top: 2rem;">Vendedores Inactivos <span id="inactive-count" style="font-size: 1rem; color: #888; margin-left: 0.5rem; font-weight: normal;"></span></h3>
-                <div id="inactive-users-list" class="user-grid"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2rem; cursor: pointer;" onclick="document.getElementById('inactive-users-list').classList.toggle('hidden');">
+                    <h3 style="margin: 0;">Vendedores Inactivos <span id="inactive-count" style="font-size: 1rem; color: #888; margin-left: 0.5rem; font-weight: normal;"></span></h3>
+                    <span style="color: var(--text-muted); font-size: 1.2rem;">↕️</span>
+                </div>
+                <div id="inactive-users-list" class="user-grid hidden"></div>
             </div>
         </section>
 
@@ -606,7 +612,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=101"></script>
+    <script src="app.js?v=102"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
