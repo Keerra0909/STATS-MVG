@@ -2783,17 +2783,24 @@ async function loadCarrera() {
             const data = doc.data();
             if (!userPoints[data.name]) userPoints[data.name] = 0;
             
-            // Dynamic points calculation based on current config
-            const s = data.singles !== undefined ? data.singles : (data.ventas || 0);
-            const d = data.dobles || 0;
-            const t = data.triples || 0;
-            const c = data.cuadruples || 0;
-            const q = data.quintuples || 0;
-            const a = data.arpones || 0;
-            
-            // Wait, if old data didn't have singles, it used ventas.
-            // That's fine, it will multiply by p1.
-            let pts = (s * carreraConfig.p1) + (d * carreraConfig.p2) + (t * carreraConfig.p3) + (c * carreraConfig.p4) + (q * carreraConfig.p5) + (a * carreraConfig.pa);
+            let pts = 0;
+            if (data.singles !== undefined) {
+                // New detailed data
+                pts = (data.singles * carreraConfig.p1) + 
+                      ((data.dobles || 0) * carreraConfig.p2) + 
+                      ((data.triples || 0) * carreraConfig.p3) + 
+                      ((data.cuadruples || 0) * carreraConfig.p4) + 
+                      ((data.quintuples || 0) * carreraConfig.p5) + 
+                      ((data.arpones || 0) * carreraConfig.pa);
+            } else {
+                // Legacy data: 'ventas' represents total sales for the day, evaluated as a single block
+                const v = data.ventas || 0;
+                if (v >= 5) pts = carreraConfig.p5;
+                else if (v === 4) pts = carreraConfig.p4;
+                else if (v === 3) pts = carreraConfig.p3;
+                else if (v === 2) pts = carreraConfig.p2;
+                else if (v === 1) pts = carreraConfig.p1;
+            }
             
             userPoints[data.name] += pts;
         });
