@@ -103,6 +103,14 @@ async function loadRepWeekly() {
             <td style="text-align: center;"><input type="number" min="0" id="rep-arpones-${i}" value="${stat ? (stat.arpones || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="rep-ads-${i}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="rep-links-${i}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;">
+                <select id="rep-lobby-${i}" class="input-field" style="width: 80px; font-size: 0.75rem; padding: 0.2rem; text-align: center;" ${disabledAttr}>
+                    <option value=""></option>
+                    <option value="Nizuc" ${stat && stat.lobby === 'Nizuc' ? 'selected' : ''}>Nizuc</option>
+                    <option value="Sunrise" ${stat && stat.lobby === 'Sunrise' ? 'selected' : ''}>Sunrise</option>
+                    <option value="The Grand" ${stat && stat.lobby === 'The Grand' ? 'selected' : ''}>The Grand</option>
+                </select>
+            </td>
             <td style="text-align: center; vertical-align: middle;">
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 40px; gap: 0.5rem;">
                     ${btnHtml}
@@ -204,6 +212,7 @@ async function saveRepStat(index, dateStr) {
     const ads = Math.max(0, parseInt(document.getElementById(`rep-ads-${index}`).value) || 0);
     const links = Math.max(0, parseInt(document.getElementById(`rep-links-${index}`).value) || 0);
     const cxl = 0; // Not edited by rep directly yet
+    const lobby = document.getElementById(`rep-lobby-${index}`).value;
 
     const ventas = singles + (dobles * 2) + (triples * 3) + (cuadruples * 4) + (quintuples * 5) + arpones;
     const spiffPoints = (singles * 0.5) + (dobles * 1.0) + (triples * 1.5) + (cuadruples * 2.0) + (quintuples * 2.5) + (arpones * 1.0);
@@ -234,6 +243,7 @@ async function saveRepStat(index, dateStr) {
         document.getElementById(`rep-arpones-${index}`).disabled = true;
         document.getElementById(`rep-ads-${index}`).disabled = true;
         document.getElementById(`rep-links-${index}`).disabled = true;
+        document.getElementById(`rep-lobby-${index}`).disabled = true;
         
         btn.style.display = 'none';
         btn.disabled = false;
@@ -916,6 +926,14 @@ async function loadDailyEntries() {
             <td style="text-align: center;"><input type="number" min="0" id="ads-${cleanName}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="links-${cleanName}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="cxl-${cleanName}" value="${stat ? (stat.cxl !== undefined ? stat.cxl : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;">
+                <select id="lobby-${cleanName}" class="input-field" style="width: 80px; font-size: 0.75rem; padding: 0.2rem; text-align: center;" ${disabledAttr}>
+                    <option value=""></option>
+                    <option value="Nizuc" ${stat && stat.lobby === 'Nizuc' ? 'selected' : ''}>Nizuc</option>
+                    <option value="Sunrise" ${stat && stat.lobby === 'Sunrise' ? 'selected' : ''}>Sunrise</option>
+                    <option value="The Grand" ${stat && stat.lobby === 'The Grand' ? 'selected' : ''}>The Grand</option>
+                </select>
+            </td>
             <td style="text-align: center; vertical-align: middle;">
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 40px; gap: 0.5rem;">
                     ${btnHtml}
@@ -940,6 +958,7 @@ function editDaily(cleanName) {
     document.getElementById(`ads-${cleanName}`).disabled = false;
     document.getElementById(`links-${cleanName}`).disabled = false;
     document.getElementById(`cxl-${cleanName}`).disabled = false;
+    document.getElementById(`lobby-${cleanName}`).disabled = false;
     
     document.getElementById(`btn-save-admin-${cleanName}`).style.display = 'block';
     document.getElementById(`btn-save-admin-${cleanName}`).className = 'btn-primary';
@@ -960,6 +979,7 @@ async function saveDaily(cleanName, realName) {
     const ads = Math.max(0, parseInt(document.getElementById(`ads-${cleanName}`).value) || 0);
     const links = Math.max(0, parseInt(document.getElementById(`links-${cleanName}`).value) || 0);
     const cxl = Math.max(0, parseInt(document.getElementById(`cxl-${cleanName}`).value) || 0);
+    const lobby = document.getElementById(`lobby-${cleanName}`).value;
 
     const ventas = singles + (dobles * 2) + (triples * 3) + (cuadruples * 4) + (quintuples * 5) + arpones;
     const spiffPoints = (singles * 0.5) + (dobles * 1.0) + (triples * 1.5) + (cuadruples * 2.0) + (quintuples * 2.5) + (arpones * 1.0);
@@ -992,6 +1012,7 @@ async function saveDaily(cleanName, realName) {
         document.getElementById(`ads-${cleanName}`).disabled = true;
         document.getElementById(`links-${cleanName}`).disabled = true;
         document.getElementById(`cxl-${cleanName}`).disabled = true;
+        document.getElementById(`lobby-${cleanName}`).disabled = true;
         
         btn.style.display = 'none';
         btn.disabled = false;
@@ -1643,7 +1664,7 @@ function renderDashTable() {
         }
         
         let mvpBadge = '';
-        if (!isSpecial && globalLastWeekMvp === d.name) {
+            if (!isSpecial && globalLastWeekMvp === d.name) {
             mvpBadge = `<span style="margin-left: 6px; font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); vertical-align: middle;" title="MVP Semana Pasada" data-html2canvas-ignore="true">👑</span>`;
         }
 
@@ -1654,11 +1675,14 @@ function renderDashTable() {
             matrixDates.forEach(date => {
                 const s = d.daily[date].shots;
                 const v = d.daily[date].ventas;
+                const lobby = d.daily[date].lobby || '';
                 const isEmpty = (s === 0 && v === 0);
                 const sDisplay = isEmpty ? '' : s;
                 const vDisplay = isEmpty ? '' : v;
-                rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); font-weight: 600; color: ${s > 0 ? 'var(--text-main)' : 'var(--text-muted)'};">${isOffline ? 'OFF' : sDisplay}</td>`;
-                rowHTML += `<td style="text-align: center; border-left: 1px solid var(--border); font-weight: 800; color: ${v > 0 ? 'var(--primary)' : 'var(--text-muted)'};">${isOffline ? 'OFF' : vDisplay}</td>`;
+                const titleAttr = lobby && !isOffline && !isEmpty ? `title="Lobby: ${lobby}"` : '';
+                
+                rowHTML += `<td ${titleAttr} style="text-align: center; border-left: 1px solid var(--border); font-weight: 600; color: ${s > 0 ? 'var(--text-main)' : 'var(--text-muted)'}; cursor: ${titleAttr ? 'help' : 'default'};">${isOffline ? 'OFF' : sDisplay}</td>`;
+                rowHTML += `<td ${titleAttr} style="text-align: center; border-left: 1px solid var(--border); font-weight: 800; color: ${v > 0 ? 'var(--primary)' : 'var(--text-muted)'}; cursor: ${titleAttr ? 'help' : 'default'};">${isOffline ? 'OFF' : vDisplay}</td>`;
             });
         }
         
