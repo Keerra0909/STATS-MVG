@@ -286,7 +286,7 @@ window.calcTotales = function(idPrefix, idSuffix, fieldChanged) {
     }
 }
 
-function logout() {
+window.logout = function() {
     currentUser = null;
     localStorage.removeItem('currentUser');
     document.getElementById('btn-logout').style.display = 'none';
