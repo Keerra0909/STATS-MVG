@@ -438,6 +438,8 @@ function handleAuthState() {
         document.getElementById('btn-download-top3').style.display = 'inline-block';
         const cfgBtn = document.getElementById('btn-config-carrera');
         if (cfgBtn) cfgBtn.style.display = 'inline-block';
+        const podioBtn = document.getElementById('btn-toggle-podium');
+        if (podioBtn) podioBtn.style.display = 'inline-block';
         document.getElementById('btn-download').style.display = 'inline-block';
         document.getElementById('btn-export-excel').style.display = 'inline-block';
         const savedView = localStorage.getItem('view');
@@ -606,6 +608,19 @@ async function downloadCarreraImage() {
 
 // --- Carrera Config ---
 let carreraConfig = { p1: 0.5, p2: 1.0, p3: 1.5, p4: 2.0, p5: 2.5, pa: 1.0, min: 10 };
+
+window.togglePodium = function() {
+    const podio = document.getElementById('carrera-podio');
+    const btn = document.getElementById('btn-toggle-podium');
+    if (!podio) return;
+    if (podio.style.display === 'none') {
+        podio.style.display = 'grid';
+        btn.innerText = '🙈 Ocultar Podio';
+    } else {
+        podio.style.display = 'none';
+        btn.innerText = '🏆 Revelar Podio';
+    }
+}
 
 async function openCarreraConfig() {
     try {
