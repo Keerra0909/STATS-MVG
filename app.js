@@ -3509,3 +3509,81 @@ async function loadLobbiesDashboard() {
         console.error("Error loading lobbies", e);
     }
 }
+const lobbyPatchData = {
+    '2026-07-01': ['ERICK', 'PAOLO', 'TONY', 'JP', 'NANCY', 'ANA', 'JOSEFINA', 'NONO', 'MONTSE', 'JAS'],
+    '2026-07-02': ['ANA', 'RICARDO', 'NONO', 'RINA', 'ALEX', 'ADRIAN', 'GALAOR', 'ANDRES A', 'BRUNO'],
+    '2026-07-03': ['MIKE', 'PATTY', 'RICKY M', 'ANDRES G', 'JOSEFINA', 'TONY', 'CHRIS', 'JOS'],
+    '2026-07-04': ['GINA', 'JP', 'ANTONIO', 'GALGO R', 'MONTSE', 'TONY', 'GONZALO', 'BONJO', 'ISA', 'JOS', 'JOSEFINA'],
+    '2026-07-05': ['BRUNO', 'GALGO R', 'ANTONIO', 'SERGIO', 'ERICK', 'JOSEFINA', 'PATTY', 'ANA', 'ANDRES A', 'JOS'],
+    '2026-07-06': ['ADRIAN', 'ANDERSON', 'TONY', 'MIKE', 'JP', 'GONZALO', 'GALAOR', 'PAOLO'],
+    '2026-07-07': ['RICKY M', 'SERGIO', 'ANDRES A', 'MIKE', 'ANTONIO', 'JJ', 'SEBAS', 'CHRIS', 'PAOLO', 'TONY'],
+    '2026-07-08': ['GALAOR', 'ALEX', 'ERICK', 'MONTSE', 'NONO', 'PAOLO', 'JOSEFINA', 'ANDRES A', 'ANDERSON'],
+    '2026-07-09': ['PAOLO', 'TONY', 'BRUNO', 'JJ', 'ANDERSON', 'BONJO', 'ISA', 'RICARDO', 'JOSEFINA', 'ERICK', 'SERGIO', 'LEO', 'SEBAS'],
+    '2026-07-10': ['SERGIO', 'RICARDO', 'MONTSE', 'BRUNO', 'BONJO', 'ERICK', 'ANA', 'GALAOR', 'NONO', 'TONY', 'MIKE', 'PAOLO'],
+    '2026-07-11': ['JP', 'CHRIS', 'MICHELLE', 'NANCY', 'ANTONIO', 'JOSEFINA', 'ISA', 'ANDERSON', 'RICKY M', 'ADRIAN', 'PAOLO', 'BRUNO'],
+    '2026-07-12': ['NANCY', 'NONO', 'ANA', 'GALAOR', 'MONTSE', 'ALEX', 'BONJO', 'MICHELLE', 'GONZALO', 'ADRIAN', 'MIKE', 'PAOLO', 'ISA'],
+    '2026-07-13': ['ADRIAN', 'ALEX', 'RICKY M', 'ANDERSON', 'NONO', 'MIKE', 'JP', 'PAOLO', 'JJ', 'ISA'],
+    '2026-07-14': ['BRUNO', 'MONTSE', 'MIKE', 'ALEX', 'GONZALO', 'SERGIO', 'TONY', 'ANDRES A', 'PAOLO'],
+    '2026-07-15': ['MIKE', 'MONTSE', 'NANCY', 'JJ', 'SEBAS', 'ALEX', 'RICKY M', 'ERICK', 'ADRIAN'],
+    '2026-07-16': ['GALAOR', 'RICARDO', 'ADRIAN', 'ERICK', 'JJ', 'SERGIO', 'BONJO', 'ISA', 'JOSEFINA', 'PAOLO', 'GONZALO', 'HITCH'],
+    '2026-07-17': ['ANA', 'GALAOR', 'CHRIS', 'SERGIO', 'TONY', 'MICHELLE', 'JOSEFINA', 'BONJO', 'NANCY', 'LEO', 'PAOLO'],
+    '2026-07-18': ['NANCY', 'MICHELLE', 'NONO', 'BONJO', 'RICARDO', 'RICKY M', 'ANA', 'MONTSE', 'PAOLO', 'CHRIS', 'TONY', 'ANDERSON', 'ANTONIO', 'GALAOR', 'JP', 'LEO'],
+    '2026-07-19': ['ANTONIO', 'RICKY M', 'MICHELLE', 'ERICK', 'ANDRES A', 'GALAOR', 'TONY', 'BRUNO', 'NONO', 'ADRIAN', 'PAOLO'],
+    '2026-07-20': ['CHRIS', 'BONJO', 'GALAOR', 'NONO', 'MONTSE', 'MICHELLE', 'JP', 'RICARDO', 'TONY', 'PAOLO']
+};
+
+window.runLobbyPatch = async function() {
+    if (!confirm('¿Estás seguro de asignar estos nombres al lobby Sunrise para el mes de Julio? Esto actualizará la base de datos.')) return;
+    
+    const btn = document.getElementById('btn-sync-lobbies');
+    btn.innerText = 'Sincronizando... (por favor espera)';
+    btn.disabled = true;
+
+    try {
+        const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+        const activeUsers = [];
+        usersSnap.forEach(doc => {
+            activeUsers.push(doc.data().name);
+        });
+
+        const batchPromises = [];
+
+        for (const [date, names] of Object.entries(lobbyPatchData)) {
+            // Find stats docs for this date
+            const statsSnap = await firestore.collection('stats').where('date', '==', date).get();
+            
+            statsSnap.forEach(doc => {
+                const data = doc.data();
+                if (data.name) {
+                    // Try to match the name loosely
+                    const statName = data.name.toUpperCase();
+                    let matched = false;
+                    
+                    for (const n of names) {
+                        const targetName = n.toUpperCase();
+                        if (statName.includes(targetName) || targetName.includes(statName) || statName === targetName) {
+                            matched = true;
+                            break;
+                        }
+                    }
+
+                    if (matched) {
+                        // Update to Sunrise
+                        batchPromises.push(firestore.collection('stats').doc(doc.id).update({ lobby: 'Sunrise' }));
+                    }
+                }
+            });
+        }
+
+        await Promise.all(batchPromises);
+        alert(`¡Sincronización completa! Se actualizaron ${batchPromises.length} registros exitosamente.`);
+        btn.style.display = 'none'; // Hide button after success
+        loadLobbiesDashboard(); // Refresh
+        
+    } catch (e) {
+        console.error("Error patching lobbies", e);
+        alert("Ocurrió un error: " + e.message);
+        btn.innerText = 'Reintentar Sincronización';
+        btn.disabled = false;
+    }
+};
