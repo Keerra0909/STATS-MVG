@@ -2760,7 +2760,16 @@ async function loadCarrera() {
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
-        weekDates.push(d.toISOString().split('T')[0]);
+        const localStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        weekDates.push(localStr);
+    }
+
+    const dateRangeEl = document.getElementById('carrera-date-range');
+    if (dateRangeEl) {
+        const startD = weekDates[0].split('-');
+        const endD = weekDates[6].split('-');
+        const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        dateRangeEl.innerText = `(${startD[2]} ${months[parseInt(startD[1])-1]} - ${endD[2]} ${months[parseInt(endD[1])-1]})`;
     }
 
     try {
