@@ -3606,7 +3606,8 @@ const grandPatchData = {
     '2026-07-16': ['BRUNO', 'ANDRES A', 'MICHELLE', 'PANCHO', 'ANTONIO', 'GALA', 'ALEX', 'JP', 'TONY'],
     '2026-07-17': ['NONO', 'BRUNO', 'ISA', 'ANDRES A', 'GALAOR', 'MONTSE', 'ANTONIO', 'PANCHO', 'ANDERSON', 'RICARDO', 'ALEX'],
     '2026-07-18': ['GALA', 'JOSEFINA', 'GONZALO', 'JJ', 'ADRIAN', 'ERICK', 'SEBAS', 'ALEX', 'HITCH', 'ISA'],
-    '2026-07-20': ['ANDERSON', 'SERGIO', 'JP', 'NANCY', 'HITCH', 'JJ', 'BONJO', 'RICARDO', 'SEBAS', 'GONZALO', 'CHRIS', 'MONTSE']
+    '2026-07-19': ['ANDERSON', 'SERGIO', 'JP', 'NANCY', 'HITCH', 'JJ', 'BONJO', 'RICARDO', 'SEBAS', 'GONZALO', 'CHRIS', 'MONTSE'],
+    '2026-07-20': []
 };
 
 window.runGrandPatch = async function() {
