@@ -3587,3 +3587,80 @@ window.runLobbyPatch = async function() {
         btn.disabled = false;
     }
 };
+const grandPatchData = {
+    '2026-07-01': ['BRUNO', 'GALAOR', 'RICKY M', 'PATTY', 'ANTONIO', 'RICARDO', 'BONJO', 'ALEX', 'PANCHO'],
+    '2026-07-02': ['TONY', 'GONZALO', 'PANCHO', 'ANDRES G', 'JP', 'RICARDO', 'PATTY', 'NANCY', 'GALA', 'MONTSE', 'BRUNO'],
+    '2026-07-03': ['GINA', 'ISA', 'PAOLO', 'GALAOR', 'ADRIAN', 'MONTSE', 'BRUNO', 'PANCHO', 'JJ'],
+    '2026-07-04': ['SERGIO', 'ERICK', 'JOSEFINA', 'JJ', 'ANA', 'ANDRES A', 'RICKY M', 'PAOLO', 'ALEX', 'GALAOR', 'ANDRES G'],
+    '2026-07-05': ['MIKE', 'ISA', 'GONZALO', 'TONY', 'NANCY', 'NONO', 'JP', 'GALA', 'GINA', 'ANDERSON', 'ADRIAN', 'ANDRES G', 'RICARDO'],
+    '2026-07-06': ['ERICK', 'ALEX', 'BONJO', 'ANA', 'ANDRES A', 'ANTONIO', 'BRUNO', 'RICKY M', 'GONZALO', 'GALAOR', 'JOSEFINA'],
+    '2026-07-07': ['RICARDO', 'NANCY', 'NONO', 'GONZALO', 'BRUNO', 'ANDERSON', 'GALA', 'MONTSE', 'GALAOR', 'ISA', 'PANCHO', 'ANDRES G'],
+    '2026-07-08': ['BONJO', 'ADRIAN', 'CHRIS', 'GONZALO', 'RICARDO', 'NANCY', 'TONY', 'JJ', 'RICKY M', 'PANCHO'],
+    '2026-07-09': ['MIKE', 'GONZALO', 'JP', 'MONTSE', 'MICHELLE', 'ALEX', 'PANCHO'],
+    '2026-07-10': ['JP', 'ANDRES A', 'JJ', 'ANTONIO', 'ADRIAN', 'ISA', 'RICKY M', 'PANCHO', 'MICHELLE', 'ANDERSON', 'JOSEFINA'],
+    '2026-07-11': ['GALA', 'ERICK', 'ANA', 'MIKE', 'NONO', 'SERGIO', 'GALAOR', 'RICARDO', 'ALEX', 'TONY', 'PANCHO'],
+    '2026-07-12': ['ANTONIO', 'JOSEFINA', 'TONY', 'CHRIS', 'JJ', 'JP', 'ANDRES A', 'ERICK', 'BRUNO', 'ISA', 'SERGIO', 'GALA', 'PANCHO'],
+    '2026-07-13': ['ANA', 'ANDRES A', 'BONJO', 'ANTONIO', 'TONY', 'GALAOR', 'JOSEFINA', 'MICHELLE', 'JJ', 'PANCHO', 'LEO'],
+    '2026-07-14': ['ADRIAN', 'CHRIS', 'JJ', 'ANDERSON', 'JP', 'RICKY M', 'NANCY', 'NONO', 'ERICK', 'GALAOR', 'SEBAS', 'PANCHO', 'JOSEFINA'],
+    '2026-07-15': ['ANA', 'ANDERSON', 'TONY', 'SERGIO', 'GALA', 'GONZALO', 'PANCHO', 'RICKY M'],
+    '2026-07-16': ['BRUNO', 'ANDRES A', 'MICHELLE', 'PANCHO', 'ANTONIO', 'GALA', 'ALEX', 'JP', 'TONY'],
+    '2026-07-17': ['NONO', 'BRUNO', 'ISA', 'ANDRES A', 'GALAOR', 'MONTSE', 'ANTONIO', 'PANCHO', 'ANDERSON', 'RICARDO', 'ALEX'],
+    '2026-07-18': ['GALA', 'JOSEFINA', 'GONZALO', 'JJ', 'ADRIAN', 'ERICK', 'SEBAS', 'ALEX', 'HITCH', 'ISA'],
+    '2026-07-20': ['ANDERSON', 'SERGIO', 'JP', 'NANCY', 'HITCH', 'JJ', 'BONJO', 'RICARDO', 'SEBAS', 'GONZALO', 'CHRIS', 'MONTSE']
+};
+
+window.runGrandPatch = async function() {
+    if (!confirm('¿Estás seguro de asignar estos nombres al lobby The Grand para el mes de Julio? Esto actualizará la base de datos.')) return;
+    
+    const btn = document.getElementById('btn-sync-lobbies-grand');
+    btn.innerText = 'Sincronizando... (por favor espera)';
+    btn.disabled = true;
+
+    try {
+        const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+        const activeUsers = [];
+        usersSnap.forEach(doc => {
+            activeUsers.push(doc.data().name);
+        });
+
+        const batchPromises = [];
+
+        for (const [date, names] of Object.entries(grandPatchData)) {
+            // Find stats docs for this date
+            const statsSnap = await firestore.collection('stats').where('date', '==', date).get();
+            
+            statsSnap.forEach(doc => {
+                const data = doc.data();
+                if (data.name) {
+                    // Try to match the name loosely
+                    const statName = data.name.toUpperCase();
+                    let matched = false;
+                    
+                    for (const n of names) {
+                        const targetName = n.toUpperCase();
+                        if (statName.includes(targetName) || targetName.includes(statName) || statName === targetName) {
+                            matched = true;
+                            break;
+                        }
+                    }
+
+                    if (matched) {
+                        // Update to The Grand
+                        batchPromises.push(firestore.collection('stats').doc(doc.id).update({ lobby: 'The Grand' }));
+                    }
+                }
+            });
+        }
+
+        await Promise.all(batchPromises);
+        alert(`¡Sincronización completa! Se actualizaron ${batchPromises.length} registros exitosamente a The Grand.`);
+        btn.style.display = 'none'; // Hide button after success
+        loadLobbiesDashboard(); // Refresh
+        
+    } catch (e) {
+        console.error("Error patching lobbies", e);
+        alert("Ocurrió un error: " + e.message);
+        btn.innerText = 'Reintentar Sincronización The Grand';
+        btn.disabled = false;
+    }
+};
