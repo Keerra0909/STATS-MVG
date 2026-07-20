@@ -1534,7 +1534,7 @@ function renderDashTable() {
     
     // Hide offline users if toggled
     if (hideOffline) {
-        regularData = regularData.filter(d => d.totals.shots > 0 || d.totals.ventas > 0);
+        regularData = regularData.filter(d => d.totals.shots > 0 || d.totals.ventas > 0 || (d.totals.ads || 0) > 0 || (d.totals.links || 0) > 0 || (d.totals.cxl || 0) > 0);
     }
     
     const enReporte = dashData.find(d => d.name === 'EN REPORTE');
@@ -1605,7 +1605,7 @@ function renderDashTable() {
         
         if (isSpecial && d.totals.shots === 0) badgeClass = '';
 
-        const isOffline = (!isSpecial && d.totals.shots === 0 && d.totals.ventas === 0);
+        const isOffline = (!isSpecial && d.totals.shots === 0 && d.totals.ventas === 0 && (d.totals.ads || 0) === 0 && (d.totals.links || 0) === 0 && (d.totals.cxl || 0) === 0);
 
         let streakBadge = '';
         if (!isSpecial && globalStreaks && globalStreaks[d.name] >= 2) {
