@@ -1147,7 +1147,7 @@ let globalIceStreaks = {};
 let globalMonthlyBlanks = {};
 let globalLastWeekMvp = null;
 
-async function fetchStreaks() {
+async function fetchStreaks(baseDateStr = null) {
     globalStreaks = {};
     globalIceStreaks = {};
     globalMonthlyBlanks = {};
@@ -1174,7 +1174,7 @@ async function fetchStreaks() {
         const currentMonthPrefix = new Date().toISOString().substring(0, 7); // "YYYY-MM"
         
         // Calculate last week's dates
-        const dToday = new Date();
+        const dToday = baseDateStr ? new Date(baseDateStr + 'T12:00:00') : new Date();
         const dayOfWeek = dToday.getDay() === 0 ? 7 : dToday.getDay(); 
         const lastSunday = new Date(dToday);
         lastSunday.setDate(dToday.getDate() - dayOfWeek);
@@ -1258,7 +1258,7 @@ async function loadDashboard() {
     const startStr = document.getElementById('dash-start').value;
     const endStr = document.getElementById('dash-end').value;
 
-    await fetchStreaks();
+    await fetchStreaks(startStr);
 
     const subtitle = document.getElementById('dash-table-subtitle');
     if (subtitle && startStr && endStr) {
