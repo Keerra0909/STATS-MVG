@@ -94,14 +94,15 @@ async function loadRepWeekly() {
                 <strong>${dias[i]}</strong>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">${dateStr.substring(5).replace('-', '/')}</div>
             </td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-shots-${i}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-singles-${i}" value="${stat ? (stat.singles !== undefined ? stat.singles : (stat.ventas || 0)) : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-dobles-${i}" value="${stat ? (stat.dobles || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcAds('rep-', '-${i}')" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-triples-${i}" value="${stat ? (stat.triples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcAds('rep-', '-${i}')" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-cuadruples-${i}" value="${stat ? (stat.cuadruples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcAds('rep-', '-${i}')" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-quintuples-${i}" value="${stat ? (stat.quintuples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcAds('rep-', '-${i}')" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-arpones-${i}" value="${stat ? (stat.arpones || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="rep-ads-${i}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-shots-${i}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" oninput="calcTotales('rep-', '-${i}', 'shots')" ${disabledAttr}></td>
+            <td style="text-align: center; font-weight: bold; color: var(--primary); vertical-align: middle;" id="rep-visual-vts-${i}">${stat ? (stat.ventas || 0) : 0}</td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-singles-${i}" value="${stat ? (stat.singles !== undefined ? stat.singles : (stat.ventas || 0)) : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcTotales('rep-', '-${i}', 'singles')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-dobles-${i}" value="${stat ? (stat.dobles || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcTotales('rep-', '-${i}', 'dobles')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-triples-${i}" value="${stat ? (stat.triples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcTotales('rep-', '-${i}', 'triples')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-cuadruples-${i}" value="${stat ? (stat.cuadruples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcTotales('rep-', '-${i}', 'cuadruples')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-quintuples-${i}" value="${stat ? (stat.quintuples || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcTotales('rep-', '-${i}', 'quintuples')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-arpones-${i}" value="${stat ? (stat.arpones || '') : ''}" class="input-field" style="width: 45px; text-align: center; padding: 0.2rem;" oninput="calcTotales('rep-', '-${i}', 'arpones')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="rep-ads-${i}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" oninput="calcTotales('rep-', '-${i}', 'ads')" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="rep-links-${i}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 60px; text-align: center;" ${disabledAttr}></td>
             <td style="text-align: center;">
                 <select id="rep-lobby-${i}" class="input-field" style="width: 80px; font-size: 0.75rem; padding: 0.2rem; text-align: center;" ${disabledAttr}>
@@ -214,7 +215,7 @@ async function saveRepStat(index, dateStr) {
     const cxl = 0; // Not edited by rep directly yet
     const lobby = document.getElementById(`rep-lobby-${index}`).value;
 
-    const ventas = singles + (dobles * 2) + (triples * 3) + (cuadruples * 4) + (quintuples * 5) + arpones;
+    const ventas = singles + dobles + triples + cuadruples + quintuples + ads + arpones;
     const spiffPoints = (singles * 0.5) + (dobles * 1.0) + (triples * 1.5) + (cuadruples * 2.0) + (quintuples * 2.5) + (arpones * 1.0);
 
     const docId = `${cleanName}_${dateStr}`;
@@ -511,17 +512,29 @@ window.logout = function() {
     if (headerEl) headerEl.style.display = 'none';
 }
 
-window.calcAds = function(idPrefix, idSuffix) {
+window.calcTotales = function(idPrefix, idSuffix, fieldChanged) {
+    const singles = parseInt(document.getElementById(`${idPrefix}singles${idSuffix}`).value) || 0;
     const dobles = parseInt(document.getElementById(`${idPrefix}dobles${idSuffix}`).value) || 0;
     const triples = parseInt(document.getElementById(`${idPrefix}triples${idSuffix}`).value) || 0;
     const cuadruples = parseInt(document.getElementById(`${idPrefix}cuadruples${idSuffix}`).value) || 0;
     const quintuples = parseInt(document.getElementById(`${idPrefix}quintuples${idSuffix}`).value) || 0;
-    
-    const implicitAds = (dobles * 1) + (triples * 2) + (cuadruples * 3) + (quintuples * 4);
+    const arpones = parseInt(document.getElementById(`${idPrefix}arpones${idSuffix}`).value) || 0;
     
     const adsInput = document.getElementById(`${idPrefix}ads${idSuffix}`);
-    if (adsInput) {
-        adsInput.value = implicitAds > 0 ? implicitAds : '';
+    if (['dobles', 'triples', 'cuadruples', 'quintuples'].includes(fieldChanged)) {
+        const implicitAds = (dobles * 1) + (triples * 2) + (cuadruples * 3) + (quintuples * 4);
+        if (adsInput) {
+            adsInput.value = implicitAds > 0 ? implicitAds : '';
+        }
+    }
+    
+    const ads = parseInt(adsInput ? adsInput.value : 0) || 0;
+    const baseSales = singles + dobles + triples + cuadruples + quintuples;
+    const totalVentas = baseSales + ads + arpones;
+    
+    const visualVts = document.getElementById(`${idPrefix}visual-vts${idSuffix}`);
+    if (visualVts) {
+        visualVts.innerText = totalVentas > 0 ? totalVentas : '0';
     }
 }
 
@@ -916,14 +929,15 @@ async function loadDailyEntries() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${u.name}</strong></td>
-            <td style="text-align: center;"><input type="number" min="0" id="shots-${cleanName}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="singles-${cleanName}" value="${stat ? (stat.singles !== undefined ? stat.singles : (stat.ventas || 0)) : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="dobles-${cleanName}" value="${stat ? (stat.dobles || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcAds('', '-${cleanName}')" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="triples-${cleanName}" value="${stat ? (stat.triples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcAds('', '-${cleanName}')" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="cuadruples-${cleanName}" value="${stat ? (stat.cuadruples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcAds('', '-${cleanName}')" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="quintuples-${cleanName}" value="${stat ? (stat.quintuples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcAds('', '-${cleanName}')" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="arpones-${cleanName}" value="${stat ? (stat.arpones || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
-            <td style="text-align: center;"><input type="number" min="0" id="ads-${cleanName}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="shots-${cleanName}" value="${stat ? (stat.shots !== undefined ? stat.shots : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" oninput="calcTotales('', '-${cleanName}', 'shots')" ${disabledAttr}></td>
+            <td style="text-align: center; font-weight: bold; color: var(--primary); vertical-align: middle;" id="visual-vts-${cleanName}">${stat ? (stat.ventas || 0) : 0}</td>
+            <td style="text-align: center;"><input type="number" min="0" id="singles-${cleanName}" value="${stat ? (stat.singles !== undefined ? stat.singles : (stat.ventas || 0)) : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcTotales('', '-${cleanName}', 'singles')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="dobles-${cleanName}" value="${stat ? (stat.dobles || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcTotales('', '-${cleanName}', 'dobles')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="triples-${cleanName}" value="${stat ? (stat.triples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcTotales('', '-${cleanName}', 'triples')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="cuadruples-${cleanName}" value="${stat ? (stat.cuadruples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcTotales('', '-${cleanName}', 'cuadruples')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="quintuples-${cleanName}" value="${stat ? (stat.quintuples || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcTotales('', '-${cleanName}', 'quintuples')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="arpones-${cleanName}" value="${stat ? (stat.arpones || '') : ''}" class="input-field" style="width: 40px; text-align: center; padding: 0.2rem;" oninput="calcTotales('', '-${cleanName}', 'arpones')" ${disabledAttr}></td>
+            <td style="text-align: center;"><input type="number" min="0" id="ads-${cleanName}" value="${stat ? (stat.ads !== undefined ? stat.ads : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" oninput="calcTotales('', '-${cleanName}', 'ads')" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="links-${cleanName}" value="${stat ? (stat.links !== undefined ? stat.links : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;"><input type="number" min="0" id="cxl-${cleanName}" value="${stat ? (stat.cxl !== undefined ? stat.cxl : 0) : ''}" class="input-field" style="width: 50px; text-align: center; padding: 0.2rem;" ${disabledAttr}></td>
             <td style="text-align: center;">
@@ -981,7 +995,7 @@ async function saveDaily(cleanName, realName) {
     const cxl = Math.max(0, parseInt(document.getElementById(`cxl-${cleanName}`).value) || 0);
     const lobby = document.getElementById(`lobby-${cleanName}`).value;
 
-    const ventas = singles + (dobles * 2) + (triples * 3) + (cuadruples * 4) + (quintuples * 5) + arpones;
+    const ventas = singles + dobles + triples + cuadruples + quintuples + ads + arpones;
     const spiffPoints = (singles * 0.5) + (dobles * 1.0) + (triples * 1.5) + (cuadruples * 2.0) + (quintuples * 2.5) + (arpones * 1.0);
 
     const docId = `${cleanName}_${dateStr}`;
