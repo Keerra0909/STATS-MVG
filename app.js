@@ -2865,7 +2865,7 @@ async function loadCarrera() {
         }
         
         const badge = document.getElementById('carrera-min-pts-badge');
-        if (badge) badge.innerText = `Mínimo ${carreraConfig.min} Puntos`;
+        if (badge) badge.innerText = `Mínimo ${carreraConfig.min} Ventas`;
 
         const snap = await firestore.collection('stats')
             .where('date', 'in', weekDates)
@@ -2970,7 +2970,7 @@ async function loadCarrera() {
         tbody.innerHTML = '';
         leaderboard.forEach((item, index) => {
             if (item.points === 0) return;
-            const opacity = item.points < carreraConfig.min ? '0.5' : '1';
+            const opacity = '1'; // Removed fading for readability
             let posStr = `${index + 1}`;
             if (index === 0) posStr = '🥇 1';
             if (index === 1) posStr = '🥈 2';

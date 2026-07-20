@@ -414,11 +414,11 @@
             <div class="card" style="margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
                     <h2 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #f59e0b; text-shadow: 0 2px 10px rgba(245,158,11,0.3); display: flex; align-items: baseline; flex-wrap: wrap;">Carrera Semanal 🏆 <span id="carrera-date-range" style="font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-left: 15px; text-shadow: none;"></span></h2>
-                    <div>
-                        <button onclick="togglePodium()" class="btn-secondary" id="btn-toggle-podium" style="display: none; margin-right: 10px; font-size: 0.8rem; padding: 0.4rem 0.8rem;">🏆 Revelar Podio</button>
-                        <button onclick="openCarreraConfig()" class="btn-secondary" id="btn-config-carrera" style="display: none; margin-right: 10px; font-size: 0.8rem; padding: 0.4rem 0.8rem;">⚙️ Configurar</button>
-                        <button onclick="downloadCarreraImage()" class="btn-primary" id="btn-download-carrera" style="margin-right: 10px; font-size: 0.8rem; padding: 0.4rem 0.8rem;">Descargar Foto 📸</button>
-                        <span id="carrera-min-pts-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; font-size: 0.85rem;">Mínimo 10 Puntos</span>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end;">
+                        <button onclick="togglePodium()" class="btn-secondary" id="btn-toggle-podium" style="display: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">🏆 Revelar Podio</button>
+                        <button onclick="openCarreraConfig()" class="btn-secondary" id="btn-config-carrera" style="display: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">⚙️ Configurar</button>
+                        <button onclick="downloadCarreraImage()" class="btn-primary" id="btn-download-carrera" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Descargar Foto 📸</button>
+                        <span id="carrera-min-pts-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; font-size: 0.85rem; white-space: nowrap;">Mínimo 10 Ventas</span>
                     </div>
                 </div>
 
@@ -617,7 +617,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=114"></script>
+    <script src="app.js?v=116"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
