@@ -39,7 +39,7 @@ async function loadRepWeekly() {
     const monday = new Date(today);
     monday.setDate(diff);
     
-    const dias = ['Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado', 'Domingo'];
+    const dias = ['Lunes', 'Martes', 'MiÃƒÂ©rcoles', 'Jueves', 'Viernes', 'SÃƒÂ¡bado', 'Domingo'];
     
     const fetchPromises = [];
     for (let i = 0; i < 7; i++) {
@@ -81,12 +81,12 @@ async function loadRepWeekly() {
         
         let btnHtml = '';
         if (isFuture) {
-            btnHtml = `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">PrÃ³ximamente</span>`;
+            btnHtml = `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">PrÃƒÂ³ximamente</span>`;
         } else {
             btnHtml = isLocked 
-                ? `<span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado âœ”ï¸</span>`
+                ? `<span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado Ã¢Å“â€Ã¯Â¸Â</span>`
                 : `<button id="btn-save-${i}" class="btn-primary" onclick="saveRepStat(${i}, '${dateStr}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Guardar</button>
-                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado âœ”ï¸</span>`;
+                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado Ã¢Å“â€Ã¯Â¸Â</span>`;
         }
 
         tr.innerHTML = `
@@ -230,7 +230,7 @@ async function saveRepStat(index, dateStr) {
                 date: dateStr,
                 shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl, lobby
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podrÃ­a haber perdido conexiÃ³n a internet. Intenta de nuevo.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podrÃƒÂ­a haber perdido conexiÃƒÂ³n a internet. Intenta de nuevo.")), 6000))
         ]);
 
         await recalculateUserMonth(cleanName, currentUser.name, dateStr).catch(e => console.error("Error updating monthly stats:", e));
@@ -250,7 +250,7 @@ async function saveRepStat(index, dateStr) {
         btn.disabled = false;
         document.getElementById(`saved-msg-${index}`).style.display = 'inline-block';
     } catch (err) {
-        alert(err.message || "Error al guardar. Revisa tu conexiÃ³n a internet.");
+        alert(err.message || "Error al guardar. Revisa tu conexiÃƒÂ³n a internet.");
         btn.innerText = 'Guardar';
         btn.disabled = false;
     }
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Restore saved theme
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    document.getElementById('theme-toggle').innerText = savedTheme === 'light' ? '🌙' : 'â˜€ï¸';
+    document.getElementById('theme-toggle').innerText = savedTheme === 'light' ? 'ðŸŒ™' : 'Ã¢Ëœâ‚¬Ã¯Â¸Â';
 
     // Set today for inputs
     const d = new Date();
@@ -461,7 +461,7 @@ function handleAuthState() {
         if (lobbiesBtn) lobbiesBtn.style.display = 'none';
         document.getElementById('btn-download').style.display = 'none';
         document.getElementById('btn-export-excel').style.display = 'none';
-        document.getElementById('rep-welcome-msg').innerText = `Â¡Hola ${currentUser.name}!`;
+        document.getElementById('rep-welcome-msg').innerText = `Ã‚Â¡Hola ${currentUser.name}!`;
         
         const savedView = localStorage.getItem('view');
         if (savedView === 'dashboard') {
@@ -559,7 +559,7 @@ function toggleTheme() {
     const next = current === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
-    document.getElementById('theme-toggle').innerText = next === 'light' ? '🌙' : '☀️';
+    document.getElementById('theme-toggle').innerText = next === 'light' ? 'ðŸŒ™' : 'â˜€ï¸';
 }
 
 async function downloadSpiffImage(spiffId) {
@@ -619,10 +619,10 @@ window.togglePodium = function() {
     if (!podio) return;
     if (podio.style.display === 'none') {
         podio.style.display = 'grid';
-        btn.innerText = '🙈 Ocultar Podio';
+        btn.innerText = 'ðŸ™ˆ Ocultar Podio';
     } else {
         podio.style.display = 'none';
-        btn.innerText = '🏆 Revelar Podio';
+        btn.innerText = 'ðŸ† Revelar Podio';
     }
 }
 
@@ -693,7 +693,7 @@ async function saveCarreraConfig() {
         loadCarrera();
     } catch(e) {
         console.error("Error saving config", e);
-        alert("Error al guardar configuraciÃ³n");
+        alert("Error al guardar configuraciÃƒÂ³n");
     } finally {
         btn.disabled = false;
         btn.innerText = 'Guardar';
@@ -773,7 +773,7 @@ async function loadTeam() {
                 ${u.active ? 
                     `<button class="btn-danger" onclick="toggleUser('${u.id}', 0)">Desactivar</button>` : 
                     `<button class="btn-success" onclick="toggleUser('${u.id}', 1)">Activar</button>`}
-                <button class="btn-icon" title="Borrar permanentemente" onclick="deleteUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">ðŸ—‘ï¸</button>
+                <button class="btn-icon" title="Borrar permanentemente" onclick="deleteUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">Ã°Å¸â€”â€˜Ã¯Â¸Â</button>
             </div>
         `;
         if (u.active) {
@@ -819,10 +819,10 @@ async function saveGoals() {
                 ventas: v,
                 cierre: c
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Revisa tu conexiÃ³n a internet.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Revisa tu conexiÃƒÂ³n a internet.")), 6000))
         ]);
         globalGoals = { ventas: v, cierre: c };
-        btn.innerText = 'Â¡Guardado!';
+        btn.innerText = 'Ã‚Â¡Guardado!';
         btn.disabled = false;
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-success');
@@ -863,7 +863,7 @@ async function toggleUser(id, status) {
 }
 
 function deleteUser(id, name) {
-    showConfirmModal(`Â¿EstÃ¡s sÃºper seguro de borrar PERMANENTEMENTE a "${name}"?\n\nÂ¡Esto eliminarÃ¡ todo su historial de la base de datos de inmediato!`, async () => {
+    showConfirmModal(`Ã‚Â¿EstÃƒÂ¡s sÃƒÂºper seguro de borrar PERMANENTEMENTE a "${name}"?\n\nÃ‚Â¡Esto eliminarÃƒÂ¡ todo su historial de la base de datos de inmediato!`, async () => {
         await firestore.collection('users').doc(id).delete();
         
         // Delete daily stats
@@ -900,7 +900,7 @@ async function loadDailyEntries() {
         } else {
             const parts = dateStr.split('-');
             const d = new Date(parts[0], parts[1] - 1, parts[2]);
-            const dias = ['Domingo', 'Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado'];
+            const dias = ['Domingo', 'Lunes', 'Martes', 'MiÃƒÂ©rcoles', 'Jueves', 'Viernes', 'SÃƒÂ¡bado'];
             dayLabel.innerText = dias[d.getDay()];
         }
     }
@@ -940,10 +940,10 @@ async function loadDailyEntries() {
         const disabledAttr = isLocked ? 'disabled' : '';
         const btnHtml = isLocked 
             ? `<button id="btn-save-admin-${cleanName}" class="btn-success" style="padding: 0.3rem 0.6rem; display: none;" onclick="saveDaily('${cleanName}', '${u.name.replace(/'/g, "\\'")}')">Guardar</button>
-               <span id="saved-msg-admin-${cleanName}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado âœ”ï¸</span>
+               <span id="saved-msg-admin-${cleanName}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado Ã¢Å“â€Ã¯Â¸Â</span>
                <button id="btn-edit-admin-${cleanName}" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editDaily('${cleanName}')">Editar</button>`
             : `<button id="btn-save-admin-${cleanName}" class="btn-primary" onclick="saveDaily('${cleanName}', '${u.name.replace(/'/g, "\\'")}')" style="padding: 0.3rem 0.6rem;">Guardar</button>
-               <span id="saved-msg-admin-${cleanName}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado âœ”ï¸</span>
+               <span id="saved-msg-admin-${cleanName}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado Ã¢Å“â€Ã¯Â¸Â</span>
                <button id="btn-edit-admin-${cleanName}" class="btn-secondary" style="display: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editDaily('${cleanName}')">Editar</button>`;
         
         const tr = document.createElement('tr');
@@ -1030,7 +1030,7 @@ async function saveDaily(cleanName, realName) {
                 date: dateStr,
                 shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl, lobby
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podrÃ­a haber perdido conexiÃ³n a internet. Intenta de nuevo.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podrÃƒÂ­a haber perdido conexiÃƒÂ³n a internet. Intenta de nuevo.")), 6000))
         ]);
         
         await recalculateUserMonth(cleanName, realName, dateStr).catch(e => console.error("Error updating monthly stats:", e));
@@ -1053,7 +1053,7 @@ async function saveDaily(cleanName, realName) {
         document.getElementById(`saved-msg-admin-${cleanName}`).style.display = 'inline-block';
         document.getElementById(`btn-edit-admin-${cleanName}`).style.display = 'inline-block';
     } catch (err) {
-        alert(err.message || "Error al guardar. Revisa tu conexiÃ³n a internet.");
+        alert(err.message || "Error al guardar. Revisa tu conexiÃƒÂ³n a internet.");
         btn.innerText = 'Guardar';
         btn.disabled = false;
     }
@@ -1110,8 +1110,8 @@ function setAcademyRange(type) {
     const labelMap = {
         week: 'Esta Semana', lastWeek: 'Semana Pasada',
         month: 'Este Mes', lastMonth: 'Mes Pasado',
-        last2Months: 'Ãšltimos 2 Meses', last4Months: 'Ãšltimos 4 Meses',
-        last6Months: 'Ãšltimos 6 Meses', year: 'Este AÃ±o'
+        last2Months: 'ÃƒÅ¡ltimos 2 Meses', last4Months: 'ÃƒÅ¡ltimos 4 Meses',
+        last6Months: 'ÃƒÅ¡ltimos 6 Meses', year: 'Este AÃƒÂ±o'
     };
     const labelEl = document.getElementById('academy-period-label');
     if (labelEl && type) labelEl.textContent = labelMap[type] || '';
@@ -1573,10 +1573,10 @@ function renderDashTable() {
     
     let headHTML = '<tr>';
     headHTML += `<th rowspan="2" style="vertical-align: middle; width: 30px; text-align: center; color: var(--text-muted); border-right: 1px solid var(--border);">#</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('name')" style="vertical-align: middle;">Vendedor â†•</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('name')" style="vertical-align: middle;">Vendedor Ã¢â€ â€¢</th>`;
     
     if (isMatrixMode) {
-        const dayNames = ['Dom', 'Lun', 'Mar', 'MiÃ©', 'Jue', 'Vie', 'SÃ¡b'];
+        const dayNames = ['Dom', 'Lun', 'Mar', 'MiÃƒÂ©', 'Jue', 'Vie', 'SÃƒÂ¡b'];
         matrixDates.forEach(date => {
             const dateObj = new Date(date + 'T12:00:00');
             const dayName = dayNames[dateObj.getDay()];
@@ -1585,11 +1585,11 @@ function renderDashTable() {
     }
     
     headHTML += `<th colspan="2" style="text-align: center; border-left: 2px solid var(--primary); padding-bottom: 0;">TOTALES</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('cierre')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">% Cierre â†•</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('ads')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Ads â†•</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('links')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Links â†•</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('cierre')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">% Cierre Ã¢â€ â€¢</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('ads')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Ads Ã¢â€ â€¢</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('links')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Links Ã¢â€ â€¢</th>`;
     if (currentUser && currentUser.role === 'admin') {
-        headHTML += `<th rowspan="2" onclick="sortTable('cxl')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">CXL â†•</th>`;
+        headHTML += `<th rowspan="2" onclick="sortTable('cxl')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">CXL Ã¢â€ â€¢</th>`;
     }
     headHTML += '</tr><tr>';
     
@@ -1599,8 +1599,8 @@ function renderDashTable() {
         });
     }
     
-    headHTML += `<th onclick="sortTable('shots')" style="text-align: center; border-left: 2px solid var(--primary);">Shots â†•</th>`;
-    headHTML += `<th onclick="sortTable('ventas')" style="text-align: center; border-left: 1px solid var(--border); color: var(--primary);">Ventas â†•</th>`;
+    headHTML += `<th onclick="sortTable('shots')" style="text-align: center; border-left: 2px solid var(--primary);">Shots Ã¢â€ â€¢</th>`;
+    headHTML += `<th onclick="sortTable('ventas')" style="text-align: center; border-left: 1px solid var(--border); color: var(--primary);">Ventas Ã¢â€ â€¢</th>`;
     headHTML += '</tr>';
     
     thead.innerHTML = headHTML;
@@ -1692,14 +1692,14 @@ function renderDashTable() {
 
         let streakBadge = '';
         if (!isSpecial && globalStreaks && globalStreaks[d.name] >= 2) {
-            streakBadge = `<span style="display: inline-block; background: rgba(255, 100, 0, 0.15); color: #ff8c00; border: 1px solid rgba(255, 100, 0, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(255, 100, 0, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">ðŸ”¥ x${globalStreaks[d.name]}</span>`;
+            streakBadge = `<span style="display: inline-block; background: rgba(255, 100, 0, 0.15); color: #ff8c00; border: 1px solid rgba(255, 100, 0, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(255, 100, 0, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">Ã°Å¸â€Â¥ x${globalStreaks[d.name]}</span>`;
         } else if (!isSpecial && globalIceStreaks && globalIceStreaks[d.name] >= 2) {
-            streakBadge = `<span style="display: inline-block; background: rgba(0, 200, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 200, 255, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(0, 200, 255, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">ðŸ§Š x${globalIceStreaks[d.name]}</span>`;
+            streakBadge = `<span style="display: inline-block; background: rgba(0, 200, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 200, 255, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(0, 200, 255, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">Ã°Å¸Â§Å  x${globalIceStreaks[d.name]}</span>`;
         }
         
         let mvpBadge = '';
             if (!isSpecial && globalLastWeekMvp === d.name) {
-            mvpBadge = `<span style="margin-left: 6px; font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); vertical-align: middle;" title="MVP Semana Pasada" data-html2canvas-ignore="true">ðŸ‘‘</span>`;
+            mvpBadge = `<span style="margin-left: 6px; font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); vertical-align: middle;" title="MVP Semana Pasada" data-html2canvas-ignore="true">Ã°Å¸â€˜â€˜</span>`;
         }
 
         let rowHTML = `<td style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-right: 1px solid var(--border);">${idx}</td>`;
@@ -1877,7 +1877,7 @@ function renderTop3() {
     if (top3[0]) places.push({ 
         ...top3[0], 
         rank: 1, 
-        icon: 'ðŸ‘‘', 
+        icon: 'Ã°Å¸â€˜â€˜', 
         finalHeight: 180, 
         gradient: 'linear-gradient(180deg, #00d2ff 0%, #3a7bd5 100%)',
         glow: 'rgba(0, 210, 255, 0.5)',
@@ -2068,7 +2068,7 @@ function downloadTop3() {
     
     // Watermark
     const water = document.createElement('div');
-    water.innerHTML = 'ðŸ”¥ POWERED BY <strong>MVG STATS</strong>';
+    water.innerHTML = 'Ã°Å¸â€Â¥ POWERED BY <strong>MVG STATS</strong>';
     water.style.position = 'absolute';
     water.style.bottom = '2rem';
     water.style.color = 'rgba(255,255,255,0.2)';
@@ -2492,7 +2492,7 @@ async function loadAcademy() {
                 <span style="font-weight: bold; font-size: 0.9rem; color: var(--text-main);">${rep.name}</span>
                 <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
                     <div style="font-size: 0.8rem; color: var(--text-muted);">${rep.shots} sh <span style="margin: 0 4px; opacity: 0.3;">|</span> <span style="color: var(--text-main); font-weight: bold;">${rep.pct.toFixed(1)}%</span></div>
-                    <span style="font-size: 0.7rem; color: #00d2ff; opacity: 0.6;">ðŸ“ˆ</span>
+                    <span style="font-size: 0.7rem; color: #00d2ff; opacity: 0.6;">Ã°Å¸â€œË†</span>
                 </div>
             </li>`;
         });
@@ -2522,7 +2522,7 @@ async function renderDashChart(startStr, endStr, rangeType) {
     const buckets = {};
 
     if (byMonth) {
-        // Use stats_monthly collection â€” fast rollup data, grouped by month
+        // Use stats_monthly collection Ã¢â‚¬â€ fast rollup data, grouped by month
         const todayMonth = new Date().toISOString().substring(0, 7);
         const startMonth = startStr.substring(0, 7);
         const endMonth   = endStr.substring(0, 7);
@@ -2692,7 +2692,7 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     const modal = document.getElementById('academy-modal');
     document.getElementById('academy-modal-name').textContent = repName;
     document.getElementById('academy-modal-stats').textContent =
-        `${repShots} shots Â· ${repVentas} ventas Â· ${repPct.toFixed(1)}% cierre`;
+        `${repShots} shots Ã‚Â· ${repVentas} ventas Ã‚Â· ${repPct.toFixed(1)}% cierre`;
     modal.style.display = 'flex';
 
     // Fetch last 6 months of data for this rep from stats_monthly
@@ -2870,7 +2870,7 @@ async function loadCarrera() {
         }
         
         const badge = document.getElementById('carrera-min-pts-badge');
-        if (badge) badge.innerText = `MÃ­nimo ${carreraConfig.min} Ventas`;
+        if (badge) badge.innerText = `MÃƒÂ­nimo ${carreraConfig.min} Ventas`;
 
         const snap = await firestore.collection('stats')
             .where('date', 'in', weekDates)
@@ -2977,9 +2977,9 @@ async function loadCarrera() {
             if (item.points === 0) return;
             const opacity = '1'; // Removed fading for readability
             let posStr = `${index + 1}`;
-            if (index === 0) posStr = 'ðŸ¥‡ 1';
-            if (index === 1) posStr = 'ðŸ¥ˆ 2';
-            if (index === 2) posStr = 'ðŸ¥‰ 3';
+            if (index === 0) posStr = 'Ã°Å¸Â¥â€¡ 1';
+            if (index === 1) posStr = 'Ã°Å¸Â¥Ë† 2';
+            if (index === 2) posStr = 'Ã°Å¸Â¥â€° 3';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -3041,10 +3041,10 @@ async function loadSpiffs() {
             }
 
             if (s.status === 'active') {
-                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">ðŸ”¥ ${s.title} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:10px;">(${dateStr})</span></h3>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">ðŸ•’ ${s.time || 'DÃ­a completo'} | ðŸ—“ï¸ ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸŽ¯ MÃ©trica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">ðŸ“ˆ Min % Cierre: ${s.cierre}</p>` : `<div style="margin-bottom:1rem;"></div>`}
+                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">Ã°Å¸â€Â¥ ${s.title} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:10px;">(${dateStr})</span></h3>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Ã°Å¸â€¢â€™ ${s.time || 'DÃƒÂ­a completo'} | Ã°Å¸â€”â€œÃ¯Â¸Â ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸Å½Â¯ MÃƒÂ©trica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Ã°Å¸â€œË† Min % Cierre: ${s.cierre}</p>` : `<div style="margin-bottom:1rem;"></div>`}
                     <div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.5rem 1rem; border-radius:8px; display:inline-block; font-weight:bold; margin-bottom:1rem;">
                         Premio: ${s.prize}
                     </div>`;
@@ -3056,7 +3056,7 @@ async function loadSpiffs() {
                     adminControls.style.paddingTop = '1rem';
                     let selectHtml = `<select id="winner-${s.id}" style="width:100%; margin-bottom:10px; padding:0.5rem; border-radius:6px; background:var(--bg-color); color:var(--text); border:1px solid var(--border);">
                         <option value="">Seleccionar Ganador...</option>
-                        <option value="SIN GANADOR">âŒ Nadie (Sin ganador)</option>`;
+                        <option value="SIN GANADOR">Ã¢ÂÅ’ Nadie (Sin ganador)</option>`;
                     
                     if (globalActiveUsers) {
                         globalActiveUsers.forEach(u => {
@@ -3064,23 +3064,23 @@ async function loadSpiffs() {
                         });
                     }
                     
-                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem; margin-bottom: 0.5rem;">Declarar Ganador ðŸ†</button>
+                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem; margin-bottom: 0.5rem;">Declarar Ganador Ã°Å¸Ââ€ </button>
                     <div style="display:flex; gap:0.5rem;">
-                        <button onclick="editSpiff('${s.id}', '${s.title.replace(/'/g, "\\'")}', '${(s.time||'').replace(/'/g, "\\'")}', '${s.period}', '${(s.prize||'').replace(/'/g, "\\'")}', '${(s.metric||'').replace(/'/g, "\\'")}', '${(s.cierre||'').replace(/'/g, "\\'")}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">Editar âœï¸</button>
-                        <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar ðŸ—‘ï¸</button>
+                        <button onclick="editSpiff('${s.id}', '${s.title.replace(/'/g, "\\'")}', '${(s.time||'').replace(/'/g, "\\'")}', '${s.period}', '${(s.prize||'').replace(/'/g, "\\'")}', '${(s.metric||'').replace(/'/g, "\\'")}', '${(s.cierre||'').replace(/'/g, "\\'")}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">Editar Ã¢Å“ÂÃ¯Â¸Â</button>
+                        <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar Ã°Å¸â€”â€˜Ã¯Â¸Â</button>
                     </div>`;
                     adminControls.innerHTML = selectHtml;
                     card.appendChild(adminControls);
                 }
                 activeContainer.appendChild(card);
             } else if (s.status === 'completed') {
-                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">âœ”ï¸ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">â±ï¸ ${s.time || 'DÃ­a completo'} | ðŸ“… ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸ“Š MÃ©trica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸŽ¯ Min % Cierre: ${s.cierre}</p>` : ''}
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">Ã¢Å“â€Ã¯Â¸Â ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã¢ÂÂ±Ã¯Â¸Â ${s.time || 'DÃƒÂ­a completo'} | Ã°Å¸â€œâ€¦ ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸â€œÅ  MÃƒÂ©trica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸Å½Â¯ Min % Cierre: ${s.cierre}</p>` : ''}
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(79,172,254,0.1); color:#4facfe; padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
-                        ${s.winner === 'SIN GANADOR' ? 'âŒ SIN GANADOR' : `ðŸ‘‘ Ganador: ${s.winner}`}
+                        ${s.winner === 'SIN GANADOR' ? 'Ã¢ÂÅ’ SIN GANADOR' : `Ã°Å¸â€˜â€˜ Ganador: ${s.winner}`}
                     </div>`;
                 
                 if (currentUser && currentUser.role === 'admin') {
@@ -3093,19 +3093,19 @@ async function loadSpiffs() {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'btn-secondary';
                     editBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);';
-                    editBtn.innerText = 'Editar âœï¸';
+                    editBtn.innerText = 'Editar Ã¢Å“ÂÃ¯Â¸Â';
                     editBtn.onclick = () => editSpiff(s.id, s.title, s.time, s.period, s.prize, s.metric, s.cierre);
                     
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-secondary';
                     deleteBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
-                    deleteBtn.innerText = 'Eliminar ðŸ—‘ï¸';
+                    deleteBtn.innerText = 'Eliminar Ã°Å¸â€”â€˜Ã¯Â¸Â';
                     deleteBtn.onclick = () => deleteSpiff(s.id);
                     
                     const archiveBtn = document.createElement('button');
                     archiveBtn.className = 'btn-secondary';
                     archiveBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #f59e0b; border-color: rgba(245, 158, 11, 0.3);';
-                    archiveBtn.innerText = 'Archivar ðŸ“¦';
+                    archiveBtn.innerText = 'Archivar Ã°Å¸â€œÂ¦';
                     archiveBtn.onclick = () => archiveSpiff(s.id);
                     
                     controls.appendChild(editBtn);
@@ -3118,20 +3118,20 @@ async function loadSpiffs() {
                 dlBtn.setAttribute('data-html2canvas-ignore', 'true');
                 dlBtn.className = 'btn-secondary';
                 dlBtn.style.cssText = 'width: 100%; padding: 0.5rem; margin-top: 10px; font-size: 0.85rem; border-color: rgba(255, 255, 255, 0.2);';
-                dlBtn.innerHTML = 'Descargar Foto ðŸ“¸';
+                dlBtn.innerHTML = 'Descargar Foto Ã°Å¸â€œÂ¸';
                 dlBtn.onclick = () => downloadSpiffImage(s.id);
                 card.appendChild(dlBtn);
                 
 
                 completedContainer.appendChild(card);
             } else if (s.status === 'archived') {
-                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">ðŸ“¦ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">â±ï¸ ${s.time || 'DÃ­a completo'} | ðŸ“… ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸ“Š MÃ©trica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸŽ¯ Min % Cierre: ${s.cierre}</p>` : ''}
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">Ã°Å¸â€œÂ¦ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã¢ÂÂ±Ã¯Â¸Â ${s.time || 'DÃƒÂ­a completo'} | Ã°Å¸â€œâ€¦ ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸â€œÅ  MÃƒÂ©trica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸Å½Â¯ Min % Cierre: ${s.cierre}</p>` : ''}
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(255,255,255,0.05); color:var(--text-muted); padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
-                        ${s.winner === 'SIN GANADOR' ? 'âŒ SIN GANADOR' : `ðŸ‘‘ Ganador: ${s.winner}`}
+                        ${s.winner === 'SIN GANADOR' ? 'Ã¢ÂÅ’ SIN GANADOR' : `Ã°Å¸â€˜â€˜ Ganador: ${s.winner}`}
                     </div>`;
                 
                 if (currentUser && currentUser.role === 'admin') {
@@ -3144,13 +3144,13 @@ async function loadSpiffs() {
                     const unarchiveBtn = document.createElement('button');
                     unarchiveBtn.className = 'btn-secondary';
                     unarchiveBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #10b981; border-color: rgba(16, 185, 129, 0.3);';
-                    unarchiveBtn.innerText = 'Desarchivar â™»ï¸';
+                    unarchiveBtn.innerText = 'Desarchivar Ã¢â„¢Â»Ã¯Â¸Â';
                     unarchiveBtn.onclick = () => unarchiveSpiff(s.id);
                     
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-secondary';
                     deleteBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
-                    deleteBtn.innerText = 'Eliminar ðŸ—‘ï¸';
+                    deleteBtn.innerText = 'Eliminar Ã°Å¸â€”â€˜Ã¯Â¸Â';
                     deleteBtn.onclick = () => deleteSpiff(s.id);
                     
                     controls.appendChild(unarchiveBtn);
@@ -3181,13 +3181,13 @@ async function createSpiff() {
     let cierre = document.getElementById('spiff-cierre').value.trim();
     
     if (/^\d+$/.test(metric)) {
-        metric = `MÃ­nimo ${metric} ventas`;
+        metric = `MÃƒÂ­nimo ${metric} ventas`;
     }
     if (/^\d+$/.test(cierre)) {
         cierre = `${cierre}%`;
     }
     
-    if (!title || !prize || !metric) return alert('Por favor llena el tÃ­tulo, premio y mÃ©trica.');
+    if (!title || !prize || !metric) return alert('Por favor llena el tÃƒÂ­tulo, premio y mÃƒÂ©trica.');
     
     try {
         if (editingSpiffId) {
@@ -3195,7 +3195,7 @@ async function createSpiff() {
                 title, time, period, prize, metric, cierre, status: 'active', winner: null // Reactivates if completed
             });
             editingSpiffId = null;
-            document.getElementById('spiff-submit-btn').innerText = 'Lanzar Spiff ðŸ”¥';
+            document.getElementById('spiff-submit-btn').innerText = 'Lanzar Spiff Ã°Å¸â€Â¥';
         } else {
             await firestore.collection('spiffs').add({
                 title, time, period, prize, metric, cierre, status: 'active', winner: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3222,7 +3222,7 @@ async function declareSpiffWinner(id) {
 }
 
 function archiveSpiff(id) {
-    showConfirmModal('Â¿EstÃ¡s seguro de que deseas archivar este Spiff? DesaparecerÃ¡ del historial.', async () => {
+    showConfirmModal('Ã‚Â¿EstÃƒÂ¡s seguro de que deseas archivar este Spiff? DesaparecerÃƒÂ¡ del historial.', async () => {
         try {
             await firestore.collection('spiffs').doc(id).update({
                 status: 'archived', archivedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3233,7 +3233,7 @@ function archiveSpiff(id) {
 }
 
 function deleteSpiff(id) {
-    showConfirmModal('Â¿EstÃ¡s seguro de que deseas eliminar este Spiff? Esta acciÃ³n no se puede deshacer.', async () => {
+    showConfirmModal('Ã‚Â¿EstÃƒÂ¡s seguro de que deseas eliminar este Spiff? Esta acciÃƒÂ³n no se puede deshacer.', async () => {
         try {
             await firestore.collection('spiffs').doc(id).delete();
             loadSpiffs();
@@ -3256,10 +3256,10 @@ function toggleArchivedSpiffs() {
     if (!container || !btn) return;
     if (container.style.display === 'none') {
         container.style.display = 'grid';
-        btn.innerText = 'Ocultar Archivados ðŸ“¦';
+        btn.innerText = 'Ocultar Archivados Ã°Å¸â€œÂ¦';
     } else {
         container.style.display = 'none';
-        btn.innerText = 'Ver Archivados ðŸ“¦';
+        btn.innerText = 'Ver Archivados Ã°Å¸â€œÂ¦';
     }
 }
 
@@ -3272,9 +3272,10 @@ function editSpiff(id, title, time, period, prize, metric, cierre) {
     document.getElementById('spiff-metric').value = metric || '';
     document.getElementById('spiff-cierre').value = cierre || '';
     
-    document.getElementById('spiff-submit-btn').innerText = 'Guardar Cambios ðŸ’¾';
+    document.getElementById('spiff-submit-btn').innerText = 'Guardar Cambios Ã°Å¸â€™Â¾';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 // --- Lobbies Dashboard ---
 let currentLobbiesRange = 'month';
 let lobbiesChartInstance = null;
@@ -3282,7 +3283,7 @@ let lobbiesChartInstance = null;
 function setLobbiesRange(type) {
     currentLobbiesRange = type;
     document.querySelectorAll('#view-lobbies .dash-range-btn').forEach(btn => btn.classList.remove('active'));
-    const btn = document.getElementById(lobbies-btn- + type);
+    const btn = document.getElementById(`lobbies-btn-${type}`);
     if (btn) {
         btn.classList.add('active');
         const pill = document.getElementById('lobbies-seg-pill');
@@ -3345,13 +3346,13 @@ async function loadLobbiesDashboard() {
             const y = d.getFullYear();
             const m = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
-            return \\-\-\\;
+            return `${y}-${m}-${day}`;
         };
 
         const startStr = fmt(start);
         const endStr = fmt(end);
 
-        document.getElementById('lobbies-date-range').innerText = \(\)\;
+        document.getElementById('lobbies-date-range').innerText = `(${label})`;
 
         const snap = await firestore.collection('stats')
             .where('date', '>=', startStr)
@@ -3415,7 +3416,7 @@ async function loadLobbiesDashboard() {
                 shots: d.shots,
                 ventas: d.ventas,
                 cierre: cierre,
-                mvp: mvpVentas > 0 ? \\ (\ vts)\ : "N/A"
+                mvp: mvpVentas > 0 ? `${mvp} (${mvpVentas} vts)` : "N/A"
             };
         });
 
@@ -3425,34 +3426,34 @@ async function loadLobbiesDashboard() {
             const borderCol = isWinner ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.1)';
             const titleCol = isWinner ? '#10b981' : '#fff';
             const shadow = isWinner ? '0 8px 24px rgba(16,185,129,0.1)' : '0 4px 10px rgba(0,0,0,0.2)';
-            const icon = isWinner ? '?? LÍDER' : '??';
+            const icon = isWinner ? '🏆 LÍDER' : '🏨';
 
             const card = document.createElement('div');
-            card.style = \ackground: \; border: 1px solid \; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: \;\;
-            card.innerHTML = \
+            card.style = `background: ${bgGradient}; border: 1px solid ${borderCol}; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: ${shadow};`;
+            card.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <h3 style="margin: 0; color: \; font-size: 1.3rem;">\</h3>
-                    <span style="font-size: 0.8rem; font-weight: bold; background: rgba(0,0,0,0.3); padding: 0.3rem 0.6rem; border-radius: 20px; color: \;">\</span>
+                    <h3 style="margin: 0; color: ${titleCol}; font-size: 1.3rem;">${m.name}</h3>
+                    <span style="font-size: 0.8rem; font-weight: bold; background: rgba(0,0,0,0.3); padding: 0.3rem 0.6rem; border-radius: 20px; color: ${isWinner ? '#10b981' : 'var(--text-muted)'};">${icon}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <div>
                         <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Shots</p>
-                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold;">\</p>
+                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold;">${m.shots}</p>
                     </div>
                     <div>
                         <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Ventas</p>
-                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold; color: var(--primary);">\</p>
+                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold; color: var(--primary);">${m.ventas}</p>
                     </div>
                     <div>
                         <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Cierre</p>
-                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold; color: \;">\%</p>
+                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold; color: ${isWinner ? '#10b981' : 'var(--text-main)'};">${m.cierre.toFixed(1)}%</p>
                     </div>
                 </div>
                 <div style="background: rgba(0,0,0,0.2); border-radius: 10px; padding: 0.8rem; margin-top: auto;">
                     <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">MVP del Periodo</p>
-                    <p style="margin: 0.2rem 0 0 0; font-size: 0.95rem; font-weight: bold; color: #f59e0b;">? \</p>
+                    <p style="margin: 0.2rem 0 0 0; font-size: 0.95rem; font-weight: bold; color: #f59e0b;">⭐ ${m.mvp}</p>
                 </div>
-            \;
+            `;
             container.appendChild(card);
         });
 
@@ -3508,5 +3509,3 @@ async function loadLobbiesDashboard() {
         console.error("Error loading lobbies", e);
     }
 }
-
-
