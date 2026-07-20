@@ -35,6 +35,7 @@
             <button onclick="navigate('academy')" class="nav-btn" id="btn-academy">Academia</button>
             <button onclick="navigate('spiffs')" class="nav-btn" id="btn-spiffs">SPIFF</button>
             <button onclick="navigate('carrera')" class="nav-btn" id="btn-carrera">Carrera 🏆</button>
+            <button onclick="navigate('lobbies')" class="nav-btn" id="btn-lobbies" style="display: none;">Lobbies 🏨</button>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <button id="btn-logout" class="btn-secondary" style="display: none; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="logout()">Cerrar Sesión</button>
@@ -536,6 +537,41 @@
                 </div>
             </div>
         </section>
+        <!-- LOBBIES DASHBOARD VIEW -->
+        <section id="view-lobbies" class="view hidden">
+            <div class="card" style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                    <h2 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #10b981; text-shadow: 0 2px 10px rgba(16,185,129,0.3); display: flex; align-items: baseline; flex-wrap: wrap;">Guerra de Lobbies 🏨 <span id="lobbies-date-range" style="font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-left: 15px; text-shadow: none;"></span></h2>
+                </div>
+
+                <div class="date-range" style="display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(255,255,255,0.02); padding: 0.5rem 1rem; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 2rem; overflow-x: auto;">
+                    <div class="segmented-control" id="lobbies-segmented">
+                        <div id="lobbies-seg-pill"></div>
+                        <button onclick="setLobbiesRange('last6Months')" id="lobbies-btn-last6Months" class="dash-range-btn">6 Meses</button>
+                        <button onclick="setLobbiesRange('last4Months')" id="lobbies-btn-last4Months" class="dash-range-btn">4 Meses</button>
+                        <button onclick="setLobbiesRange('last2Months')" id="lobbies-btn-last2Months" class="dash-range-btn">2 Meses</button>
+                        <button onclick="setLobbiesRange('lastMonth')" id="lobbies-btn-lastMonth" class="dash-range-btn">Mes Pasado</button>
+                        <button onclick="setLobbiesRange('lastWeek')" id="lobbies-btn-lastWeek" class="dash-range-btn">Sem Pasada</button>
+                        <button onclick="setLobbiesRange('week')" id="lobbies-btn-week" class="dash-range-btn">Esta Sem</button>
+                        <button onclick="setLobbiesRange('month')" id="lobbies-btn-month" class="dash-range-btn">Este Mes</button>
+                        <button onclick="setLobbiesRange('year')" id="lobbies-btn-year" class="dash-range-btn">Este Año</button>
+                        <button onclick="setLobbiesRange('yesterday')" id="lobbies-btn-yesterday" class="dash-range-btn">Ayer</button>
+                        <button onclick="setLobbiesRange('today')" id="lobbies-btn-today" class="dash-range-btn active">Hoy</button>
+                    </div>
+                </div>
+
+                <!-- Lobbies Cards -->
+                <div id="lobbies-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <!-- Filled by JS -->
+                </div>
+
+                <!-- Lobbies Chart -->
+                <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 2rem;">
+                    <canvas id="lobbies-chart" height="100"></canvas>
+                </div>
+
+            </div>
+        </section>
     </main>
 
     <!-- ACADEMY VENDOR MODAL -->
@@ -617,7 +653,8 @@
         </div>
     </div>
 
-    <script src="app.js?v=116"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js?v=117"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

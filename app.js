@@ -1,4 +1,4 @@
-// --- Firebase Setup ---
+﻿// --- Firebase Setup ---
 const firebaseConfig = {
     apiKey: "AIzaSyB6bBY99Jt507YdRiYLaM77k-AZGOv56XM",
     authDomain: "statsmvg.firebaseapp.com",
@@ -39,7 +39,7 @@ async function loadRepWeekly() {
     const monday = new Date(today);
     monday.setDate(diff);
     
-    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const dias = ['Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado', 'Domingo'];
     
     const fetchPromises = [];
     for (let i = 0; i < 7; i++) {
@@ -81,12 +81,12 @@ async function loadRepWeekly() {
         
         let btnHtml = '';
         if (isFuture) {
-            btnHtml = `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Próximamente</span>`;
+            btnHtml = `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">PrÃ³ximamente</span>`;
         } else {
             btnHtml = isLocked 
-                ? `<span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>`
+                ? `<span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado âœ”ï¸</span>`
                 : `<button id="btn-save-${i}" class="btn-primary" onclick="saveRepStat(${i}, '${dateStr}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Guardar</button>
-                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>`;
+                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado âœ”ï¸</span>`;
         }
 
         tr.innerHTML = `
@@ -230,7 +230,7 @@ async function saveRepStat(index, dateStr) {
                 date: dateStr,
                 shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl, lobby
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podrÃ­a haber perdido conexiÃ³n a internet. Intenta de nuevo.")), 6000))
         ]);
 
         await recalculateUserMonth(cleanName, currentUser.name, dateStr).catch(e => console.error("Error updating monthly stats:", e));
@@ -250,7 +250,7 @@ async function saveRepStat(index, dateStr) {
         btn.disabled = false;
         document.getElementById(`saved-msg-${index}`).style.display = 'inline-block';
     } catch (err) {
-        alert(err.message || "Error al guardar. Revisa tu conexión a internet.");
+        alert(err.message || "Error al guardar. Revisa tu conexiÃ³n a internet.");
         btn.innerText = 'Guardar';
         btn.disabled = false;
     }
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Restore saved theme
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    document.getElementById('theme-toggle').innerText = savedTheme === 'light' ? '🌙' : '☀️';
+    document.getElementById('theme-toggle').innerText = savedTheme === 'light' ? '🌙' : 'â˜€ï¸';
 
     // Set today for inputs
     const d = new Date();
@@ -436,6 +436,8 @@ function handleAuthState() {
         document.getElementById('btn-team').style.display = 'block';
         document.getElementById('btn-academy').style.display = 'block';
         document.getElementById('btn-download-top3').style.display = 'inline-block';
+        const lobbiesBtn = document.getElementById('btn-lobbies');
+        if (lobbiesBtn) lobbiesBtn.style.display = 'block';
         const cfgBtn = document.getElementById('btn-config-carrera');
         if (cfgBtn) cfgBtn.style.display = 'inline-block';
         const podioBtn = document.getElementById('btn-toggle-podium');
@@ -455,9 +457,11 @@ function handleAuthState() {
         document.getElementById('btn-team').style.display = 'none';
         document.getElementById('btn-academy').style.display = 'none';
         document.getElementById('btn-download-top3').style.display = 'none';
+        const lobbiesBtn = document.getElementById('btn-lobbies');
+        if (lobbiesBtn) lobbiesBtn.style.display = 'none';
         document.getElementById('btn-download').style.display = 'none';
         document.getElementById('btn-export-excel').style.display = 'none';
-        document.getElementById('rep-welcome-msg').innerText = `¡Hola ${currentUser.name}!`;
+        document.getElementById('rep-welcome-msg').innerText = `Â¡Hola ${currentUser.name}!`;
         
         const savedView = localStorage.getItem('view');
         if (savedView === 'dashboard') {
@@ -689,7 +693,7 @@ async function saveCarreraConfig() {
         loadCarrera();
     } catch(e) {
         console.error("Error saving config", e);
-        alert("Error al guardar configuración");
+        alert("Error al guardar configuraciÃ³n");
     } finally {
         btn.disabled = false;
         btn.innerText = 'Guardar';
@@ -726,6 +730,7 @@ function navigate(viewId) {
     if (viewId === 'academy') loadAcademy();
     if (viewId === 'spiffs') loadSpiffs();
     if (viewId === 'carrera') loadCarrera();
+    if (viewId === 'lobbies') loadLobbiesDashboard();
 }
 
 function moveNavPill(btn) {
@@ -768,7 +773,7 @@ async function loadTeam() {
                 ${u.active ? 
                     `<button class="btn-danger" onclick="toggleUser('${u.id}', 0)">Desactivar</button>` : 
                     `<button class="btn-success" onclick="toggleUser('${u.id}', 1)">Activar</button>`}
-                <button class="btn-icon" title="Borrar permanentemente" onclick="deleteUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">🗑️</button>
+                <button class="btn-icon" title="Borrar permanentemente" onclick="deleteUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">ðŸ—‘ï¸</button>
             </div>
         `;
         if (u.active) {
@@ -814,10 +819,10 @@ async function saveGoals() {
                 ventas: v,
                 cierre: c
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Revisa tu conexión a internet.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Revisa tu conexiÃ³n a internet.")), 6000))
         ]);
         globalGoals = { ventas: v, cierre: c };
-        btn.innerText = '¡Guardado!';
+        btn.innerText = 'Â¡Guardado!';
         btn.disabled = false;
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-success');
@@ -858,7 +863,7 @@ async function toggleUser(id, status) {
 }
 
 function deleteUser(id, name) {
-    showConfirmModal(`¿Estás súper seguro de borrar PERMANENTEMENTE a "${name}"?\n\n¡Esto eliminará todo su historial de la base de datos de inmediato!`, async () => {
+    showConfirmModal(`Â¿EstÃ¡s sÃºper seguro de borrar PERMANENTEMENTE a "${name}"?\n\nÂ¡Esto eliminarÃ¡ todo su historial de la base de datos de inmediato!`, async () => {
         await firestore.collection('users').doc(id).delete();
         
         // Delete daily stats
@@ -895,7 +900,7 @@ async function loadDailyEntries() {
         } else {
             const parts = dateStr.split('-');
             const d = new Date(parts[0], parts[1] - 1, parts[2]);
-            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const dias = ['Domingo', 'Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado'];
             dayLabel.innerText = dias[d.getDay()];
         }
     }
@@ -935,10 +940,10 @@ async function loadDailyEntries() {
         const disabledAttr = isLocked ? 'disabled' : '';
         const btnHtml = isLocked 
             ? `<button id="btn-save-admin-${cleanName}" class="btn-success" style="padding: 0.3rem 0.6rem; display: none;" onclick="saveDaily('${cleanName}', '${u.name.replace(/'/g, "\\'")}')">Guardar</button>
-               <span id="saved-msg-admin-${cleanName}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
+               <span id="saved-msg-admin-${cleanName}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado âœ”ï¸</span>
                <button id="btn-edit-admin-${cleanName}" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editDaily('${cleanName}')">Editar</button>`
             : `<button id="btn-save-admin-${cleanName}" class="btn-primary" onclick="saveDaily('${cleanName}', '${u.name.replace(/'/g, "\\'")}')" style="padding: 0.3rem 0.6rem;">Guardar</button>
-               <span id="saved-msg-admin-${cleanName}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
+               <span id="saved-msg-admin-${cleanName}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado âœ”ï¸</span>
                <button id="btn-edit-admin-${cleanName}" class="btn-secondary" style="display: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editDaily('${cleanName}')">Editar</button>`;
         
         const tr = document.createElement('tr');
@@ -1025,7 +1030,7 @@ async function saveDaily(cleanName, realName) {
                 date: dateStr,
                 shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl, lobby
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podrÃ­a haber perdido conexiÃ³n a internet. Intenta de nuevo.")), 6000))
         ]);
         
         await recalculateUserMonth(cleanName, realName, dateStr).catch(e => console.error("Error updating monthly stats:", e));
@@ -1048,7 +1053,7 @@ async function saveDaily(cleanName, realName) {
         document.getElementById(`saved-msg-admin-${cleanName}`).style.display = 'inline-block';
         document.getElementById(`btn-edit-admin-${cleanName}`).style.display = 'inline-block';
     } catch (err) {
-        alert(err.message || "Error al guardar. Revisa tu conexión a internet.");
+        alert(err.message || "Error al guardar. Revisa tu conexiÃ³n a internet.");
         btn.innerText = 'Guardar';
         btn.disabled = false;
     }
@@ -1105,8 +1110,8 @@ function setAcademyRange(type) {
     const labelMap = {
         week: 'Esta Semana', lastWeek: 'Semana Pasada',
         month: 'Este Mes', lastMonth: 'Mes Pasado',
-        last2Months: 'Últimos 2 Meses', last4Months: 'Últimos 4 Meses',
-        last6Months: 'Últimos 6 Meses', year: 'Este Año'
+        last2Months: 'Ãšltimos 2 Meses', last4Months: 'Ãšltimos 4 Meses',
+        last6Months: 'Ãšltimos 6 Meses', year: 'Este AÃ±o'
     };
     const labelEl = document.getElementById('academy-period-label');
     if (labelEl && type) labelEl.textContent = labelMap[type] || '';
@@ -1568,10 +1573,10 @@ function renderDashTable() {
     
     let headHTML = '<tr>';
     headHTML += `<th rowspan="2" style="vertical-align: middle; width: 30px; text-align: center; color: var(--text-muted); border-right: 1px solid var(--border);">#</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('name')" style="vertical-align: middle;">Vendedor ↕</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('name')" style="vertical-align: middle;">Vendedor â†•</th>`;
     
     if (isMatrixMode) {
-        const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const dayNames = ['Dom', 'Lun', 'Mar', 'MiÃ©', 'Jue', 'Vie', 'SÃ¡b'];
         matrixDates.forEach(date => {
             const dateObj = new Date(date + 'T12:00:00');
             const dayName = dayNames[dateObj.getDay()];
@@ -1580,11 +1585,11 @@ function renderDashTable() {
     }
     
     headHTML += `<th colspan="2" style="text-align: center; border-left: 2px solid var(--primary); padding-bottom: 0;">TOTALES</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('cierre')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">% Cierre ↕</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('ads')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Ads ↕</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('links')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Links ↕</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('cierre')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">% Cierre â†•</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('ads')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Ads â†•</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('links')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Links â†•</th>`;
     if (currentUser && currentUser.role === 'admin') {
-        headHTML += `<th rowspan="2" onclick="sortTable('cxl')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">CXL ↕</th>`;
+        headHTML += `<th rowspan="2" onclick="sortTable('cxl')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">CXL â†•</th>`;
     }
     headHTML += '</tr><tr>';
     
@@ -1594,8 +1599,8 @@ function renderDashTable() {
         });
     }
     
-    headHTML += `<th onclick="sortTable('shots')" style="text-align: center; border-left: 2px solid var(--primary);">Shots ↕</th>`;
-    headHTML += `<th onclick="sortTable('ventas')" style="text-align: center; border-left: 1px solid var(--border); color: var(--primary);">Ventas ↕</th>`;
+    headHTML += `<th onclick="sortTable('shots')" style="text-align: center; border-left: 2px solid var(--primary);">Shots â†•</th>`;
+    headHTML += `<th onclick="sortTable('ventas')" style="text-align: center; border-left: 1px solid var(--border); color: var(--primary);">Ventas â†•</th>`;
     headHTML += '</tr>';
     
     thead.innerHTML = headHTML;
@@ -1687,14 +1692,14 @@ function renderDashTable() {
 
         let streakBadge = '';
         if (!isSpecial && globalStreaks && globalStreaks[d.name] >= 2) {
-            streakBadge = `<span style="display: inline-block; background: rgba(255, 100, 0, 0.15); color: #ff8c00; border: 1px solid rgba(255, 100, 0, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(255, 100, 0, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">🔥 x${globalStreaks[d.name]}</span>`;
+            streakBadge = `<span style="display: inline-block; background: rgba(255, 100, 0, 0.15); color: #ff8c00; border: 1px solid rgba(255, 100, 0, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(255, 100, 0, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">ðŸ”¥ x${globalStreaks[d.name]}</span>`;
         } else if (!isSpecial && globalIceStreaks && globalIceStreaks[d.name] >= 2) {
-            streakBadge = `<span style="display: inline-block; background: rgba(0, 200, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 200, 255, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(0, 200, 255, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">🧊 x${globalIceStreaks[d.name]}</span>`;
+            streakBadge = `<span style="display: inline-block; background: rgba(0, 200, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 200, 255, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(0, 200, 255, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">ðŸ§Š x${globalIceStreaks[d.name]}</span>`;
         }
         
         let mvpBadge = '';
             if (!isSpecial && globalLastWeekMvp === d.name) {
-            mvpBadge = `<span style="margin-left: 6px; font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); vertical-align: middle;" title="MVP Semana Pasada" data-html2canvas-ignore="true">👑</span>`;
+            mvpBadge = `<span style="margin-left: 6px; font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); vertical-align: middle;" title="MVP Semana Pasada" data-html2canvas-ignore="true">ðŸ‘‘</span>`;
         }
 
         let rowHTML = `<td style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-right: 1px solid var(--border);">${idx}</td>`;
@@ -1872,7 +1877,7 @@ function renderTop3() {
     if (top3[0]) places.push({ 
         ...top3[0], 
         rank: 1, 
-        icon: '👑', 
+        icon: 'ðŸ‘‘', 
         finalHeight: 180, 
         gradient: 'linear-gradient(180deg, #00d2ff 0%, #3a7bd5 100%)',
         glow: 'rgba(0, 210, 255, 0.5)',
@@ -2063,7 +2068,7 @@ function downloadTop3() {
     
     // Watermark
     const water = document.createElement('div');
-    water.innerHTML = '🔥 POWERED BY <strong>MVG STATS</strong>';
+    water.innerHTML = 'ðŸ”¥ POWERED BY <strong>MVG STATS</strong>';
     water.style.position = 'absolute';
     water.style.bottom = '2rem';
     water.style.color = 'rgba(255,255,255,0.2)';
@@ -2487,7 +2492,7 @@ async function loadAcademy() {
                 <span style="font-weight: bold; font-size: 0.9rem; color: var(--text-main);">${rep.name}</span>
                 <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
                     <div style="font-size: 0.8rem; color: var(--text-muted);">${rep.shots} sh <span style="margin: 0 4px; opacity: 0.3;">|</span> <span style="color: var(--text-main); font-weight: bold;">${rep.pct.toFixed(1)}%</span></div>
-                    <span style="font-size: 0.7rem; color: #00d2ff; opacity: 0.6;">📈</span>
+                    <span style="font-size: 0.7rem; color: #00d2ff; opacity: 0.6;">ðŸ“ˆ</span>
                 </div>
             </li>`;
         });
@@ -2517,7 +2522,7 @@ async function renderDashChart(startStr, endStr, rangeType) {
     const buckets = {};
 
     if (byMonth) {
-        // Use stats_monthly collection — fast rollup data, grouped by month
+        // Use stats_monthly collection â€” fast rollup data, grouped by month
         const todayMonth = new Date().toISOString().substring(0, 7);
         const startMonth = startStr.substring(0, 7);
         const endMonth   = endStr.substring(0, 7);
@@ -2687,7 +2692,7 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     const modal = document.getElementById('academy-modal');
     document.getElementById('academy-modal-name').textContent = repName;
     document.getElementById('academy-modal-stats').textContent =
-        `${repShots} shots · ${repVentas} ventas · ${repPct.toFixed(1)}% cierre`;
+        `${repShots} shots Â· ${repVentas} ventas Â· ${repPct.toFixed(1)}% cierre`;
     modal.style.display = 'flex';
 
     // Fetch last 6 months of data for this rep from stats_monthly
@@ -2865,7 +2870,7 @@ async function loadCarrera() {
         }
         
         const badge = document.getElementById('carrera-min-pts-badge');
-        if (badge) badge.innerText = `Mínimo ${carreraConfig.min} Ventas`;
+        if (badge) badge.innerText = `MÃ­nimo ${carreraConfig.min} Ventas`;
 
         const snap = await firestore.collection('stats')
             .where('date', 'in', weekDates)
@@ -2972,9 +2977,9 @@ async function loadCarrera() {
             if (item.points === 0) return;
             const opacity = '1'; // Removed fading for readability
             let posStr = `${index + 1}`;
-            if (index === 0) posStr = '🥇 1';
-            if (index === 1) posStr = '🥈 2';
-            if (index === 2) posStr = '🥉 3';
+            if (index === 0) posStr = 'ðŸ¥‡ 1';
+            if (index === 1) posStr = 'ðŸ¥ˆ 2';
+            if (index === 2) posStr = 'ðŸ¥‰ 3';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -3036,10 +3041,10 @@ async function loadSpiffs() {
             }
 
             if (s.status === 'active') {
-                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">🔥 ${s.title} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:10px;">(${dateStr})</span></h3>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">🕒 ${s.time || 'Día completo'} | 🗓️ ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Métrica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">📈 Min % Cierre: ${s.cierre}</p>` : `<div style="margin-bottom:1rem;"></div>`}
+                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">ðŸ”¥ ${s.title} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:10px;">(${dateStr})</span></h3>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">ðŸ•’ ${s.time || 'DÃ­a completo'} | ðŸ—“ï¸ ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸŽ¯ MÃ©trica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">ðŸ“ˆ Min % Cierre: ${s.cierre}</p>` : `<div style="margin-bottom:1rem;"></div>`}
                     <div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.5rem 1rem; border-radius:8px; display:inline-block; font-weight:bold; margin-bottom:1rem;">
                         Premio: ${s.prize}
                     </div>`;
@@ -3051,7 +3056,7 @@ async function loadSpiffs() {
                     adminControls.style.paddingTop = '1rem';
                     let selectHtml = `<select id="winner-${s.id}" style="width:100%; margin-bottom:10px; padding:0.5rem; border-radius:6px; background:var(--bg-color); color:var(--text); border:1px solid var(--border);">
                         <option value="">Seleccionar Ganador...</option>
-                        <option value="SIN GANADOR">❌ Nadie (Sin ganador)</option>`;
+                        <option value="SIN GANADOR">âŒ Nadie (Sin ganador)</option>`;
                     
                     if (globalActiveUsers) {
                         globalActiveUsers.forEach(u => {
@@ -3059,23 +3064,23 @@ async function loadSpiffs() {
                         });
                     }
                     
-                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem; margin-bottom: 0.5rem;">Declarar Ganador 🏆</button>
+                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem; margin-bottom: 0.5rem;">Declarar Ganador ðŸ†</button>
                     <div style="display:flex; gap:0.5rem;">
-                        <button onclick="editSpiff('${s.id}', '${s.title.replace(/'/g, "\\'")}', '${(s.time||'').replace(/'/g, "\\'")}', '${s.period}', '${(s.prize||'').replace(/'/g, "\\'")}', '${(s.metric||'').replace(/'/g, "\\'")}', '${(s.cierre||'').replace(/'/g, "\\'")}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">Editar ✏️</button>
-                        <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar 🗑️</button>
+                        <button onclick="editSpiff('${s.id}', '${s.title.replace(/'/g, "\\'")}', '${(s.time||'').replace(/'/g, "\\'")}', '${s.period}', '${(s.prize||'').replace(/'/g, "\\'")}', '${(s.metric||'').replace(/'/g, "\\'")}', '${(s.cierre||'').replace(/'/g, "\\'")}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">Editar âœï¸</button>
+                        <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar ðŸ—‘ï¸</button>
                     </div>`;
                     adminControls.innerHTML = selectHtml;
                     card.appendChild(adminControls);
                 }
                 activeContainer.appendChild(card);
             } else if (s.status === 'completed') {
-                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">✔️ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">⏱️ ${s.time || 'Día completo'} | 📅 ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">📊 Métrica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Min % Cierre: ${s.cierre}</p>` : ''}
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">âœ”ï¸ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">â±ï¸ ${s.time || 'DÃ­a completo'} | ðŸ“… ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸ“Š MÃ©trica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸŽ¯ Min % Cierre: ${s.cierre}</p>` : ''}
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(79,172,254,0.1); color:#4facfe; padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
-                        ${s.winner === 'SIN GANADOR' ? '❌ SIN GANADOR' : `👑 Ganador: ${s.winner}`}
+                        ${s.winner === 'SIN GANADOR' ? 'âŒ SIN GANADOR' : `ðŸ‘‘ Ganador: ${s.winner}`}
                     </div>`;
                 
                 if (currentUser && currentUser.role === 'admin') {
@@ -3088,19 +3093,19 @@ async function loadSpiffs() {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'btn-secondary';
                     editBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);';
-                    editBtn.innerText = 'Editar ✏️';
+                    editBtn.innerText = 'Editar âœï¸';
                     editBtn.onclick = () => editSpiff(s.id, s.title, s.time, s.period, s.prize, s.metric, s.cierre);
                     
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-secondary';
                     deleteBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
-                    deleteBtn.innerText = 'Eliminar 🗑️';
+                    deleteBtn.innerText = 'Eliminar ðŸ—‘ï¸';
                     deleteBtn.onclick = () => deleteSpiff(s.id);
                     
                     const archiveBtn = document.createElement('button');
                     archiveBtn.className = 'btn-secondary';
                     archiveBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #f59e0b; border-color: rgba(245, 158, 11, 0.3);';
-                    archiveBtn.innerText = 'Archivar 📦';
+                    archiveBtn.innerText = 'Archivar ðŸ“¦';
                     archiveBtn.onclick = () => archiveSpiff(s.id);
                     
                     controls.appendChild(editBtn);
@@ -3113,20 +3118,20 @@ async function loadSpiffs() {
                 dlBtn.setAttribute('data-html2canvas-ignore', 'true');
                 dlBtn.className = 'btn-secondary';
                 dlBtn.style.cssText = 'width: 100%; padding: 0.5rem; margin-top: 10px; font-size: 0.85rem; border-color: rgba(255, 255, 255, 0.2);';
-                dlBtn.innerHTML = 'Descargar Foto 📸';
+                dlBtn.innerHTML = 'Descargar Foto ðŸ“¸';
                 dlBtn.onclick = () => downloadSpiffImage(s.id);
                 card.appendChild(dlBtn);
                 
 
                 completedContainer.appendChild(card);
             } else if (s.status === 'archived') {
-                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">📦 ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">⏱️ ${s.time || 'Día completo'} | 📅 ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">📊 Métrica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Min % Cierre: ${s.cierre}</p>` : ''}
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">ðŸ“¦ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">â±ï¸ ${s.time || 'DÃ­a completo'} | ðŸ“… ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸ“Š MÃ©trica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">ðŸŽ¯ Min % Cierre: ${s.cierre}</p>` : ''}
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(255,255,255,0.05); color:var(--text-muted); padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
-                        ${s.winner === 'SIN GANADOR' ? '❌ SIN GANADOR' : `👑 Ganador: ${s.winner}`}
+                        ${s.winner === 'SIN GANADOR' ? 'âŒ SIN GANADOR' : `ðŸ‘‘ Ganador: ${s.winner}`}
                     </div>`;
                 
                 if (currentUser && currentUser.role === 'admin') {
@@ -3139,13 +3144,13 @@ async function loadSpiffs() {
                     const unarchiveBtn = document.createElement('button');
                     unarchiveBtn.className = 'btn-secondary';
                     unarchiveBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #10b981; border-color: rgba(16, 185, 129, 0.3);';
-                    unarchiveBtn.innerText = 'Desarchivar ♻️';
+                    unarchiveBtn.innerText = 'Desarchivar â™»ï¸';
                     unarchiveBtn.onclick = () => unarchiveSpiff(s.id);
                     
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-secondary';
                     deleteBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
-                    deleteBtn.innerText = 'Eliminar 🗑️';
+                    deleteBtn.innerText = 'Eliminar ðŸ—‘ï¸';
                     deleteBtn.onclick = () => deleteSpiff(s.id);
                     
                     controls.appendChild(unarchiveBtn);
@@ -3176,13 +3181,13 @@ async function createSpiff() {
     let cierre = document.getElementById('spiff-cierre').value.trim();
     
     if (/^\d+$/.test(metric)) {
-        metric = `Mínimo ${metric} ventas`;
+        metric = `MÃ­nimo ${metric} ventas`;
     }
     if (/^\d+$/.test(cierre)) {
         cierre = `${cierre}%`;
     }
     
-    if (!title || !prize || !metric) return alert('Por favor llena el título, premio y métrica.');
+    if (!title || !prize || !metric) return alert('Por favor llena el tÃ­tulo, premio y mÃ©trica.');
     
     try {
         if (editingSpiffId) {
@@ -3190,7 +3195,7 @@ async function createSpiff() {
                 title, time, period, prize, metric, cierre, status: 'active', winner: null // Reactivates if completed
             });
             editingSpiffId = null;
-            document.getElementById('spiff-submit-btn').innerText = 'Lanzar Spiff 🔥';
+            document.getElementById('spiff-submit-btn').innerText = 'Lanzar Spiff ðŸ”¥';
         } else {
             await firestore.collection('spiffs').add({
                 title, time, period, prize, metric, cierre, status: 'active', winner: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3217,7 +3222,7 @@ async function declareSpiffWinner(id) {
 }
 
 function archiveSpiff(id) {
-    showConfirmModal('¿Estás seguro de que deseas archivar este Spiff? Desaparecerá del historial.', async () => {
+    showConfirmModal('Â¿EstÃ¡s seguro de que deseas archivar este Spiff? DesaparecerÃ¡ del historial.', async () => {
         try {
             await firestore.collection('spiffs').doc(id).update({
                 status: 'archived', archivedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3228,7 +3233,7 @@ function archiveSpiff(id) {
 }
 
 function deleteSpiff(id) {
-    showConfirmModal('¿Estás seguro de que deseas eliminar este Spiff? Esta acción no se puede deshacer.', async () => {
+    showConfirmModal('Â¿EstÃ¡s seguro de que deseas eliminar este Spiff? Esta acciÃ³n no se puede deshacer.', async () => {
         try {
             await firestore.collection('spiffs').doc(id).delete();
             loadSpiffs();
@@ -3251,10 +3256,10 @@ function toggleArchivedSpiffs() {
     if (!container || !btn) return;
     if (container.style.display === 'none') {
         container.style.display = 'grid';
-        btn.innerText = 'Ocultar Archivados 📦';
+        btn.innerText = 'Ocultar Archivados ðŸ“¦';
     } else {
         container.style.display = 'none';
-        btn.innerText = 'Ver Archivados 📦';
+        btn.innerText = 'Ver Archivados ðŸ“¦';
     }
 }
 
@@ -3267,6 +3272,241 @@ function editSpiff(id, title, time, period, prize, metric, cierre) {
     document.getElementById('spiff-metric').value = metric || '';
     document.getElementById('spiff-cierre').value = cierre || '';
     
-    document.getElementById('spiff-submit-btn').innerText = 'Guardar Cambios 💾';
+    document.getElementById('spiff-submit-btn').innerText = 'Guardar Cambios ðŸ’¾';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+// --- Lobbies Dashboard ---
+let currentLobbiesRange = 'month';
+let lobbiesChartInstance = null;
+
+function setLobbiesRange(type) {
+    currentLobbiesRange = type;
+    document.querySelectorAll('#view-lobbies .dash-range-btn').forEach(btn => btn.classList.remove('active'));
+    const btn = document.getElementById(lobbies-btn- + type);
+    if (btn) {
+        btn.classList.add('active');
+        const pill = document.getElementById('lobbies-seg-pill');
+        if (pill) {
+            pill.style.left = btn.offsetLeft + 'px';
+            pill.style.width = btn.offsetWidth + 'px';
+        }
+    }
+    loadLobbiesDashboard();
+}
+
+async function loadLobbiesDashboard() {
+    try {
+        const today = new Date();
+        let start = new Date(today);
+        let end = new Date(today);
+        const type = currentLobbiesRange;
+        let label = '';
+
+        if (type === 'today') {
+            label = 'Hoy';
+        } else if (type === 'yesterday') {
+            start.setDate(today.getDate() - 1);
+            end = new Date(start);
+            label = 'Ayer';
+        } else if (type === 'week') {
+            const day = start.getDay();
+            const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+            start.setDate(diff);
+            label = 'Esta Semana';
+        } else if (type === 'lastWeek') {
+            const day = start.getDay();
+            const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+            start.setDate(diff - 7);
+            end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            label = 'Semana Pasada';
+        } else if (type === 'month') {
+            start = new Date(today.getFullYear(), today.getMonth(), 1);
+            label = 'Este Mes';
+        } else if (type === 'lastMonth') {
+            start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            end = new Date(today.getFullYear(), today.getMonth(), 0);
+            label = 'Mes Pasado';
+        } else if (type === 'last2Months') {
+            start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            label = 'Últimos 2 Meses';
+        } else if (type === 'last4Months') {
+            start = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+            label = 'Últimos 4 Meses';
+        } else if (type === 'last6Months') {
+            start = new Date(today.getFullYear(), today.getMonth() - 5, 1);
+            label = 'Últimos 6 Meses';
+        } else if (type === 'year') {
+            start = new Date(today.getFullYear(), 0, 1);
+            label = 'Este Año';
+        }
+
+        const fmt = (d) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return \\-\-\\;
+        };
+
+        const startStr = fmt(start);
+        const endStr = fmt(end);
+
+        document.getElementById('lobbies-date-range').innerText = \(\)\;
+
+        const snap = await firestore.collection('stats')
+            .where('date', '>=', startStr)
+            .where('date', '<=', endStr)
+            .get();
+
+        const lobbyData = {
+            'Nizuc': { shots: 0, ventas: 0, ads: 0, reps: {} },
+            'Sunrise': { shots: 0, ventas: 0, ads: 0, reps: {} },
+            'The Grand': { shots: 0, ventas: 0, ads: 0, reps: {} },
+            'Sin Asignar': { shots: 0, ventas: 0, ads: 0, reps: {} }
+        };
+
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (!data.name || !data.date) return;
+            const l = data.lobby || 'Sin Asignar';
+            if (!lobbyData[l]) {
+                lobbyData[l] = { shots: 0, ventas: 0, ads: 0, reps: {} };
+            }
+            lobbyData[l].shots += (Number(data.shots) || 0);
+            lobbyData[l].ventas += (Number(data.ventas) || 0);
+            lobbyData[l].ads += (Number(data.ads) || 0);
+            
+            if (data.name) {
+                if (!lobbyData[l].reps[data.name]) lobbyData[l].reps[data.name] = 0;
+                lobbyData[l].reps[data.name] += (Number(data.ventas) || 0);
+            }
+        });
+
+        const container = document.getElementById('lobbies-cards-container');
+        container.innerHTML = '';
+        
+        let bestCierre = -1;
+        let bestLobby = null;
+
+        const lobbiesArray = Object.keys(lobbyData).filter(k => k !== 'Sin Asignar' || lobbyData[k].shots > 0);
+
+        const metrics = lobbiesArray.map(l => {
+            const d = lobbyData[l];
+            let cierre = 0;
+            if (d.shots > 0) {
+                cierre = (d.ventas / d.shots) * 100;
+            }
+            if (cierre > bestCierre && d.shots > 0 && l !== 'Sin Asignar') {
+                bestCierre = cierre;
+                bestLobby = l;
+            }
+            
+            let mvp = "N/A";
+            let mvpVentas = 0;
+            Object.keys(d.reps).forEach(rep => {
+                if (d.reps[rep] > mvpVentas) {
+                    mvpVentas = d.reps[rep];
+                    mvp = rep;
+                }
+            });
+
+            return {
+                name: l,
+                shots: d.shots,
+                ventas: d.ventas,
+                cierre: cierre,
+                mvp: mvpVentas > 0 ? \\ (\ vts)\ : "N/A"
+            };
+        });
+
+        metrics.forEach(m => {
+            const isWinner = m.name === bestLobby && m.shots > 0;
+            const bgGradient = isWinner ? 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.02) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)';
+            const borderCol = isWinner ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.1)';
+            const titleCol = isWinner ? '#10b981' : '#fff';
+            const shadow = isWinner ? '0 8px 24px rgba(16,185,129,0.1)' : '0 4px 10px rgba(0,0,0,0.2)';
+            const icon = isWinner ? '?? LÍDER' : '??';
+
+            const card = document.createElement('div');
+            card.style = \ackground: \; border: 1px solid \; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; box-shadow: \;\;
+            card.innerHTML = \
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <h3 style="margin: 0; color: \; font-size: 1.3rem;">\</h3>
+                    <span style="font-size: 0.8rem; font-weight: bold; background: rgba(0,0,0,0.3); padding: 0.3rem 0.6rem; border-radius: 20px; color: \;">\</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Shots</p>
+                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold;">\</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Ventas</p>
+                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold; color: var(--primary);">\</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Cierre</p>
+                        <p style="margin: 0; font-size: 1.2rem; font-weight: bold; color: \;">\%</p>
+                    </div>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); border-radius: 10px; padding: 0.8rem; margin-top: auto;">
+                    <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">MVP del Periodo</p>
+                    <p style="margin: 0.2rem 0 0 0; font-size: 0.95rem; font-weight: bold; color: #f59e0b;">? \</p>
+                </div>
+            \;
+            container.appendChild(card);
+        });
+
+        const ctx = document.getElementById('lobbies-chart').getContext('2d');
+        if (lobbiesChartInstance) lobbiesChartInstance.destroy();
+
+        const labels = metrics.map(m => m.name);
+        const dataShots = metrics.map(m => m.shots);
+        const dataVentas = metrics.map(m => m.ventas);
+
+        lobbiesChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Shots',
+                        data: dataShots,
+                        backgroundColor: '#4facfe',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Ventas',
+                        data: dataVentas,
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#a4b0be' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#a4b0be' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#a4b0be' }
+                    }
+                }
+            }
+        });
+
+    } catch (e) {
+        console.error("Error loading lobbies", e);
+    }
+}
+
+
