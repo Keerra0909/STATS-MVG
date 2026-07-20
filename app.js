@@ -2802,6 +2802,32 @@ async function loadCarrera() {
             userPoints[data.name] += pts;
         });
 
+        // OVERRIDE FOR WEEK JULY 13 - 19
+        if (weekDates.includes('2026-07-13')) {
+            const manualScores = {
+                "ISA": 12.5, "MICHELLE": 10.0, "ANDERSON": 9.5, "ALEX": 9.0,
+                "RICKY": 8.0, "TONY": 8.0, "GALA": 8.0, "GONZALO": 7.5,
+                "ANDRES A": 7.5, "SEBASTIAN": 7.5, "ERICK": 7.0, "BONJO": 7.0,
+                "MONTSE": 6.5, "CHRIS": 6.0, "GALAOR": 6.0, "ANTONIO": 5.5,
+                "NANCY": 5.5, "JOSEFINA": 5.0, "PANCHO": 4.5, "ANA M": 4.5,
+                "ANDRES G": 4.5, "ADRIAN": 4.5, "JUANJO JJ": 4.5, "BRUNO": 4.5,
+                "RICARDO": 4.5, "SERGIO": 4.0, "MIKE": 3.5, "PAOLO": 3.5,
+                "NONO": 3.0, "JP": 2.5, "LEONARDO": 1.5
+            };
+            
+            // Apply the manual scores for this specific week only
+            Object.keys(manualScores).forEach(name => {
+                userPoints[name] = manualScores[name];
+            });
+            
+            // Clean up any other users that might have been picked up from DB but shouldn't be here
+            Object.keys(userPoints).forEach(name => {
+                if (manualScores[name] === undefined && manualScores[name.replace(' M', '')] === undefined) {
+                    delete userPoints[name];
+                }
+            });
+        }
+
         const leaderboard = Object.keys(userPoints)
             .map(name => ({ name, points: userPoints[name] }))
             .sort((a, b) => b.points - a.points);
