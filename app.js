@@ -1590,6 +1590,12 @@ function renderDashTable() {
         if (sortCol !== 'ventas' && a.totals.ventas !== b.totals.ventas) {
             return b.totals.ventas - a.totals.ventas; // More ventas goes higher
         }
+        if (sortCol !== 'links' && (a.totals.links || 0) !== (b.totals.links || 0)) {
+            return (b.totals.links || 0) - (a.totals.links || 0);
+        }
+        if (sortCol !== 'ads' && (a.totals.ads || 0) !== (b.totals.ads || 0)) {
+            return (b.totals.ads || 0) - (a.totals.ads || 0);
+        }
         return a.name.localeCompare(b.name); // Alphabetical fallback
     });
 
@@ -2183,7 +2189,11 @@ async function exportToExcel() {
                 return b.totals.shots - a.totals.shots;
             if (sortCol !== 'ventas' && a.totals.ventas !== b.totals.ventas)
                 return b.totals.ventas - a.totals.ventas;
-            return 0;
+            if (sortCol !== 'links' && (a.totals.links || 0) !== (b.totals.links || 0))
+                return (b.totals.links || 0) - (a.totals.links || 0);
+            if (sortCol !== 'ads' && (a.totals.ads || 0) !== (b.totals.ads || 0))
+                return (b.totals.ads || 0) - (a.totals.ads || 0);
+            return a.name.localeCompare(b.name);
         });
 
         regularData.forEach(addDataRow);
