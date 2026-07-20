@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,7 @@
     <script src="libs/dexie.js"></script>
     <script src="libs/chart.js"></script>
     <script src="libs/html2canvas.js"></script>
-    <!-- Librerías para Exportación a Excel Profesional -->
+    <!-- LibrerÃ­as para ExportaciÃ³n a Excel Profesional -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -18,7 +18,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon.svg">
-    <!-- Tipografía Inter para look moderno -->
+    <!-- TipografÃ­a Inter para look moderno -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -34,12 +34,12 @@
             <button onclick="navigate('team')" class="nav-btn" id="btn-team">Equipo</button>
             <button onclick="navigate('academy')" class="nav-btn" id="btn-academy">Academia</button>
             <button onclick="navigate('spiffs')" class="nav-btn" id="btn-spiffs">SPIFF</button>
-            <button onclick="navigate('carrera')" class="nav-btn" id="btn-carrera">Carrera 🏆</button>
-            <button onclick="navigate('lobbies')" class="nav-btn" id="btn-lobbies" style="display: none;">Lobbies 🏨</button>
+            <button onclick="navigate('carrera')" class="nav-btn" id="btn-carrera">Carrera ðŸ†</button>
+            <button onclick="navigate('lobbies')" class="nav-btn" id="btn-lobbies" style="display: none;">Lobbies ðŸ¨</button>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <button id="btn-logout" class="btn-secondary" style="display: none; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="logout()">Cerrar Sesión</button>
-            <button id="theme-toggle" onclick="toggleTheme()">🌙</button>
+            <button id="btn-logout" class="btn-secondary" style="display: none; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="logout()">Cerrar SesiÃ³n</button>
+            <button id="theme-toggle" onclick="toggleTheme()">ðŸŒ™</button>
         </div>
     </nav>
 
@@ -59,7 +59,7 @@
                 
                 <!-- Tabs -->
                 <div style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; margin-top: -1rem;">
-                    <button style="flex: 1; padding: 1rem; background: none; border: none; border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 600; font-size: 1rem; cursor: pointer;">Iniciar Sesión</button>
+                    <button style="flex: 1; padding: 1rem; background: none; border: none; border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 600; font-size: 1rem; cursor: pointer;">Iniciar SesiÃ³n</button>
                 </div>
 
                 <div style="margin-bottom: 1.5rem; text-align: left;">
@@ -68,7 +68,7 @@
                 </div>
                 
                 <div style="margin-bottom: 2rem; text-align: left;">
-                    <label style="display: block; font-size: 0.75rem; font-weight: bold; color: #888; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Contraseña</label>
+                    <label style="display: block; font-size: 0.75rem; font-weight: bold; color: #888; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">ContraseÃ±a</label>
                     <input type="password" id="login-pin" inputmode="numeric" pattern="[0-9]*" onkeypress="if(event.key === 'Enter') login()" style="width: 100%; padding: 0.8rem 1rem; background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 8px; color: white !important; font-size: 1rem; outline: none; box-sizing: border-box; letter-spacing: 2px;">
                 </div>
 
@@ -84,11 +84,11 @@
         <section id="view-rep-weekly" class="view hidden">
             <div class="header-box">
                 <h2 id="rep-welcome-msg">Tu Semana</h2>
-                <p>Aquí puedes capturar o corregir tus ventas de la semana actual.</p>
+                <p>AquÃ­ puedes capturar o corregir tus ventas de la semana actual.</p>
             </div>
             
             <div class="card" style="margin-bottom: 1.5rem;">
-                <h3>🎯 Mi Progreso del Mes</h3>
+                <h3>ðŸŽ¯ Mi Progreso del Mes</h3>
                 <div style="margin-top: 1rem;">
                     <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.3rem;">
                         <span>Ventas Logradas</span>
@@ -108,7 +108,7 @@
                     </div>
                 </div>
                 <div style="margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; background: rgba(0, 200, 255, 0.05); border: 1px solid rgba(0, 200, 255, 0.2); padding: 0.8rem; border-radius: 8px;">
-                    <span style="font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">🧊 Días en Blanco (Mes)</span>
+                    <span style="font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">ðŸ§Š DÃ­as en Blanco (Mes)</span>
                     <strong id="rep-blanqueos-text" style="font-size: 1.2rem; color: #00bfff;">0</strong>
                 </div>
             </div>
@@ -117,19 +117,19 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Día</th>
+                            <th>DÃ­a</th>
                             <th style="text-align: center;">Shots</th>
                             <th style="text-align: center; color: var(--primary);">Vts</th>
                             <th style="text-align: center;" title="Singles">1x(S)</th>
                             <th style="text-align: center;" title="Dobles">2x(D)</th>
                             <th style="text-align: center;" title="Triples">3x(T)</th>
-                            <th style="text-align: center;" title="Cuádruples">4x(C)</th>
-                            <th style="text-align: center;" title="Quíntuples+">5x+</th>
-                            <th style="text-align: center;" title="Arpones">Arpón</th>
+                            <th style="text-align: center;" title="CuÃ¡druples">4x(C)</th>
+                            <th style="text-align: center;" title="QuÃ­ntuples+">5x+</th>
+                            <th style="text-align: center;" title="Arpones">ArpÃ³n</th>
                             <th style="text-align: center;">Ads</th>
                             <th style="text-align: center;">Links</th>
                             <th style="text-align: center;">Lobby</th>
-                            <th>Acción</th>
+                            <th>AcciÃ³n</th>
                         </tr>
                     </thead>
                     <tbody id="rep-weekly-body">
@@ -142,8 +142,8 @@
         <!-- TEAM VIEW -->
         <section id="view-team" class="view hidden">
             <div class="header-box">
-                <h2>Gestión de Equipo</h2>
-                <p>Agrega o desactiva vendedores. El historial siempre se conservará.</p>
+                <h2>GestiÃ³n de Equipo</h2>
+                <p>Agrega o desactiva vendedores. El historial siempre se conservarÃ¡.</p>
             </div>
             
             <div class="card">
@@ -155,8 +155,8 @@
             </div>
 
             <div class="card" style="margin-top: 1.5rem;">
-                <h3>🎯 Metas Mensuales del Equipo</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Estas métricas se mostrarán en el panel de cada vendedor para medir su progreso del mes.</p>
+                <h3>ðŸŽ¯ Metas Mensuales del Equipo</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Estas mÃ©tricas se mostrarÃ¡n en el panel de cada vendedor para medir su progreso del mes.</p>
                 <div style="display: flex; gap: 1rem; align-items: flex-end;">
                     <div style="flex: 1;">
                         <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Meta de Ventas (Ej. 55)</label>
@@ -173,13 +173,13 @@
             <div class="card">
                 <div style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="document.getElementById('active-users-list').classList.toggle('hidden');">
                     <h3 style="margin: 0;">Vendedores Activos <span id="active-count" style="font-size: 1rem; color: var(--accent); margin-left: 0.5rem; font-weight: normal;"></span></h3>
-                    <span style="color: var(--text-muted); font-size: 1.2rem;">↕️</span>
+                    <span style="color: var(--text-muted); font-size: 1.2rem;">â†•ï¸</span>
                 </div>
                 <div id="active-users-list" class="user-grid"></div>
                 
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2rem; cursor: pointer;" onclick="document.getElementById('inactive-users-list').classList.toggle('hidden');">
                     <h3 style="margin: 0;">Vendedores Inactivos <span id="inactive-count" style="font-size: 1rem; color: #888; margin-left: 0.5rem; font-weight: normal;"></span></h3>
-                    <span style="color: var(--text-muted); font-size: 1.2rem;">↕️</span>
+                    <span style="color: var(--text-muted); font-size: 1.2rem;">â†•ï¸</span>
                 </div>
                 <div id="inactive-users-list" class="user-grid hidden"></div>
             </div>
@@ -206,14 +206,14 @@
                             <th style="text-align: center;" title="Singles">1x(S)</th>
                             <th style="text-align: center;" title="Dobles">2x(D)</th>
                             <th style="text-align: center;" title="Triples">3x(T)</th>
-                            <th style="text-align: center;" title="Cuádruples">4x(C)</th>
-                            <th style="text-align: center;" title="Quíntuples+">5x+</th>
-                            <th style="text-align: center;" title="Arpones">Arpón</th>
+                            <th style="text-align: center;" title="CuÃ¡druples">4x(C)</th>
+                            <th style="text-align: center;" title="QuÃ­ntuples+">5x+</th>
+                            <th style="text-align: center;" title="Arpones">ArpÃ³n</th>
                             <th style="text-align: center;">Ads</th>
                             <th style="text-align: center;">Links</th>
                             <th style="text-align: center;">CXL</th>
                             <th style="text-align: center;">Lobby</th>
-                            <th style="text-align: center;">Acción</th>
+                            <th style="text-align: center;">AcciÃ³n</th>
                         </tr>
                     </thead>
                     <tbody id="daily-entry-body">
@@ -228,10 +228,10 @@
             <div class="header-box dashboard-header" style="flex-direction: column; align-items: flex-start; gap: 1rem;">
                 <div>
                     <h2 style="display: flex; align-items: center; gap: 0.6rem;">
-                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(0, 210, 255, 0.12); border-radius: 10px; font-size: 1.1rem;">📊</span>
-                        Dashboard de Desempeño
+                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(0, 210, 255, 0.12); border-radius: 10px; font-size: 1.1rem;">ðŸ“Š</span>
+                        Dashboard de DesempeÃ±o
                     </h2>
-                    <p style="margin-top: 0.4rem; color: #6b8aad; font-size: 0.9rem; font-weight: 400;">Estadísticas históricas, podio de vendedores y reportes por día.</p>
+                    <p style="margin-top: 0.4rem; color: #6b8aad; font-size: 0.9rem; font-weight: 400;">EstadÃ­sticas histÃ³ricas, podio de vendedores y reportes por dÃ­a.</p>
                 </div>
                 <div class="date-range" style="display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(255,255,255,0.02); padding: 0.5rem 1rem; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 1rem; overflow-x: auto;">
                     <div class="segmented-control" id="dash-segmented">
@@ -243,13 +243,13 @@
                         <button onclick="setDashRange('lastWeek')" id="dash-btn-lastWeek" class="dash-range-btn">Sem Pasada</button>
                         <button onclick="setDashRange('week')" id="dash-btn-week" class="dash-range-btn">Esta Sem</button>
                         <button onclick="setDashRange('month')" id="dash-btn-month" class="dash-range-btn">Este Mes</button>
-                        <button onclick="setDashRange('year')" id="dash-btn-year" class="dash-range-btn">Este Año</button>
+                        <button onclick="setDashRange('year')" id="dash-btn-year" class="dash-range-btn">Este AÃ±o</button>
                         <button onclick="setDashRange('yesterday')" id="dash-btn-yesterday" class="dash-range-btn">Ayer</button>
                         <button onclick="setDashRange('today')" id="dash-btn-today" class="dash-range-btn">Hoy</button>
                     </div>
                     
                     <div style="display: flex; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 4px 16px; gap: 12px; margin-left: auto;">
-                        <span style="color: #00d2ff; font-size: 1.1rem;">📅</span>
+                        <span style="color: #00d2ff; font-size: 1.1rem;">ðŸ“…</span>
                         <input type="date" id="dash-start" onchange="loadDashboard()" class="date-pill-input">
                         <span style="color: #666; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">hasta</span>
                         <input type="date" id="dash-end" onchange="loadDashboard()" class="date-pill-input">
@@ -299,9 +299,9 @@
             <!-- TOP 3 PODIUM -->
             <div id="top3-container" class="card" style="margin-bottom: 1rem; display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3>🏆 Top 3 Vendedores</h3>
+                    <h3>ðŸ† Top 3 Vendedores</h3>
                     <button onclick="downloadTop3()" id="btn-download-top3" class="btn-success">
-                        <span>📥</span> Descargar Podium
+                        <span>ðŸ“¥</span> Descargar Podium
                     </button>
                 </div>
                 <div id="top3-podium" style="display: flex; gap: 1.5rem; justify-content: center; align-items: flex-end; padding: 2rem 0 0 0; height: 260px; border-bottom: 4px solid var(--border);">
@@ -316,10 +316,10 @@
                         <div style="display: flex; gap: 0.5rem; align-items: center;" data-html2canvas-ignore="true">
                             <button onclick="toggleOffline()" id="btn-toggle-off" class="btn-secondary" style="font-size: 0.8rem; padding: 0.3rem 0.6rem;">Ocultar OFFs</button>
                             <button onclick="exportToExcel()" id="btn-export-excel" class="btn-primary" style="display: none;">
-                                <span>📊</span> Exportar a Excel
+                                <span>ðŸ“Š</span> Exportar a Excel
                             </button>
                             <button onclick="downloadImage()" id="btn-download" class="btn-success">
-                                <span>📥</span> Descargar como Imagen
+                                <span>ðŸ“¥</span> Descargar como Imagen
                             </button>
                         </div>
                     </div>
@@ -327,10 +327,10 @@
                         <table class="data-table sortable">
                             <thead id="dash-table-head">
                                 <tr>
-                                    <th onclick="sortTable('name')">Vendedor ↕</th>
-                                    <th onclick="sortTable('shots')">Shots ↕</th>
-                                    <th onclick="sortTable('ventas')">Ventas ↕</th>
-                                    <th onclick="sortTable('cierre')">% Cierre ↕</th>
+                                    <th onclick="sortTable('name')">Vendedor â†•</th>
+                                    <th onclick="sortTable('shots')">Shots â†•</th>
+                                    <th onclick="sortTable('ventas')">Ventas â†•</th>
+                                    <th onclick="sortTable('cierre')">% Cierre â†•</th>
                                 </tr>
                             </thead>
                             <tbody id="dash-table-body">
@@ -347,7 +347,7 @@
             <div class="card" style="margin-bottom: 2rem;">
                 <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; color: var(--primary);">
                     <div style="background: rgba(79,172,254,0.1); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                        💰
+                        ðŸ’°
                     </div>
                     Muro de Spiffs
                 </h2>
@@ -356,11 +356,11 @@
                     <h3 style="margin-top:0; color: #fff;">Crear Nuevo Spiff</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
                         <div>
-                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Título / Nombre</label>
+                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">TÃ­tulo / Nombre</label>
                             <input type="text" id="spiff-title" list="spiff-titles-list" placeholder="Ej. Ventas tempraneras" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
                             <datalist id="spiff-titles-list">
-                                <option value="Más ventas en el día">
-                                <option value="Spiff Mañanero (Primeras ventas)">
+                                <option value="MÃ¡s ventas en el dÃ­a">
+                                <option value="Spiff MaÃ±anero (Primeras ventas)">
                             </datalist>
                         </div>
                         <div>
@@ -379,33 +379,33 @@
                             <input type="text" id="spiff-prize" placeholder="Ej. $150 USD" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Métrica a evaluar</label>
-                            <input type="text" id="spiff-metric" placeholder="Ej. Mínimo 7 ventas" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
+                            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">MÃ©trica a evaluar</label>
+                            <input type="text" id="spiff-metric" placeholder="Ej. MÃ­nimo 7 ventas" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
                         </div>
                         <div>
                             <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">% Cierre (Opcional)</label>
                             <input type="text" id="spiff-cierre" placeholder="Ej. 30%" style="width: 100%; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.7rem; border-radius: 8px; box-sizing: border-box;">
                         </div>
                         <div style="display: flex; align-items: flex-end;">
-                            <button id="spiff-submit-btn" onclick="createSpiff()" class="btn-primary" style="width: 100%; height: 42px;">Lanzar Spiff 🔥</button>
+                            <button id="spiff-submit-btn" onclick="createSpiff()" class="btn-primary" style="width: 100%; height: 42px;">Lanzar Spiff ðŸ”¥</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="spiffs-active-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                    <!-- Active Spiffs injectados aquí -->
+                    <!-- Active Spiffs injectados aquÃ­ -->
                 </div>
 
-                <h3 style="margin-top: 3rem; margin-bottom: 1rem; color: var(--text-muted);">Spiffs Completados (Salón de la fama)</h3>
+                <h3 style="margin-top: 3rem; margin-bottom: 1rem; color: var(--text-muted);">Spiffs Completados (SalÃ³n de la fama)</h3>
                 <div id="spiffs-completed-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; opacity: 0.7;">
-                    <!-- Completed Spiffs injectados aquí -->
+                    <!-- Completed Spiffs injectados aquÃ­ -->
                 </div>
                 
                 <div style="text-align: center; margin-top: 2rem;">
-                    <button id="btn-toggle-archived" onclick="toggleArchivedSpiffs()" class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Ver Archivados 📦</button>
+                    <button id="btn-toggle-archived" onclick="toggleArchivedSpiffs()" class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Ver Archivados ðŸ“¦</button>
                 </div>
                 <div id="spiffs-archived-container" style="display: none; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; opacity: 0.5; margin-top: 1rem;">
-                    <!-- Archived Spiffs injectados aquí -->
+                    <!-- Archived Spiffs injectados aquÃ­ -->
                 </div>
             </div>
         </section>
@@ -414,30 +414,30 @@
         <section id="view-carrera" class="view hidden">
             <div class="card" style="margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
-                    <h2 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #f59e0b; text-shadow: 0 2px 10px rgba(245,158,11,0.3); display: flex; align-items: baseline; flex-wrap: wrap;">Carrera Semanal 🏆 <span id="carrera-date-range" style="font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-left: 15px; text-shadow: none;"></span></h2>
+                    <h2 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #f59e0b; text-shadow: 0 2px 10px rgba(245,158,11,0.3); display: flex; align-items: baseline; flex-wrap: wrap;">Carrera Semanal ðŸ† <span id="carrera-date-range" style="font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-left: 15px; text-shadow: none;"></span></h2>
                     <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end;">
-                        <button onclick="togglePodium()" class="btn-secondary" id="btn-toggle-podium" style="display: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">🏆 Revelar Podio</button>
-                        <button onclick="openCarreraConfig()" class="btn-secondary" id="btn-config-carrera" style="display: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">⚙️ Configurar</button>
-                        <button onclick="downloadCarreraImage()" class="btn-primary" id="btn-download-carrera" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Descargar Foto 📸</button>
-                        <span id="carrera-min-pts-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; font-size: 0.85rem; white-space: nowrap;">Mínimo 10 Ventas</span>
+                        <button onclick="togglePodium()" class="btn-secondary" id="btn-toggle-podium" style="display: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">ðŸ† Revelar Podio</button>
+                        <button onclick="openCarreraConfig()" class="btn-secondary" id="btn-config-carrera" style="display: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">âš™ï¸ Configurar</button>
+                        <button onclick="downloadCarreraImage()" class="btn-primary" id="btn-download-carrera" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Descargar Foto ðŸ“¸</button>
+                        <span id="carrera-min-pts-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; font-size: 0.85rem; white-space: nowrap;">MÃ­nimo 10 Ventas</span>
                     </div>
                 </div>
 
                 <div id="carrera-podio" style="display: none; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                     <div style="background: linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(255,215,0,0.02) 100%); border: 1px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 1.8rem; text-align: center; box-shadow: 0 8px 24px rgba(255,215,0,0.1);">
-                        <h3 style="margin: 0 0 10px 0; color: #ffd700; font-size: 1.6rem; text-shadow: 0 0 10px rgba(255,215,0,0.3);">🥇 1er Lugar</h3>
+                        <h3 style="margin: 0 0 10px 0; color: #ffd700; font-size: 1.6rem; text-shadow: 0 0 10px rgba(255,215,0,0.3);">ðŸ¥‡ 1er Lugar</h3>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px;">Premio: $400 USD</p>
                         <h4 id="carrera-1" style="font-size: 1.5rem; color: #fff; margin: 0; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">--</h4>
                         <p id="carrera-pts-1" style="color: #ffd700; font-weight: 800; font-size: 1.1rem; margin-top: 8px;">0 pts</p>
                     </div>
                     <div style="background: linear-gradient(135deg, rgba(192,192,192,0.12) 0%, rgba(192,192,192,0.02) 100%); border: 1px solid rgba(192,192,192,0.4); border-radius: 16px; padding: 1.8rem; text-align: center; box-shadow: 0 8px 24px rgba(192,192,192,0.1);">
-                        <h3 style="margin: 0 0 10px 0; color: #c0c0c0; font-size: 1.6rem; text-shadow: 0 0 10px rgba(192,192,192,0.3);">🥈 2do Lugar</h3>
+                        <h3 style="margin: 0 0 10px 0; color: #c0c0c0; font-size: 1.6rem; text-shadow: 0 0 10px rgba(192,192,192,0.3);">ðŸ¥ˆ 2do Lugar</h3>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px;">Premio: $200 USD</p>
                         <h4 id="carrera-2" style="font-size: 1.5rem; color: #fff; margin: 0; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">--</h4>
                         <p id="carrera-pts-2" style="color: #c0c0c0; font-weight: 800; font-size: 1.1rem; margin-top: 8px;">0 pts</p>
                     </div>
                     <div style="background: linear-gradient(135deg, rgba(205,127,50,0.12) 0%, rgba(205,127,50,0.02) 100%); border: 1px solid rgba(205,127,50,0.4); border-radius: 16px; padding: 1.8rem; text-align: center; box-shadow: 0 8px 24px rgba(205,127,50,0.1);">
-                        <h3 style="margin: 0 0 10px 0; color: #cd7f32; font-size: 1.6rem; text-shadow: 0 0 10px rgba(205,127,50,0.3);">🥉 3er Lugar</h3>
+                        <h3 style="margin: 0 0 10px 0; color: #cd7f32; font-size: 1.6rem; text-shadow: 0 0 10px rgba(205,127,50,0.3);">ðŸ¥‰ 3er Lugar</h3>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px;">Premio: $100 USD</p>
                         <h4 id="carrera-3" style="font-size: 1.5rem; color: #fff; margin: 0; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">--</h4>
                         <p id="carrera-pts-3" style="color: #cd7f32; font-weight: 800; font-size: 1.1rem; margin-top: 8px;">0 pts</p>
@@ -448,7 +448,7 @@
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead style="background: rgba(0,0,0,0.2);">
                             <tr>
-                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--border);">Posición</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--border);">PosiciÃ³n</th>
                                 <th style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--border);">Vendedor</th>
                                 <th style="padding: 1rem; text-align: center; border-bottom: 1px solid var(--border);">Puntos</th>
                             </tr>
@@ -466,7 +466,7 @@
             <div class="card" style="margin-bottom: 2rem;">
                 <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; color: var(--primary);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
-                    Academia y Análisis de Desempeño
+                    Academia y AnÃ¡lisis de DesempeÃ±o
                 </h2>
                 <div class="date-range" style="display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(255,255,255,0.02); padding: 0.5rem 1rem; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 1.5rem; overflow-x: auto;">
                     <div class="segmented-control" id="academy-segmented">
@@ -478,7 +478,7 @@
                         <button onclick="setAcademyRange('lastWeek')" id="academy-btn-lastWeek" class="dash-range-btn">Sem Pasada</button>
                         <button onclick="setAcademyRange('week')" id="academy-btn-week" class="dash-range-btn">Esta Sem</button>
                         <button onclick="setAcademyRange('month')" id="academy-btn-month" class="dash-range-btn">Este Mes</button>
-                        <button onclick="setAcademyRange('year')" id="academy-btn-year" class="dash-range-btn">Este Año</button>
+                        <button onclick="setAcademyRange('year')" id="academy-btn-year" class="dash-range-btn">Este AÃ±o</button>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="date" id="academy-start" onchange="loadAcademy()" class="date-pill-input">
@@ -503,7 +503,7 @@
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                             Focos Rojos
                         </h3>
-                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 1rem;">Bajo volumen y bajo cierre.<br><em>Sugerencia: Entrenamiento básico desde cero.</em></p>
+                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 1rem;">Bajo volumen y bajo cierre.<br><em>Sugerencia: Entrenamiento bÃ¡sico desde cero.</em></p>
                         <ul id="academy-list-rojos" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;"></ul>
                     </div>
 
@@ -512,7 +512,7 @@
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                             Francotiradores
                         </h3>
-                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 1rem;">Cierre alto, pero pocos clientes.<br><em>Sugerencia: Curso de prospección.</em></p>
+                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 1rem;">Cierre alto, pero pocos clientes.<br><em>Sugerencia: Curso de prospecciÃ³n.</em></p>
                         <ul id="academy-list-francotiradores" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;"></ul>
                     </div>
 
@@ -541,11 +541,13 @@
         <section id="view-lobbies" class="view hidden">
             <div class="card" style="margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
-                    <h2 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #10b981; text-shadow: 0 2px 10px rgba(16,185,129,0.3); display: flex; align-items: baseline; flex-wrap: wrap;">STATS POR LOBBIES 🏨 <span id="lobbies-date-range" style="font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-left: 15px; text-shadow: none;"></span></h2>
+                    <h2 style="margin:0; font-size: 1.8rem; font-weight: 800; color: #10b981; text-shadow: 0 2px 10px rgba(16,185,129,0.3); display: flex; align-items: baseline; flex-wrap: wrap;">STATS POR LOBBIES ðŸ¨ <span id="lobbies-date-range" style="font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-left: 15px; text-shadow: none;"></span></h2>
+
                     <div style="display: flex; gap: 10px;">
                         <button id="btn-sync-lobbies" onclick="runLobbyPatch()" class="btn-primary" style="background: linear-gradient(90deg, #f59e0b, #d97706); font-size: 0.8rem; padding: 0.5rem 1rem;">Sunrise (Jul)</button>
                         <button id="btn-sync-lobbies-grand" onclick="runGrandPatch()" class="btn-primary" style="background: linear-gradient(90deg, #8b5cf6, #7c3aed); font-size: 0.8rem; padding: 0.5rem 1rem;">The Grand (Jul)</button>
                     </div>
+
                 </div>
 
                 <div class="date-range" style="display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(255,255,255,0.02); padding: 0.5rem 1rem; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 2rem; overflow-x: auto;">
@@ -558,7 +560,7 @@
                         <button onclick="setLobbiesRange('lastWeek')" id="lobbies-btn-lastWeek" class="dash-range-btn">Sem Pasada</button>
                         <button onclick="setLobbiesRange('week')" id="lobbies-btn-week" class="dash-range-btn">Esta Sem</button>
                         <button onclick="setLobbiesRange('month')" id="lobbies-btn-month" class="dash-range-btn">Este Mes</button>
-                        <button onclick="setLobbiesRange('year')" id="lobbies-btn-year" class="dash-range-btn">Este Año</button>
+                        <button onclick="setLobbiesRange('year')" id="lobbies-btn-year" class="dash-range-btn">Este AÃ±o</button>
                         <button onclick="setLobbiesRange('yesterday')" id="lobbies-btn-yesterday" class="dash-range-btn">Ayer</button>
                         <button onclick="setLobbiesRange('today')" id="lobbies-btn-today" class="dash-range-btn active">Hoy</button>
                     </div>
@@ -586,7 +588,7 @@
                     <h2 id="academy-modal-name" style="margin:0; font-size:1.4rem; font-weight:900;"></h2>
                     <p id="academy-modal-stats" style="margin:0.2rem 0 0; font-size:0.85rem; color:var(--text-muted);"></p>
                 </div>
-                <button onclick="closeAcademyModal()" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-muted); width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;">✕</button>
+                <button onclick="closeAcademyModal()" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-muted); width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;">âœ•</button>
             </div>
             <div style="margin-bottom:0.6rem; display:flex; gap:1rem;">
                 <div style="display:flex; align-items:center; gap:5px; font-size:0.75rem; color:var(--text-muted);"><span style="width:10px; height:3px; background:#4facfe; border-radius:2px; display:inline-block;"></span>Shots</div>
@@ -600,7 +602,7 @@
     <div id="carrera-config-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); z-index:9000; align-items:center; justify-content:center; padding:1rem;" onclick="closeCarreraConfig(event)">
         <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.5rem; width:100%; max-width:400px; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-                <h3 style="margin:0; font-size:1.4rem; color:var(--primary);">⚙️ Configurar Spiff</h3>
+                <h3 style="margin:0; font-size:1.4rem; color:var(--primary);">âš™ï¸ Configurar Spiff</h3>
                 <button onclick="closeCarreraConfig()" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
             </div>
             
@@ -618,20 +620,20 @@
                     <input type="number" step="0.5" id="cfg-p3" class="form-input" value="1.5">
                 </div>
                 <div class="input-group">
-                    <label>4x (Cuádruple)</label>
+                    <label>4x (CuÃ¡druple)</label>
                     <input type="number" step="0.5" id="cfg-p4" class="form-input" value="2.0">
                 </div>
                 <div class="input-group">
-                    <label>5x+ (Quíntuple o mayor - Tope)</label>
+                    <label>5x+ (QuÃ­ntuple o mayor - Tope)</label>
                     <input type="number" step="0.5" id="cfg-p5" class="form-input" value="2.5">
                 </div>
                 <div class="input-group">
-                    <label>Arpón</label>
+                    <label>ArpÃ³n</label>
                     <input type="number" step="0.5" id="cfg-pa" class="form-input" value="1.0">
                 </div>
                 <hr style="border-color: rgba(255,255,255,0.1);">
                 <div class="input-group">
-                    <label>Mínimo de Puntos (Meta)</label>
+                    <label>MÃ­nimo de Puntos (Meta)</label>
                     <input type="number" step="1" id="cfg-min" class="form-input" value="10">
                 </div>
             </div>
@@ -646,13 +648,13 @@
     <div id="confirm-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); z-index:10000; align-items:center; justify-content:center; padding:1rem;">
         <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.5rem; width:100%; max-width:400px; text-align:center;">
             <div style="margin-bottom:1.5rem;">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚠️</div>
-                <h3 style="margin:0; font-size:1.2rem; color:var(--text-main); font-weight: bold;">Confirmación</h3>
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">âš ï¸</div>
+                <h3 style="margin:0; font-size:1.2rem; color:var(--text-main); font-weight: bold;">ConfirmaciÃ³n</h3>
                 <p id="confirm-modal-msg" style="margin: 1rem 0 0; color:var(--text-muted); font-size: 0.95rem; line-height: 1.5;"></p>
             </div>
             <div style="display:flex; gap:1rem; justify-content:center;">
                 <button onclick="closeConfirmModal()" class="btn-secondary" style="flex:1;">Cancelar</button>
-                <button id="btn-confirm-yes" class="btn-primary" style="flex:1;">Sí, continuar</button>
+                <button id="btn-confirm-yes" class="btn-primary" style="flex:1;">SÃ­, continuar</button>
             </div>
         </div>
     </div>
