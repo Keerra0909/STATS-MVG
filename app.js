@@ -227,7 +227,7 @@ async function saveRepStat(index, dateStr) {
             firestore.collection('stats').doc(docId).set({
                 name: currentUser.name,
                 date: dateStr,
-                shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl
+                shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl, lobby
             }, { merge: true }),
             new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
         ]);
@@ -994,7 +994,7 @@ async function saveDaily(cleanName, realName) {
             firestore.collection('stats').doc(docId).set({
                 name: realName,
                 date: dateStr,
-                shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl
+                shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl, lobby
             }, { merge: true }),
             new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
         ]);
