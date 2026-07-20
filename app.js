@@ -1,4 +1,4 @@
-// --- Firebase Setup ---
+﻿// --- Firebase Setup ---
 const firebaseConfig = {
     apiKey: "AIzaSyB6bBY99Jt507YdRiYLaM77k-AZGOv56XM",
     authDomain: "statsmvg.firebaseapp.com",
@@ -39,7 +39,7 @@ async function loadRepWeekly() {
     const monday = new Date(today);
     monday.setDate(diff);
     
-    const dias = ['Lunes', 'Martes', 'MiÃƒÂ©rcoles', 'Jueves', 'Viernes', 'SÃƒÂ¡bado', 'Domingo'];
+    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
     
     const fetchPromises = [];
     for (let i = 0; i < 7; i++) {
@@ -81,12 +81,12 @@ async function loadRepWeekly() {
         
         let btnHtml = '';
         if (isFuture) {
-            btnHtml = `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">PrÃƒÂ³ximamente</span>`;
+            btnHtml = `<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Próximamente</span>`;
         } else {
             btnHtml = isLocked 
-                ? `<span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado Ã¢Å“â€Ã¯Â¸Â</span>`
+                ? `<span id="saved-msg-${i}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>`
                 : `<button id="btn-save-${i}" class="btn-primary" onclick="saveRepStat(${i}, '${dateStr}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Guardar</button>
-                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado Ã¢Å“â€Ã¯Â¸Â</span>`;
+                   <span id="saved-msg-${i}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>`;
         }
 
         tr.innerHTML = `
@@ -230,7 +230,7 @@ async function saveRepStat(index, dateStr) {
                 date: dateStr,
                 shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl, lobby
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podrÃƒÂ­a haber perdido conexiÃƒÂ³n a internet. Intenta de nuevo.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
         ]);
 
         await recalculateUserMonth(cleanName, currentUser.name, dateStr).catch(e => console.error("Error updating monthly stats:", e));
@@ -250,7 +250,7 @@ async function saveRepStat(index, dateStr) {
         btn.disabled = false;
         document.getElementById(`saved-msg-${index}`).style.display = 'inline-block';
     } catch (err) {
-        alert(err.message || "Error al guardar. Revisa tu conexiÃƒÂ³n a internet.");
+        alert(err.message || "Error al guardar. Revisa tu conexión a internet.");
         btn.innerText = 'Guardar';
         btn.disabled = false;
     }
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Restore saved theme
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    document.getElementById('theme-toggle').innerText = savedTheme === 'light' ? 'ðŸŒ™' : 'Ã¢Ëœâ‚¬Ã¯Â¸Â';
+    document.getElementById('theme-toggle').innerText = savedTheme === 'light' ? '🌙' : '☀️';
 
     // Set today for inputs
     const d = new Date();
@@ -461,7 +461,7 @@ function handleAuthState() {
         if (lobbiesBtn) lobbiesBtn.style.display = 'none';
         document.getElementById('btn-download').style.display = 'none';
         document.getElementById('btn-export-excel').style.display = 'none';
-        document.getElementById('rep-welcome-msg').innerText = `Ã‚Â¡Hola ${currentUser.name}!`;
+        document.getElementById('rep-welcome-msg').innerText = `¡Hola ${currentUser.name}!`;
         
         const savedView = localStorage.getItem('view');
         if (savedView === 'dashboard') {
@@ -559,7 +559,7 @@ function toggleTheme() {
     const next = current === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
-    document.getElementById('theme-toggle').innerText = next === 'light' ? 'ðŸŒ™' : 'â˜€ï¸';
+    document.getElementById('theme-toggle').innerText = next === 'light' ? '🌙' : '☀️';
 }
 
 async function downloadSpiffImage(spiffId) {
@@ -619,10 +619,10 @@ window.togglePodium = function() {
     if (!podio) return;
     if (podio.style.display === 'none') {
         podio.style.display = 'grid';
-        btn.innerText = 'ðŸ™ˆ Ocultar Podio';
+        btn.innerText = '🙈 Ocultar Podio';
     } else {
         podio.style.display = 'none';
-        btn.innerText = 'ðŸ† Revelar Podio';
+        btn.innerText = '🏆 Revelar Podio';
     }
 }
 
@@ -693,7 +693,7 @@ async function saveCarreraConfig() {
         loadCarrera();
     } catch(e) {
         console.error("Error saving config", e);
-        alert("Error al guardar configuraciÃƒÂ³n");
+        alert("Error al guardar configuración");
     } finally {
         btn.disabled = false;
         btn.innerText = 'Guardar';
@@ -778,7 +778,7 @@ async function loadTeam() {
                 ${u.active ? 
                     `<button class="btn-danger" onclick="toggleUser('${u.id}', 0)">Desactivar</button>` : 
                     `<button class="btn-success" onclick="toggleUser('${u.id}', 1)">Activar</button>`}
-                <button class="btn-icon" title="Borrar permanentemente" onclick="deleteUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">Ã°Å¸â€”â€˜Ã¯Â¸Â</button>
+                <button class="btn-icon" title="Borrar permanentemente" onclick="deleteUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">🗑️</button>
             </div>
         `;
         if (u.active) {
@@ -824,10 +824,10 @@ async function saveGoals() {
                 ventas: v,
                 cierre: c
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Revisa tu conexiÃƒÂ³n a internet.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. Revisa tu conexión a internet.")), 6000))
         ]);
         globalGoals = { ventas: v, cierre: c };
-        btn.innerText = 'Ã‚Â¡Guardado!';
+        btn.innerText = '¡Guardado!';
         btn.disabled = false;
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-success');
@@ -870,7 +870,7 @@ async function toggleUser(id, status) {
 }
 
 function deleteUser(id, name) {
-    showConfirmModal(`Ã‚Â¿EstÃƒÂ¡s sÃƒÂºper seguro de borrar PERMANENTEMENTE a "${name}"?\n\nÃ‚Â¡Esto eliminarÃƒÂ¡ todo su historial de la base de datos de inmediato!`, async () => {
+    showConfirmModal(`¿Estás súper seguro de borrar PERMANENTEMENTE a "${name}"?\n\n¡Esto eliminará todo su historial de la base de datos de inmediato!`, async () => {
         await firestore.collection('users').doc(id).delete();
         
         // Delete daily stats
@@ -911,7 +911,7 @@ async function loadDailyEntries() {
         } else {
             const parts = dateStr.split('-');
             const d = new Date(parts[0], parts[1] - 1, parts[2]);
-            const dias = ['Domingo', 'Lunes', 'Martes', 'MiÃƒÂ©rcoles', 'Jueves', 'Viernes', 'SÃƒÂ¡bado'];
+            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
             dayLabel.innerText = dias[d.getDay()];
         }
     }
@@ -951,10 +951,10 @@ async function loadDailyEntries() {
         const disabledAttr = isLocked ? 'disabled' : '';
         const btnHtml = isLocked 
             ? `<button id="btn-save-admin-${cleanName}" class="btn-success" style="padding: 0.3rem 0.6rem; display: none;" onclick="saveDaily('${cleanName}', '${u.name.replace(/'/g, "\\'")}')">Guardar</button>
-               <span id="saved-msg-admin-${cleanName}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado Ã¢Å“â€Ã¯Â¸Â</span>
+               <span id="saved-msg-admin-${cleanName}" style="color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
                <button id="btn-edit-admin-${cleanName}" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editDaily('${cleanName}')">Editar</button>`
             : `<button id="btn-save-admin-${cleanName}" class="btn-primary" onclick="saveDaily('${cleanName}', '${u.name.replace(/'/g, "\\'")}')" style="padding: 0.3rem 0.6rem;">Guardar</button>
-               <span id="saved-msg-admin-${cleanName}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado Ã¢Å“â€Ã¯Â¸Â</span>
+               <span id="saved-msg-admin-${cleanName}" style="display: none; color: var(--success); font-weight: bold; font-size: 0.85rem;">Guardado ✔️</span>
                <button id="btn-edit-admin-${cleanName}" class="btn-secondary" style="display: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="editDaily('${cleanName}')">Editar</button>`;
         
         const tr = document.createElement('tr');
@@ -1041,7 +1041,7 @@ async function saveDaily(cleanName, realName) {
                 date: dateStr,
                 shots, ventas, singles, dobles, triples, cuadruples, quintuples, arpones, spiffPoints, ads, links, cxl, lobby
             }, { merge: true }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podrÃƒÂ­a haber perdido conexiÃƒÂ³n a internet. Intenta de nuevo.")), 6000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo de espera agotado. El iPad podría haber perdido conexión a internet. Intenta de nuevo.")), 6000))
         ]);
         
         await recalculateUserMonth(cleanName, realName, dateStr).catch(e => console.error("Error updating monthly stats:", e));
@@ -1064,7 +1064,7 @@ async function saveDaily(cleanName, realName) {
         document.getElementById(`saved-msg-admin-${cleanName}`).style.display = 'inline-block';
         document.getElementById(`btn-edit-admin-${cleanName}`).style.display = 'inline-block';
     } catch (err) {
-        alert(err.message || "Error al guardar. Revisa tu conexiÃƒÂ³n a internet.");
+        alert(err.message || "Error al guardar. Revisa tu conexión a internet.");
         btn.innerText = 'Guardar';
         btn.disabled = false;
     }
@@ -1121,8 +1121,8 @@ function setAcademyRange(type) {
     const labelMap = {
         week: 'Esta Semana', lastWeek: 'Semana Pasada',
         month: 'Este Mes', lastMonth: 'Mes Pasado',
-        last2Months: 'ÃƒÅ¡ltimos 2 Meses', last4Months: 'ÃƒÅ¡ltimos 4 Meses',
-        last6Months: 'ÃƒÅ¡ltimos 6 Meses', year: 'Este AÃƒÂ±o'
+        last2Months: 'Últimos 2 Meses', last4Months: 'Últimos 4 Meses',
+        last6Months: 'Últimos 6 Meses', year: 'Este Año'
     };
     const labelEl = document.getElementById('academy-period-label');
     if (labelEl && type) labelEl.textContent = labelMap[type] || '';
@@ -1589,10 +1589,10 @@ function renderDashTable() {
     
     let headHTML = '<tr>';
     headHTML += `<th rowspan="2" style="vertical-align: middle; width: 30px; text-align: center; color: var(--text-muted); border-right: 1px solid var(--border);">#</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('name')" style="vertical-align: middle;">Vendedor Ã¢â€ â€¢</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('name')" style="vertical-align: middle;">Vendedor ↕</th>`;
     
     if (isMatrixMode) {
-        const dayNames = ['Dom', 'Lun', 'Mar', 'MiÃƒÂ©', 'Jue', 'Vie', 'SÃƒÂ¡b'];
+        const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         matrixDates.forEach(date => {
             const dateObj = new Date(date + 'T12:00:00');
             const dayName = dayNames[dateObj.getDay()];
@@ -1601,11 +1601,11 @@ function renderDashTable() {
     }
     
     headHTML += `<th colspan="2" style="text-align: center; border-left: 2px solid var(--primary); padding-bottom: 0;">TOTALES</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('cierre')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">% Cierre Ã¢â€ â€¢</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('ads')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Ads Ã¢â€ â€¢</th>`;
-    headHTML += `<th rowspan="2" onclick="sortTable('links')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Links Ã¢â€ â€¢</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('cierre')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">% Cierre ↕</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('ads')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Ads ↕</th>`;
+    headHTML += `<th rowspan="2" onclick="sortTable('links')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">Links ↕</th>`;
     if (currentUser && currentUser.role === 'admin') {
-        headHTML += `<th rowspan="2" onclick="sortTable('cxl')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">CXL Ã¢â€ â€¢</th>`;
+        headHTML += `<th rowspan="2" onclick="sortTable('cxl')" style="vertical-align: middle; text-align: center; border-left: 1px solid var(--border);">CXL ↕</th>`;
     }
     headHTML += '</tr><tr>';
     
@@ -1615,8 +1615,8 @@ function renderDashTable() {
         });
     }
     
-    headHTML += `<th onclick="sortTable('shots')" style="text-align: center; border-left: 2px solid var(--primary);">Shots Ã¢â€ â€¢</th>`;
-    headHTML += `<th onclick="sortTable('ventas')" style="text-align: center; border-left: 1px solid var(--border); color: var(--primary);">Ventas Ã¢â€ â€¢</th>`;
+    headHTML += `<th onclick="sortTable('shots')" style="text-align: center; border-left: 2px solid var(--primary);">Shots ↕</th>`;
+    headHTML += `<th onclick="sortTable('ventas')" style="text-align: center; border-left: 1px solid var(--border); color: var(--primary);">Ventas ↕</th>`;
     headHTML += '</tr>';
     
     thead.innerHTML = headHTML;
@@ -1708,14 +1708,14 @@ function renderDashTable() {
 
         let streakBadge = '';
         if (!isSpecial && globalStreaks && globalStreaks[d.name] >= 2) {
-            streakBadge = `<span style="display: inline-block; background: rgba(255, 100, 0, 0.15); color: #ff8c00; border: 1px solid rgba(255, 100, 0, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(255, 100, 0, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">Ã°Å¸â€Â¥ x${globalStreaks[d.name]}</span>`;
+            streakBadge = `<span style="display: inline-block; background: rgba(255, 100, 0, 0.15); color: #ff8c00; border: 1px solid rgba(255, 100, 0, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(255, 100, 0, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">🔥 x${globalStreaks[d.name]}</span>`;
         } else if (!isSpecial && globalIceStreaks && globalIceStreaks[d.name] >= 2) {
-            streakBadge = `<span style="display: inline-block; background: rgba(0, 200, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 200, 255, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(0, 200, 255, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">Ã°Å¸Â§Å  x${globalIceStreaks[d.name]}</span>`;
+            streakBadge = `<span style="display: inline-block; background: rgba(0, 200, 255, 0.15); color: #00bfff; border: 1px solid rgba(0, 200, 255, 0.3); padding: 0px 5px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-left: 6px; box-shadow: 0 0 8px rgba(0, 200, 255, 0.1); vertical-align: middle;" data-html2canvas-ignore="true">🧊 x${globalIceStreaks[d.name]}</span>`;
         }
         
         let mvpBadge = '';
             if (!isSpecial && globalLastWeekMvp === d.name) {
-            mvpBadge = `<span style="margin-left: 6px; font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); vertical-align: middle;" title="MVP Semana Pasada" data-html2canvas-ignore="true">Ã°Å¸â€˜â€˜</span>`;
+            mvpBadge = `<span style="margin-left: 6px; font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); vertical-align: middle;" title="MVP Semana Pasada" data-html2canvas-ignore="true">👑</span>`;
         }
 
         let rowHTML = `<td style="text-align: center; color: var(--text-muted); font-size: 0.85rem; border-right: 1px solid var(--border);">${idx}</td>`;
@@ -1893,7 +1893,7 @@ function renderTop3() {
     if (top3[0]) places.push({ 
         ...top3[0], 
         rank: 1, 
-        icon: 'Ã°Å¸â€˜â€˜', 
+        icon: '👑', 
         finalHeight: 180, 
         gradient: 'linear-gradient(180deg, #00d2ff 0%, #3a7bd5 100%)',
         glow: 'rgba(0, 210, 255, 0.5)',
@@ -2084,7 +2084,7 @@ function downloadTop3() {
     
     // Watermark
     const water = document.createElement('div');
-    water.innerHTML = 'Ã°Å¸â€Â¥ POWERED BY <strong>MVG STATS</strong>';
+    water.innerHTML = '🔥 POWERED BY <strong>MVG STATS</strong>';
     water.style.position = 'absolute';
     water.style.bottom = '2rem';
     water.style.color = 'rgba(255,255,255,0.2)';
@@ -2508,7 +2508,7 @@ async function loadAcademy() {
                 <span style="font-weight: bold; font-size: 0.9rem; color: var(--text-main);">${rep.name}</span>
                 <div style="text-align: right; display: flex; align-items: center; gap: 8px;">
                     <div style="font-size: 0.8rem; color: var(--text-muted);">${rep.shots} sh <span style="margin: 0 4px; opacity: 0.3;">|</span> <span style="color: var(--text-main); font-weight: bold;">${rep.pct.toFixed(1)}%</span></div>
-                    <span style="font-size: 0.7rem; color: #00d2ff; opacity: 0.6;">Ã°Å¸â€œË†</span>
+                    <span style="font-size: 0.7rem; color: #00d2ff; opacity: 0.6;">📈</span>
                 </div>
             </li>`;
         });
@@ -2538,7 +2538,7 @@ async function renderDashChart(startStr, endStr, rangeType) {
     const buckets = {};
 
     if (byMonth) {
-        // Use stats_monthly collection Ã¢â‚¬â€ fast rollup data, grouped by month
+        // Use stats_monthly collection — fast rollup data, grouped by month
         const todayMonth = new Date().toISOString().substring(0, 7);
         const startMonth = startStr.substring(0, 7);
         const endMonth   = endStr.substring(0, 7);
@@ -2708,7 +2708,7 @@ async function openAcademyModal(repName, repShots, repVentas, repPct) {
     const modal = document.getElementById('academy-modal');
     document.getElementById('academy-modal-name').textContent = repName;
     document.getElementById('academy-modal-stats').textContent =
-        `${repShots} shots Ã‚Â· ${repVentas} ventas Ã‚Â· ${repPct.toFixed(1)}% cierre`;
+        `${repShots} shots · ${repVentas} ventas · ${repPct.toFixed(1)}% cierre`;
     modal.style.display = 'flex';
 
     // Fetch last 6 months of data for this rep from stats_monthly
@@ -2886,7 +2886,7 @@ async function loadCarrera() {
         }
         
         const badge = document.getElementById('carrera-min-pts-badge');
-        if (badge) badge.innerText = `MÃƒÂ­nimo ${carreraConfig.min} Ventas`;
+        if (badge) badge.innerText = `Mínimo ${carreraConfig.min} Ventas`;
 
         const snap = await firestore.collection('stats')
             .where('date', 'in', weekDates)
@@ -2993,9 +2993,9 @@ async function loadCarrera() {
             if (item.points === 0) return;
             const opacity = '1'; // Removed fading for readability
             let posStr = `${index + 1}`;
-            if (index === 0) posStr = 'Ã°Å¸Â¥â€¡ 1';
-            if (index === 1) posStr = 'Ã°Å¸Â¥Ë† 2';
-            if (index === 2) posStr = 'Ã°Å¸Â¥â€° 3';
+            if (index === 0) posStr = '🥇 1';
+            if (index === 1) posStr = '🥈 2';
+            if (index === 2) posStr = '🥉 3';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -3057,10 +3057,10 @@ async function loadSpiffs() {
             }
 
             if (s.status === 'active') {
-                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">Ã°Å¸â€Â¥ ${s.title} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:10px;">(${dateStr})</span></h3>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Ã°Å¸â€¢â€™ ${s.time || 'DÃƒÂ­a completo'} | Ã°Å¸â€”â€œÃ¯Â¸Â ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸Å½Â¯ MÃƒÂ©trica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Ã°Å¸â€œË† Min % Cierre: ${s.cierre}</p>` : `<div style="margin-bottom:1rem;"></div>`}
+                card.innerHTML = `<h3 style="margin-top:0; color:#fff;">🔥 ${s.title} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:10px;">(${dateStr})</span></h3>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">🕒 ${s.time || 'Día completo'} | 🗓️ ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Métrica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">📈 Min % Cierre: ${s.cierre}</p>` : `<div style="margin-bottom:1rem;"></div>`}
                     <div style="background:rgba(16,185,129,0.1); color:#10b981; padding:0.5rem 1rem; border-radius:8px; display:inline-block; font-weight:bold; margin-bottom:1rem;">
                         Premio: ${s.prize}
                     </div>`;
@@ -3072,7 +3072,7 @@ async function loadSpiffs() {
                     adminControls.style.paddingTop = '1rem';
                     let selectHtml = `<select id="winner-${s.id}" style="width:100%; margin-bottom:10px; padding:0.5rem; border-radius:6px; background:var(--bg-color); color:var(--text); border:1px solid var(--border);">
                         <option value="">Seleccionar Ganador...</option>
-                        <option value="SIN GANADOR">Ã¢ÂÅ’ Nadie (Sin ganador)</option>`;
+                        <option value="SIN GANADOR">❌ Nadie (Sin ganador)</option>`;
                     
                     if (globalActiveUsers) {
                         globalActiveUsers.forEach(u => {
@@ -3080,23 +3080,23 @@ async function loadSpiffs() {
                         });
                     }
                     
-                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem; margin-bottom: 0.5rem;">Declarar Ganador Ã°Å¸Ââ€ </button>
+                    selectHtml += `</select><button onclick="declareSpiffWinner('${s.id}')" class="btn-primary" style="width:100%; padding:0.5rem; margin-bottom: 0.5rem;">Declarar Ganador 🏆</button>
                     <div style="display:flex; gap:0.5rem;">
-                        <button onclick="editSpiff('${s.id}', '${s.title.replace(/'/g, "\\'")}', '${(s.time||'').replace(/'/g, "\\'")}', '${s.period}', '${(s.prize||'').replace(/'/g, "\\'")}', '${(s.metric||'').replace(/'/g, "\\'")}', '${(s.cierre||'').replace(/'/g, "\\'")}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">Editar Ã¢Å“ÂÃ¯Â¸Â</button>
-                        <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar Ã°Å¸â€”â€˜Ã¯Â¸Â</button>
+                        <button onclick="editSpiff('${s.id}', '${s.title.replace(/'/g, "\\'")}', '${(s.time||'').replace(/'/g, "\\'")}', '${s.period}', '${(s.prize||'').replace(/'/g, "\\'")}', '${(s.metric||'').replace(/'/g, "\\'")}', '${(s.cierre||'').replace(/'/g, "\\'")}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">Editar ✏️</button>
+                        <button onclick="deleteSpiff('${s.id}')" class="btn-secondary" style="flex:1; padding:0.5rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Eliminar 🗑️</button>
                     </div>`;
                     adminControls.innerHTML = selectHtml;
                     card.appendChild(adminControls);
                 }
                 activeContainer.appendChild(card);
             } else if (s.status === 'completed') {
-                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">Ã¢Å“â€Ã¯Â¸Â ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã¢ÂÂ±Ã¯Â¸Â ${s.time || 'DÃƒÂ­a completo'} | Ã°Å¸â€œâ€¦ ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸â€œÅ  MÃƒÂ©trica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸Å½Â¯ Min % Cierre: ${s.cierre}</p>` : ''}
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">✔️ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">⏱️ ${s.time || 'Día completo'} | 📅 ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">📊 Métrica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Min % Cierre: ${s.cierre}</p>` : ''}
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(79,172,254,0.1); color:#4facfe; padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
-                        ${s.winner === 'SIN GANADOR' ? 'Ã¢ÂÅ’ SIN GANADOR' : `Ã°Å¸â€˜â€˜ Ganador: ${s.winner}`}
+                        ${s.winner === 'SIN GANADOR' ? '❌ SIN GANADOR' : `👑 Ganador: ${s.winner}`}
                     </div>`;
                 
                 if (currentUser && currentUser.role === 'admin') {
@@ -3109,19 +3109,19 @@ async function loadSpiffs() {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'btn-secondary';
                     editBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);';
-                    editBtn.innerText = 'Editar Ã¢Å“ÂÃ¯Â¸Â';
+                    editBtn.innerText = 'Editar ✏️';
                     editBtn.onclick = () => editSpiff(s.id, s.title, s.time, s.period, s.prize, s.metric, s.cierre);
                     
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-secondary';
                     deleteBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
-                    deleteBtn.innerText = 'Eliminar Ã°Å¸â€”â€˜Ã¯Â¸Â';
+                    deleteBtn.innerText = 'Eliminar 🗑️';
                     deleteBtn.onclick = () => deleteSpiff(s.id);
                     
                     const archiveBtn = document.createElement('button');
                     archiveBtn.className = 'btn-secondary';
                     archiveBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #f59e0b; border-color: rgba(245, 158, 11, 0.3);';
-                    archiveBtn.innerText = 'Archivar Ã°Å¸â€œÂ¦';
+                    archiveBtn.innerText = 'Archivar 📦';
                     archiveBtn.onclick = () => archiveSpiff(s.id);
                     
                     controls.appendChild(editBtn);
@@ -3134,20 +3134,20 @@ async function loadSpiffs() {
                 dlBtn.setAttribute('data-html2canvas-ignore', 'true');
                 dlBtn.className = 'btn-secondary';
                 dlBtn.style.cssText = 'width: 100%; padding: 0.5rem; margin-top: 10px; font-size: 0.85rem; border-color: rgba(255, 255, 255, 0.2);';
-                dlBtn.innerHTML = 'Descargar Foto Ã°Å¸â€œÂ¸';
+                dlBtn.innerHTML = 'Descargar Foto 📸';
                 dlBtn.onclick = () => downloadSpiffImage(s.id);
                 card.appendChild(dlBtn);
                 
 
                 completedContainer.appendChild(card);
             } else if (s.status === 'archived') {
-                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">Ã°Å¸â€œÂ¦ ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã¢ÂÂ±Ã¯Â¸Â ${s.time || 'DÃƒÂ­a completo'} | Ã°Å¸â€œâ€¦ ${s.period.toUpperCase()}</p>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸â€œÅ  MÃƒÂ©trica: ${s.metric}</p>
-                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">Ã°Å¸Å½Â¯ Min % Cierre: ${s.cierre}</p>` : ''}
+                card.innerHTML = `<h4 style="margin-top:0; color:var(--text-muted);">📦 ${s.title} <span style="font-size:0.75rem; font-weight:normal; margin-left:5px;">(${dateStr})</span></h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">⏱️ ${s.time || 'Día completo'} | 📅 ${s.period.toUpperCase()}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">📊 Métrica: ${s.metric}</p>
+                    ${s.cierre ? `<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.25rem;">🎯 Min % Cierre: ${s.cierre}</p>` : ''}
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Premio: ${s.prize}</p>
                     <div style="background:rgba(255,255,255,0.05); color:var(--text-muted); padding:0.5rem; border-radius:8px; text-align:center; font-weight:bold;">
-                        ${s.winner === 'SIN GANADOR' ? 'Ã¢ÂÅ’ SIN GANADOR' : `Ã°Å¸â€˜â€˜ Ganador: ${s.winner}`}
+                        ${s.winner === 'SIN GANADOR' ? '❌ SIN GANADOR' : `👑 Ganador: ${s.winner}`}
                     </div>`;
                 
                 if (currentUser && currentUser.role === 'admin') {
@@ -3160,13 +3160,13 @@ async function loadSpiffs() {
                     const unarchiveBtn = document.createElement('button');
                     unarchiveBtn.className = 'btn-secondary';
                     unarchiveBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #10b981; border-color: rgba(16, 185, 129, 0.3);';
-                    unarchiveBtn.innerText = 'Desarchivar Ã¢â„¢Â»Ã¯Â¸Â';
+                    unarchiveBtn.innerText = 'Desarchivar ♻️';
                     unarchiveBtn.onclick = () => unarchiveSpiff(s.id);
                     
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-secondary';
                     deleteBtn.style.cssText = 'flex: 1; padding: 0.4rem; font-size: 0.8rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);';
-                    deleteBtn.innerText = 'Eliminar Ã°Å¸â€”â€˜Ã¯Â¸Â';
+                    deleteBtn.innerText = 'Eliminar 🗑️';
                     deleteBtn.onclick = () => deleteSpiff(s.id);
                     
                     controls.appendChild(unarchiveBtn);
@@ -3197,13 +3197,13 @@ async function createSpiff() {
     let cierre = document.getElementById('spiff-cierre').value.trim();
     
     if (/^\d+$/.test(metric)) {
-        metric = `MÃƒÂ­nimo ${metric} ventas`;
+        metric = `Mínimo ${metric} ventas`;
     }
     if (/^\d+$/.test(cierre)) {
         cierre = `${cierre}%`;
     }
     
-    if (!title || !prize || !metric) return alert('Por favor llena el tÃƒÂ­tulo, premio y mÃƒÂ©trica.');
+    if (!title || !prize || !metric) return alert('Por favor llena el título, premio y métrica.');
     
     try {
         if (editingSpiffId) {
@@ -3211,7 +3211,7 @@ async function createSpiff() {
                 title, time, period, prize, metric, cierre, status: 'active', winner: null // Reactivates if completed
             });
             editingSpiffId = null;
-            document.getElementById('spiff-submit-btn').innerText = 'Lanzar Spiff Ã°Å¸â€Â¥';
+            document.getElementById('spiff-submit-btn').innerText = 'Lanzar Spiff 🔥';
         } else {
             await firestore.collection('spiffs').add({
                 title, time, period, prize, metric, cierre, status: 'active', winner: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3238,7 +3238,7 @@ async function declareSpiffWinner(id) {
 }
 
 function archiveSpiff(id) {
-    showConfirmModal('Ã‚Â¿EstÃƒÂ¡s seguro de que deseas archivar este Spiff? DesaparecerÃƒÂ¡ del historial.', async () => {
+    showConfirmModal('¿Estás seguro de que deseas archivar este Spiff? Desaparecerá del historial.', async () => {
         try {
             await firestore.collection('spiffs').doc(id).update({
                 status: 'archived', archivedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3249,7 +3249,7 @@ function archiveSpiff(id) {
 }
 
 function deleteSpiff(id) {
-    showConfirmModal('Ã‚Â¿EstÃƒÂ¡s seguro de que deseas eliminar este Spiff? Esta acciÃƒÂ³n no se puede deshacer.', async () => {
+    showConfirmModal('¿Estás seguro de que deseas eliminar este Spiff? Esta acción no se puede deshacer.', async () => {
         try {
             await firestore.collection('spiffs').doc(id).delete();
             loadSpiffs();
@@ -3272,10 +3272,10 @@ function toggleArchivedSpiffs() {
     if (!container || !btn) return;
     if (container.style.display === 'none') {
         container.style.display = 'grid';
-        btn.innerText = 'Ocultar Archivados Ã°Å¸â€œÂ¦';
+        btn.innerText = 'Ocultar Archivados 📦';
     } else {
         container.style.display = 'none';
-        btn.innerText = 'Ver Archivados Ã°Å¸â€œÂ¦';
+        btn.innerText = 'Ver Archivados 📦';
     }
 }
 
@@ -3288,7 +3288,7 @@ function editSpiff(id, title, time, period, prize, metric, cierre) {
     document.getElementById('spiff-metric').value = metric || '';
     document.getElementById('spiff-cierre').value = cierre || '';
     
-    document.getElementById('spiff-submit-btn').innerText = 'Guardar Cambios Ã°Å¸â€™Â¾';
+    document.getElementById('spiff-submit-btn').innerText = 'Guardar Cambios 💾';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -3528,21 +3528,18 @@ async function loadLobbiesDashboard() {
         console.error("Error loading lobbies", e);
     }
 }
-
-
-
 const lobbyPatchData = {
-    '2026-07-01': ['MICHELLE', 'SERGIO', 'SEBAS', 'JOSEFINA', 'ANDRES A', 'NANCY', 'ANA', 'CHRIS', 'TONY', 'JJ'],
+    '2026-07-01': ['ERICK', 'PAOLO', 'TONY', 'JP', 'NANCY', 'ANA', 'JOSEFINA', 'NONO', 'MONTSE', 'JAS'],
     '2026-07-02': ['ANA', 'RICARDO', 'NONO', 'RINA', 'ALEX', 'ADRIAN', 'GALAOR', 'ANDRES A', 'BRUNO'],
     '2026-07-03': ['MIKE', 'PATTY', 'RICKY M', 'ANDRES G', 'JOSEFINA', 'TONY', 'CHRIS', 'JOS'],
     '2026-07-04': ['GINA', 'JP', 'TOÑO', 'GALGO R', 'MONTSE', 'TONY', 'GONZALO', 'BONJO', 'ISA', 'JOS', 'JOSEFINA'],
-    '2026-07-05': ['BONJO', 'TOÑO', 'JOSEFINA', 'RICKY M', 'BRUNO', 'MONTSE', 'MICHELLE', 'ALEX', 'CHRIS', 'JJ', 'ERICK', 'PANCHO', 'SEBAS'],
-    '2026-07-06': ['MIKE', 'JP', 'NANCY', 'ISA', 'SERGIO', 'CHRIS', 'MICHELLE', 'NONO', 'ADRIAN', 'TONY', 'PANCHO'],
-    '2026-07-07': ['ADRIAN', 'MIKE', 'JP', 'ALEX', 'TONY', 'TOÑO', 'ANA', 'JOSEFINA', 'ERICK', 'SERGIO', 'CHRIS', 'MICHELLE'],
+    '2026-07-05': ['BRUNO', 'GALGO R', 'TOÑO', 'SERGIO', 'ERICK', 'JOSEFINA', 'PATTY', 'ANA', 'ANDRES A', 'JOS'],
+    '2026-07-06': ['ADRIAN', 'ANDERSON', 'TONY', 'MIKE', 'JP', 'GONZALO', 'GALAOR', 'PAOLO'],
+    '2026-07-07': ['RICKY M', 'SERGIO', 'ANDRES A', 'MIKE', 'TOÑO', 'JJ', 'SEBAS', 'CHRIS', 'PAOLO', 'TONY'],
     '2026-07-08': ['GALAOR', 'ALEX', 'ERICK', 'MONTSE', 'NONO', 'PAOLO', 'JOSEFINA', 'ANDRES A', 'ANDERSON'],
     '2026-07-09': ['PAOLO', 'TONY', 'BRUNO', 'JJ', 'ANDERSON', 'BONJO', 'ISA', 'RICARDO', 'JOSEFINA', 'ERICK', 'SERGIO', 'LEO', 'SEBAS'],
     '2026-07-10': ['SERGIO', 'RICARDO', 'MONTSE', 'BRUNO', 'BONJO', 'ERICK', 'ANA', 'GALAOR', 'NONO', 'TONY', 'MIKE', 'PAOLO'],
-    '2026-07-11': ['BRUNO', 'ANDRES A', 'ADRIAN', 'JP', 'CHRIS', 'BONJO', 'ISA', 'JOSEFINA', 'MONTSE', 'MICHELLE', 'ANDERSON', 'LEO'],
+    '2026-07-11': ['JP', 'CHRIS', 'MICHELLE', 'NANCY', 'TOÑO', 'JOSEFINA', 'ISA', 'ANDERSON', 'RICKY M', 'ADRIAN', 'PAOLO', 'BRUNO'],
     '2026-07-12': ['NANCY', 'NONO', 'ANA', 'GALAOR', 'MONTSE', 'ALEX', 'BONJO', 'MICHELLE', 'GONZALO', 'ADRIAN', 'MIKE', 'PAOLO', 'ISA'],
     '2026-07-13': ['ADRIAN', 'ALEX', 'RICKY M', 'ANDERSON', 'NONO', 'MIKE', 'JP', 'PAOLO', 'JJ', 'ISA'],
     '2026-07-14': ['BRUNO', 'MONTSE', 'MIKE', 'ALEX', 'GONZALO', 'SERGIO', 'TONY', 'ANDRES A', 'PAOLO'],
@@ -3556,18 +3553,31 @@ const lobbyPatchData = {
 
 window.runLobbyPatch = async function() {
     if (!confirm('¿Estás seguro de asignar estos nombres al lobby Sunrise para el mes de Julio? Esto actualizará la base de datos.')) return;
+    
     const btn = document.getElementById('btn-sync-lobbies');
     btn.innerText = 'Sincronizando... (por favor espera)';
     btn.disabled = true;
+
     try {
+        const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+        const activeUsers = [];
+        usersSnap.forEach(doc => {
+            activeUsers.push(doc.data().name);
+        });
+
         const batchPromises = [];
+
         for (const [date, names] of Object.entries(lobbyPatchData)) {
+            // Find stats docs for this date
             const statsSnap = await firestore.collection('stats').where('date', '==', date).get();
+            
             statsSnap.forEach(doc => {
                 const data = doc.data();
                 if (data.name) {
+                    // Try to match the name loosely
                     const statName = data.name.toUpperCase();
                     let matched = false;
+                    
                     for (const n of names) {
                         const targetName = n.toUpperCase();
                         if (statName.includes(targetName) || targetName.includes(statName) || statName === targetName) {
@@ -3575,16 +3585,20 @@ window.runLobbyPatch = async function() {
                             break;
                         }
                     }
+
                     if (matched) {
+                        // Update to Sunrise
                         batchPromises.push(firestore.collection('stats').doc(doc.id).update({ lobby: 'Sunrise' }));
                     }
                 }
             });
         }
+
         await Promise.all(batchPromises);
         alert(`¡Sincronización completa! Se actualizaron ${batchPromises.length} registros exitosamente.`);
-        btn.style.display = 'none';
-        lastLobbiesRange = null; lastDashStart = null; loadLobbiesDashboard();
+        btn.style.display = 'none'; // Hide button after success
+        lastLobbiesRange = null; lastDashStart = null; loadLobbiesDashboard(); // Refresh
+        
     } catch (e) {
         console.error("Error patching lobbies", e);
         alert("Ocurrió un error: " + e.message);
@@ -3617,18 +3631,31 @@ const grandPatchData = {
 
 window.runGrandPatch = async function() {
     if (!confirm('¿Estás seguro de asignar estos nombres al lobby The Grand para el mes de Julio? Esto actualizará la base de datos.')) return;
+    
     const btn = document.getElementById('btn-sync-lobbies-grand');
     btn.innerText = 'Sincronizando... (por favor espera)';
     btn.disabled = true;
+
     try {
+        const usersSnap = await firestore.collection('users').where('active', '==', 1).get();
+        const activeUsers = [];
+        usersSnap.forEach(doc => {
+            activeUsers.push(doc.data().name);
+        });
+
         const batchPromises = [];
+
         for (const [date, names] of Object.entries(grandPatchData)) {
+            // Find stats docs for this date
             const statsSnap = await firestore.collection('stats').where('date', '==', date).get();
+            
             statsSnap.forEach(doc => {
                 const data = doc.data();
                 if (data.name) {
+                    // Try to match the name loosely
                     const statName = data.name.toUpperCase();
                     let matched = false;
+                    
                     for (const n of names) {
                         const targetName = n.toUpperCase();
                         if (statName.includes(targetName) || targetName.includes(statName) || statName === targetName) {
@@ -3636,16 +3663,20 @@ window.runGrandPatch = async function() {
                             break;
                         }
                     }
+
                     if (matched) {
+                        // Update to The Grand
                         batchPromises.push(firestore.collection('stats').doc(doc.id).update({ lobby: 'The Grand' }));
                     }
                 }
             });
         }
+
         await Promise.all(batchPromises);
         alert(`¡Sincronización completa! Se actualizaron ${batchPromises.length} registros exitosamente a The Grand.`);
-        btn.style.display = 'none';
-        lastLobbiesRange = null; lastDashStart = null; loadLobbiesDashboard();
+        btn.style.display = 'none'; // Hide button after success
+        lastLobbiesRange = null; lastDashStart = null; loadLobbiesDashboard(); // Refresh
+        
     } catch (e) {
         console.error("Error patching lobbies", e);
         alert("Ocurrió un error: " + e.message);
@@ -3653,3 +3684,4 @@ window.runGrandPatch = async function() {
         btn.disabled = false;
     }
 };
+
