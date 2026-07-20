@@ -2793,13 +2793,10 @@ async function loadCarrera() {
                       ((data.quintuples || 0) * carreraConfig.p5) + 
                       ((data.arpones || 0) * carreraConfig.pa);
             } else {
-                // Legacy data: 'ventas' represents total sales for the day, evaluated as a single block
+                // Legacy data: 'ventas' represents total individual sales for the day. 
+                // Massive closes should be manually edited by admin to use detailed fields.
                 const v = data.ventas || 0;
-                if (v >= 5) pts = carreraConfig.p5;
-                else if (v === 4) pts = carreraConfig.p4;
-                else if (v === 3) pts = carreraConfig.p3;
-                else if (v === 2) pts = carreraConfig.p2;
-                else if (v === 1) pts = carreraConfig.p1;
+                pts = v * carreraConfig.p1;
             }
             
             userPoints[data.name] += pts;
