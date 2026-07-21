@@ -180,6 +180,8 @@ function handleAuthState() {
         document.getElementById('btn-download-top3').style.display = 'inline-block';
         const lobbiesBtn = document.getElementById('btn-lobbies');
         if (lobbiesBtn) lobbiesBtn.style.display = 'block';
+        const cxlsBtn = document.getElementById('btn-cancellations');
+        if (cxlsBtn) cxlsBtn.style.display = 'block';
         const cfgBtn = document.getElementById('btn-config-carrera');
         if (cfgBtn) cfgBtn.style.display = 'inline-block';
         const podioBtn = document.getElementById('btn-toggle-podium');
