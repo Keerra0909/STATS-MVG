@@ -38,7 +38,8 @@
             <button onclick="navigate('lobbies')" class="nav-btn" id="btn-lobbies" style="display: none;">Lobbies 🏨</button>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <button id="btn-logout" class="btn-secondary" style="display: none; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="logout()">Cerrar Sesión</button>
+            <button id="btn-logout" class="btn-secondary" style="display: none; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="logout()">
+        <button onclick="window.runCXLPatch()" style="background: red; color: white; padding: 0.4rem 1rem; border-radius: 8px; font-weight: bold; cursor: pointer;">PATCH CXL</button>Cerrar Sesión</button>
             <button id="theme-toggle" onclick="toggleTheme()">🌙</button>
         </div>
     </nav>
