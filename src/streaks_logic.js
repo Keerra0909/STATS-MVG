@@ -272,6 +272,7 @@ async function loadDashboard() {
     const totShots  = dashData.reduce((sum, u) => sum + u.totals.shots, 0);
     const totAds    = dashData.reduce((sum, u) => sum + u.totals.ads, 0);
     const totLinks  = dashData.reduce((sum, u) => sum + u.totals.links, 0);
+const totCxl    = dashData.reduce((sum, u) => sum + u.totals.cxl, 0);
     const totCierre = totShots > 0 ? (totVentas / totShots) : 0;
 
     // --- Render Trend Chart (async, runs in background) ---
@@ -330,12 +331,14 @@ async function loadDashboard() {
     const oldShots = getOldVal('stat-shots', false);
     const oldAds = getOldVal('stat-ads', false);
     const oldLinks = getOldVal('stat-links', false);
+const oldCxl = getOldVal('stat-cxl', false);
     const oldCierre = getOldVal('stat-cierre', true);
 
     animateValue('stat-ventas', oldVentas, totVentas, 700, false);
     animateValue('stat-shots', oldShots, totShots, 700, false);
     animateValue('stat-ads', oldAds, totAds, 700, false);
     animateValue('stat-links', oldLinks, totLinks, 700, false);
+animateValue('stat-cxl', oldCxl, totCxl, 700, false);
     animateValue('stat-cierre', oldCierre, totCierre * 100, 700, true);
 
     renderTop3();
