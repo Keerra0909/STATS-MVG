@@ -25,6 +25,7 @@ function navigate(viewId) {
         if (viewId === 'team') loadTeam();
     if (viewId === 'daily') loadDailyEntries();
     if (viewId === 'dashboard') loadDashboard();
+    if (viewId === 'cancellations' && window.initCancellations) window.initCancellations();
     if (viewId === 'rep-weekly') loadRepWeekly();
     if (viewId === 'academy') loadAcademy();
     if (viewId === 'spiffs') loadSpiffs();
